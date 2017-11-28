@@ -6,13 +6,16 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : token.py
 # @Software: PyCharm
+import logging
 import requests
+from toolkit.retry import retry
 from config import current_config
 from .exceptions import DingTalkExceptions
 
 __author__ = 'blackmatrix'
 
 
+@retry(max_retries=5, step=5, callback=logging.error)
 def get_access_token(corp_id, corp_secret):
     """
     获取Access Token
@@ -30,6 +33,7 @@ def get_access_token(corp_id, corp_secret):
         raise DingTalkExceptions.get_access_token_err
 
 
+@retry(max_retries=5, step=5, callback=logging.error)
 def get_jsapi_ticket(accsess_token):
     payload = {'access_token': accsess_token}
     resp = requests.get(current_config.DING_GET_JSAPI_TICKET, params=payload)
