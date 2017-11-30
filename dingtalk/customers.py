@@ -13,6 +13,23 @@ from .exceptions import DingTalkExceptions
 __author__ = 'blackmatrix'
 
 
+def get_label_groups(access_token, size=20, offset=0):
+    """
+    获取标签列表
+    :param access_token:
+    :param size:
+    :param offset:
+    :return:
+    """
+    url = get_request_url('dingtalk.corp.ext.listlabelgroups', access_token)
+    payload = {'size': size, 'offset': offset}
+    resp = requests.get(url, params=payload)
+    if resp.status_code == 200:
+        return resp.json()
+    else:
+        raise DingTalkExceptions.get_ext_list_err
+
+
 def get_corp_ext_list(access_token):
     """
     获取外部联系人
@@ -26,12 +43,17 @@ def get_corp_ext_list(access_token):
         raise DingTalkExceptions.get_ext_list_err
 
 
-def add_corp_ext():
+def add_corp_ext(access_token, contact: dict):
     """
     新增外部联系人
     :return:
     """
-    pass
+    url = get_request_url('dingtalk.corp.ext.add', access_token)
+    resp = requests.post(url, data=contact)
+    if resp.status_code == 200:
+        return resp.json()
+    else:
+        raise DingTalkExceptions.get_ext_list_err
 
 
 if __name__ == '__main__':

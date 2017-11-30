@@ -9,8 +9,8 @@
 import json
 from extensions import cache
 from .foundation import get_timestamp
-from .customers import get_corp_ext_list
 from .authentication import get_access_token, get_jsapi_ticket, sign
+from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 
 __author__ = 'blackmatrix'
 
@@ -90,6 +90,24 @@ class DingTalkApp:
             url = '{0}&partner_id={1}'.format(url, partner_id)
         return url
 
+    @dingtalk('dingtalk.corp.ext.listlabelgroups')
+    def get_label_groups(self, size=20, offset=0):
+        """
+        获取系统标签
+        :param size:
+        :param offset:
+        :return:
+        """
+        key_name = '{}_label_groups'.format(self.name)
+        label_groups_cache = cache.get(key_name)
+        if label_groups_cache:
+            return label_groups_cache
+        else:
+            data = get_label_groups(access_token=self.access_token, size=size, offset=offset)
+            data = json.loads(data['dingtalk_corp_ext_listlabelgroups_response']['result'])
+            cache.set(key_name, data, 3600)
+            return data
+
     @dingtalk('dingtalk.corp.ext.list')
     def get_ext_list(self):
         """
@@ -99,6 +117,16 @@ class DingTalkApp:
         resp = get_corp_ext_list(self.access_token)
         result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
         return result
+
+    @dingtalk('dingtalk.corp.ext.add')
+    def add_corp_ext(self, contact):
+        """
+        获取外部联系人
+        :return:
+        """
+        payload = {'contact': contact}
+        resp = add_corp_ext(self.access_token, payload)
+        return resp
 
 
 if __name__ == '__main__':

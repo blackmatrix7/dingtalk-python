@@ -14,8 +14,8 @@ __author__ = 'blackmatrix'
 class DevConfig(CommonConfig):
 
     # Cache
-    CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
-    CACHE_KEY_PREFIX = 'dev'
+    CACHE_MEMCACHED_SERVERS = ['121.40.35.131:11211']
+    CACHE_KEY_PREFIX = 'default'
 
     # DingTalk
     DING_CORP_ID = 'ding19cd2de441ef83f635c2f4657eb6378f'
@@ -24,6 +24,5 @@ class DevConfig(CommonConfig):
 
 devcfg = DevConfig()
 
-configs = {
-    'devcfg': devcfg
-}
+configs = {'default': devcfg,
+           'devcfg': devcfg}

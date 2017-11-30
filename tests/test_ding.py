@@ -31,11 +31,33 @@ class DingTalkTestCase(unittest.TestCase):
         jsapi_ticket = self.app.get_jsapi_ticket()
         assert jsapi_ticket is not None
 
-    # 获取 jsapi ticket
-    def test_get_ext_list(self):
-        jsapi_ticket = self.app.get_ext_list()
-        assert jsapi_ticket is not None
+    # 获取系统标签
+    def test_get_label_groups(self):
+        label_groups = self.app.get_label_groups()
+        return label_groups
 
+    # 获取外部联系人
+    def test_get_ext_list(self):
+        ext_list = self.app.get_ext_list()
+        assert ext_list is not None
+
+    # 新增外部联系人
+    def test_add_contact(self):
+        # 获取标签
+        label_groups = self.app.get_label_groups()
+        contact = {'title': '开发工程师',
+                   'share_deptids': [],
+                   'label_ids': [],
+                   'remark': '备注内容',
+                   'address': '地址内容',
+                   'name': '张三',
+                   'follower_userid': '023420013645',
+                   'state_code': '86',
+                   'company_name': '企业名',
+                   'share_userids': ['023420013644'],
+                   'mobile': '1308888888'}
+        ext_list = self.app.add_corp_ext(contact)
+        assert ext_list is not None
 
 
 if __name__ == '__main__':

@@ -1,5 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -9,10 +7,13 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+.vs/
+.idea/
 .Python
 env/
 build/
 develop-eggs/
+dist/
 downloads/
 eggs/
 .eggs/
@@ -55,6 +56,7 @@ coverage.xml
 local_settings.py
 
 # Flask stuff:
+logs/
 instance/
 .webassets-cache
 
@@ -89,7 +91,5 @@ ENV/
 # Rope project settings
 .ropeproject
 
-.idea/
-logs/
-
-uploadfiles/
+# local config
+localconfig.py
