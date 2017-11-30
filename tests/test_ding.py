@@ -36,6 +36,11 @@ class DingTalkTestCase(unittest.TestCase):
         label_groups = self.app.get_label_groups()
         return label_groups
 
+    # 获取部门
+    def test_get_dempartment_list(self):
+        depart_list = self.app.get_dempartment_list()
+        return depart_list
+
     # 获取外部联系人
     def test_get_ext_list(self):
         ext_list = self.app.get_ext_list()
@@ -45,9 +50,10 @@ class DingTalkTestCase(unittest.TestCase):
     def test_add_contact(self):
         # 获取标签
         label_groups = self.app.get_label_groups()
+        label_ids = [v for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
         contact = {'title': '开发工程师',
                    'share_deptids': [],
-                   'label_ids': [],
+                   'label_ids': label_ids[0:3],
                    'remark': '备注内容',
                    'address': '地址内容',
                    'name': '张三',

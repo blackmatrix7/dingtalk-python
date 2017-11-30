@@ -9,6 +9,7 @@
 import json
 from extensions import cache
 from .foundation import get_timestamp
+from .department import get_dempartment_list
 from .authentication import get_access_token, get_jsapi_ticket, sign
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 
@@ -89,6 +90,11 @@ class DingTalkApp:
         if partner_id:
             url = '{0}&partner_id={1}'.format(url, partner_id)
         return url
+
+    def get_dempartment_list(self, id_=None):
+        data = get_dempartment_list(self.access_token, id_)
+        depart_list = data['department']
+        return depart_list
 
     @dingtalk('dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):

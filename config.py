@@ -25,6 +25,7 @@ class CommonConfig(BaseConfig):
     DING_GET_ACCESS_TOKEN = 'https://oapi.dingtalk.com/gettoken'
     DING_GET_JSAPI_TICKET = 'https://oapi.dingtalk.com/get_jsapi_ticket'
     DING_GET_USER_INFO = 'https://oapi.dingtalk.com/user/getuserinfo'
+    DING_GET_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list'
     DING_METHODS_URL = 'https://eco.taobao.com/router/rest'
     DING_CORP_ID = None
     DING_CORP_SECRET = None

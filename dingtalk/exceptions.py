@@ -22,6 +22,8 @@ class DingTalkExceptions:
     get_ext_list_err = SysException(err_code=3003, err_msg='获取外部联系人错误')
     # 获取标签错误
     get_labels_err = SysException(err_code=3004, err_msg='获取标签错误')
+    # 获取部门错误
+    get_departs_err = SysException(err_code=3005, err_msg='获取部门错误')
 
 if __name__ == '__main__':
     pass
