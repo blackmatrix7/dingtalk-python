@@ -65,13 +65,13 @@ class DingTalkTestCase(unittest.TestCase):
         user_list = self.app.get_user_list(dept_ids[0])
         user_ids = [user['userid'] for user in user_list]
         contact = {'title': '开发工程师',
-                   'share_deptids': dept_ids[1:2],
+                   'share_deptids': dept_ids[1:3],
                    'label_ids': label_ids[0:3],
                    'remark': '备注内容',
                    'address': '地址内容',
                    'name': '张三',
-                   'follower_userid': '023420013645',
-                   'state_code': 86,
+                   'follower_userid': user_ids[0],
+                   'state_code': '86',
                    'company_name': '企业名',
                    'share_userids': user_ids[0:2],
                    'mobile': '13058888888'}
