@@ -36,10 +36,17 @@ class DingTalkTestCase(unittest.TestCase):
         label_groups = self.app.get_label_groups()
         return label_groups
 
+    # 获取用户
+    def test_get_user_list(self):
+        dept_list = self.app.get_dempartment_list()
+        dept_id = dept_list[0]['id']
+        user_list = self.app.get_user_list(dept_id)
+        return user_list
+
     # 获取部门
     def test_get_dempartment_list(self):
-        depart_list = self.app.get_dempartment_list()
-        return depart_list
+        dept_list = self.app.get_dempartment_list()
+        return dept_list
 
     # 获取外部联系人
     def test_get_ext_list(self):
@@ -51,8 +58,14 @@ class DingTalkTestCase(unittest.TestCase):
         # 获取标签
         label_groups = self.app.get_label_groups()
         label_ids = [v for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
+        # 获取部门
+        dept_list = self.app.get_dempartment_list()
+        dept_ids = [dept['id'] for dept in dept_list]
+        # 获取用户
+        user_list = self.app.get_user_list(dept_ids[0])
+        user_ids = [user['userid'] for user in user_list]
         contact = {'title': '开发工程师',
-                   'share_deptids': [],
+                   'share_deptids': dept_ids[0:1],
                    'label_ids': label_ids[0:3],
                    'remark': '备注内容',
                    'address': '地址内容',
@@ -60,10 +73,10 @@ class DingTalkTestCase(unittest.TestCase):
                    'follower_userid': '023420013645',
                    'state_code': '86',
                    'company_name': '企业名',
-                   'share_userids': ['023420013644'],
-                   'mobile': '1308888888'}
-        ext_list = self.app.add_corp_ext(contact)
-        assert ext_list is not None
+                   'share_userids': user_ids[0:2],
+                   'mobile': '13058888888'}
+        result = self.app.add_corp_ext(contact)
+        assert result is not None
 
 
 if __name__ == '__main__':

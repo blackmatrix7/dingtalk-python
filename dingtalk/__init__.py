@@ -9,7 +9,7 @@
 import json
 from extensions import cache
 from .foundation import get_timestamp
-from .department import get_dempartment_list
+from .contacts import get_dempartment_list, get_user_list
 from .authentication import get_access_token, get_jsapi_ticket, sign
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 
@@ -91,6 +91,11 @@ class DingTalkApp:
             url = '{0}&partner_id={1}'.format(url, partner_id)
         return url
 
+    def get_user_list(self, department_id=None):
+        data = get_user_list(self.access_token, department_id)
+        user_list = data['userlist']
+        return user_list
+
     def get_dempartment_list(self, id_=None):
         data = get_dempartment_list(self.access_token, id_)
         depart_list = data['department']
@@ -130,8 +135,7 @@ class DingTalkApp:
         获取外部联系人
         :return:
         """
-        payload = {'contact': contact}
-        resp = add_corp_ext(self.access_token, payload)
+        resp = add_corp_ext(self.access_token, contact)
         return resp
 
 

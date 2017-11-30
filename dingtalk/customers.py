@@ -6,6 +6,7 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : customers.py
 # @Software: PyCharm
+import json
 import requests
 from .foundation import *
 from .exceptions import DingTalkExceptions
@@ -49,7 +50,8 @@ def add_corp_ext(access_token, contact: dict):
     :return:
     """
     url = get_request_url('dingtalk.corp.ext.add', access_token)
-    resp = requests.post(url, data=contact)
+    contact = json.dumps(contact)
+    resp = requests.post(url, data={'contact': contact})
     if resp.status_code == 200:
         return resp.json()
     else:

@@ -7,11 +7,21 @@
 # @File : department.py
 # @Software: PyCharm
 import requests
-from .foundation import *
 from config import current_config
 from .exceptions import DingTalkExceptions
 
 __author__ = 'blackmatrix'
+
+
+def get_user_list(access_token, department_id, lang='zh_CN', offset=0, size=20, order='entry_asc'):
+    params = {'access_token': access_token, 'department_id': department_id, 'lang': lang, 'offset': offset,
+              'size': size, 'order': order}
+    resp = requests.get(current_config.DING_GET_USER_LIST, params=params)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.get_users_err
 
 
 def get_dempartment_list(access_token, id_=None, lang='zh_CN'):
