@@ -38,14 +38,14 @@ class DingTalkApp:
         :return:
         """
         key_name = '{}_access_token'.format(self.name)
-        access_token_cache = cache.get(key_name)
-        if access_token_cache:
-            return access_token_cache
-        else:
+
+        @cache.cached(key_name, 7000)
+        def _get_access_token():
             resp = get_access_token(self.corp_id, self.corp_secret)
             access_token = resp['access_token']
-            cache.set(key_name, access_token, 7000)
             return access_token
+
+        return _get_access_token()
 
     @property
     def access_token(self):
@@ -53,14 +53,14 @@ class DingTalkApp:
 
     def get_jsapi_ticket(self):
         key_name = '{}_jsapi_ticket'.format(self.name)
-        jsapi_ticket_cache = cache.get(key_name)
-        if jsapi_ticket_cache:
-            return jsapi_ticket_cache
-        else:
+
+        @cache.cached(key_name, 7000)
+        def _get_jsapi_ticket():
             resp = get_jsapi_ticket(self.access_token)
             ticket = resp['ticket']
-            cache.set(key_name, ticket, 7000)
             return ticket
+
+        return _get_jsapi_ticket()
 
     @property
     def jsapi_ticket(self):
@@ -97,9 +97,15 @@ class DingTalkApp:
         return user_list
 
     def get_dempartment_list(self, id_=None):
-        data = get_dempartment_list(self.access_token, id_)
-        depart_list = data['department']
-        return depart_list
+        key_name = '{}_dept_list'.format(self.name)
+
+        @cache.cached(key_name, 3600)
+        def _get_dempartment_list(_id):
+            data = get_dempartment_list(self.access_token, _id)
+            depart_list = data['department']
+            return depart_list
+
+        return _get_dempartment_list(_id=id_)
 
     @dingtalk('dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):
@@ -110,14 +116,14 @@ class DingTalkApp:
         :return:
         """
         key_name = '{}_label_groups'.format(self.name)
-        label_groups_cache = cache.get(key_name)
-        if label_groups_cache:
-            return label_groups_cache
-        else:
-            data = get_label_groups(access_token=self.access_token, size=size, offset=offset)
+
+        @cache.cached(key_name, 3600)
+        def _get_label_groups(_size, _offset):
+            data = get_label_groups(access_token=self.access_token, size=_size, offset=_offset)
             data = json.loads(data['dingtalk_corp_ext_listlabelgroups_response']['result'])
-            cache.set(key_name, data, 3600)
             return data
+
+        return _get_label_groups(size, offset)
 
     @dingtalk('dingtalk.corp.ext.list')
     def get_ext_list(self):
