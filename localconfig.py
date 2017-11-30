@@ -6,8 +6,24 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : localconfig.py
 # @Software: PyCharm
+from config import CommonConfig
 
 __author__ = 'blackmatrix'
 
-if __name__ == '__main__':
-    pass
+
+class DevConfig(CommonConfig):
+
+    # Cache
+    CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
+    CACHE_KEY_PREFIX = 'dev'
+
+    # DingTalk
+    DING_CORP_ID = 'ding19cd2de441ef83f635c2f4657eb6378f'
+    DING_CORP_SECRET = '3ab8Uk7WWhBMFaB7637YZF2EziCAlx6AunCox5GSJVFvfjtu35EJENSAUgWNEJys'
+
+
+devcfg = DevConfig()
+
+configs = {
+    'devcfg': devcfg
+}

@@ -16,8 +16,10 @@ class DingTalkExceptions:
     access_denied = SysException(err_code=3000, err_msg='访问拒绝')
     # 获取 access token 错误
     get_access_token_err = SysException(err_code=3001, err_msg='获取 access token 错误')
-    # 获取 access token 错误
+    # 获取 jsapi ticket 错误
     get_jsapi_ticket_err = SysException(err_code=3002, err_msg='获取 jsapi ticket 错误')
+    # 获取外部联系人错误
+    get_ext_list_err = SysException(err_code=3003, err_msg='获取外部联系人错误')
 
 if __name__ == '__main__':
     pass

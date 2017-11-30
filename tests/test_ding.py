@@ -17,7 +17,9 @@ __author__ = 'blackmatrix'
 class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = DingTalkApp(name='test')
+        self.app = DingTalkApp(name='test',
+                               corp_id=current_config.DING_CORP_ID,
+                               corp_secret=current_config.DING_CORP_SECRET)
 
     # 获取 access token
     def test_get_access_token(self):
@@ -27,6 +29,11 @@ class DingTalkTestCase(unittest.TestCase):
     # 获取 jsapi ticket
     def test_get_jsapi_ticket(self):
         jsapi_ticket = self.app.get_jsapi_ticket()
+        assert jsapi_ticket is not None
+
+    # 获取 jsapi ticket
+    def test_get_ext_list(self):
+        jsapi_ticket = self.app.get_ext_list()
         assert jsapi_ticket is not None
 
 

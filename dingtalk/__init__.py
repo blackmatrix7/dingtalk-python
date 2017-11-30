@@ -6,10 +6,21 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : __init__.py.py
 # @Software: PyCharm
+import json
 from extensions import cache
+from .foundation import get_timestamp
+from .customers import get_corp_ext_list
 from .authentication import get_access_token, get_jsapi_ticket, sign
 
 __author__ = 'blackmatrix'
+
+
+def dingtalk(method_name):
+    def wrapper(func):
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
 
 
 class DingTalkApp:
@@ -65,6 +76,30 @@ class DingTalkApp:
         :return:
         """
         return sign(ticket, nonce_str, time_stamp, url)
+
+    @property
+    def timestamp(self):
+        return get_timestamp()
+
+    def get_request_url(self, method, format_='json', v='2.0', simplify='false', partner_id=None):
+        url = 'https://eco.taobao.com/router/rest?method={0}&session={1}&timestamp={2}&format={3}&v={4}'.format(
+            method, self.access_token, self.timestamp, format_, v)
+        if format_ == 'json':
+            url = '{0}&simplify={1}'.format(url, simplify)
+        if partner_id:
+            url = '{0}&partner_id={1}'.format(url, partner_id)
+        return url
+
+    @dingtalk('dingtalk.corp.ext.list')
+    def get_ext_list(self):
+        """
+        获取外部联系人
+        :return:
+        """
+        resp = get_corp_ext_list(self.access_token)
+        result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
+        return result
+
 
 if __name__ == '__main__':
     pass
