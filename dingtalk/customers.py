@@ -51,7 +51,7 @@ def add_corp_ext(access_token, contact: dict):
     """
     url = get_request_url('dingtalk.corp.ext.add', access_token)
     contact = json.dumps(contact)
-    resp = requests.post(url, data={'contact': contact})
+    resp = requests.post(url, data={'contact': contact.encode('utf-8')})
     if resp.status_code == 200:
         return resp.json()
     else:
