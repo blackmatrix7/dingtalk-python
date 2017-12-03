@@ -7,7 +7,6 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
-from extensions import cache
 from .foundation import get_timestamp
 from .contacts import get_dempartment_list, get_user_list
 from .authentication import get_access_token, get_jsapi_ticket, sign
@@ -26,8 +25,9 @@ def dingtalk(method_name):
 
 class DingTalkApp:
 
-    def __init__(self, name, corp_id, corp_secret):
+    def __init__(self, name, cache, corp_id, corp_secret):
         self.name = name
+        self.cache = cache
         self.corp_id = corp_id
         self.corp_secret = corp_secret
 
@@ -39,7 +39,7 @@ class DingTalkApp:
         """
         key_name = '{}_access_token'.format(self.name)
 
-        @cache.cached(key_name, 7000)
+        @self.cache.cached(key_name, 7000)
         def _get_access_token():
             resp = get_access_token(self.corp_id, self.corp_secret)
             access_token = resp['access_token']
@@ -54,7 +54,7 @@ class DingTalkApp:
     def get_jsapi_ticket(self):
         key_name = '{}_jsapi_ticket'.format(self.name)
 
-        @cache.cached(key_name, 7000)
+        @self.cache.cached(key_name, 7000)
         def _get_jsapi_ticket():
             resp = get_jsapi_ticket(self.access_token)
             ticket = resp['ticket']
@@ -99,7 +99,7 @@ class DingTalkApp:
     def get_dempartment_list(self, id_=None):
         key_name = '{}_dept_list'.format(self.name)
 
-        @cache.cached(key_name, 3600)
+        @self.cache.cached(key_name, 3600)
         def _get_dempartment_list(_id):
             data = get_dempartment_list(self.access_token, _id)
             depart_list = data['department']
@@ -117,7 +117,7 @@ class DingTalkApp:
         """
         key_name = '{}_label_groups'.format(self.name)
 
-        @cache.cached(key_name, 3600)
+        @self.cache.cached(key_name, 3600)
         def _get_label_groups(_size, _offset):
             data = get_label_groups(access_token=self.access_token, size=_size, offset=_offset)
             data = json.loads(data['dingtalk_corp_ext_listlabelgroups_response']['result'])
@@ -126,14 +126,31 @@ class DingTalkApp:
         return _get_label_groups(size, offset)
 
     @dingtalk('dingtalk.corp.ext.list')
-    def get_ext_list(self):
+    def get_ext_list(self, size=20, offset=0):
         """
         获取外部联系人
         :return:
         """
-        resp = get_corp_ext_list(self.access_token)
+        resp = get_corp_ext_list(self.access_token, size=size, offset=offset)
         result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
         return result
+
+    def get_all_ext_list(self):
+        """
+        获取全部的外部联系人
+        :return:
+        """
+        size = 100
+        offset = 0
+        dd_customer_list = []
+        while True:
+            dd_customers = self.get_ext_list(size=size, offset=offset)
+            if len(dd_customers) == 0:
+                break
+            else:
+                dd_customer_list.extend(dd_customers)
+                offset += 1
+        return dd_customer_list
 
     @dingtalk('dingtalk.corp.ext.add')
     def add_corp_ext(self, contact):

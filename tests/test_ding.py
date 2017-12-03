@@ -7,9 +7,9 @@
 # @File : test_ding.py
 # @Software: PyCharm
 import unittest
+from extensions import cache
 from dingtalk import DingTalkApp
 from config import current_config
-from dingtalk.authentication import get_access_token
 
 __author__ = 'blackmatrix'
 
@@ -17,7 +17,7 @@ __author__ = 'blackmatrix'
 class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = DingTalkApp(name='test',
+        self.app = DingTalkApp(name='test', cache=cache,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET)
 

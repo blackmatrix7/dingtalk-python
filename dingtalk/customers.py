@@ -31,13 +31,14 @@ def get_label_groups(access_token, size=20, offset=0):
         raise DingTalkExceptions.get_ext_list_err
 
 
-def get_corp_ext_list(access_token):
+def get_corp_ext_list(access_token, size=20, offset=0):
     """
     获取外部联系人
     :return:
     """
     url = get_request_url('dingtalk.corp.ext.list', access_token)
-    resp = requests.get(url)
+    payload = {'size': size, 'offset': offset}
+    resp = requests.get(url, params=payload)
     if resp.status_code == 200:
         return resp.json()
     else:
