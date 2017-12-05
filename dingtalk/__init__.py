@@ -7,16 +7,24 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
+from operator import methodcaller
 from .foundation import get_timestamp
 from .contacts import get_dempartment_list, get_user_list
+from .workflow import create_bpms_instance, get_bpms_instance_list
 from .authentication import get_access_token, get_jsapi_ticket, sign
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 
 __author__ = 'blackmatrix'
 
+no_value = object()
+
+methods = {}
+
 
 def dingtalk(method_name):
     def wrapper(func):
+        methods.update({method_name: func.__name__})
+
         def _wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         return _wrapper
@@ -25,11 +33,16 @@ def dingtalk(method_name):
 
 class DingTalkApp:
 
-    def __init__(self, name, cache, corp_id, corp_secret):
+    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None):
         self.name = name
         self.cache = cache
         self.corp_id = corp_id
         self.corp_secret = corp_secret
+        self.agent_id = agent_id
+
+    @property
+    def methods(self):
+        return methods
 
     def get_access_token(self):
         """
@@ -81,6 +94,24 @@ class DingTalkApp:
     @property
     def timestamp(self):
         return get_timestamp()
+
+    def run(self, method_name, *args, **kwargs):
+        """
+        传入方法名和参数，直接调用指定的钉钉接口，参数只需要传入钉钉的请求参数部分；
+        不需要传入钉钉的公共参数部分，公共参数会自动补完。
+        例如，需要调用"获取外部联系人标签"的接口，伪代码：
+        app = DingTalkApp(.....)
+        app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
+        :param method_name:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        func_name = methods.get(method_name)
+        if func_name is None:
+            raise AttributeError('没有找到对应的方法，可能是方法名有误，或SDK暂未实现此方法。')
+        f = methodcaller(func_name, *args, **kwargs)
+        return f(self)
 
     def get_request_url(self, method, format_='json', v='2.0', simplify='false', partner_id=None):
         url = 'https://eco.taobao.com/router/rest?method={0}&session={1}&timestamp={2}&format={3}&v={4}'.format(
@@ -186,6 +217,27 @@ class DingTalkApp:
         resp = add_corp_ext(self.access_token, contact)
         return resp
 
+    @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
+    def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers, form_component_value, agent_id=None):
+        """
+        发起审批实例
+        :param process_code:
+        :param originator_user_id:
+        :param dept_id:
+        :param approvers:
+        :param form_component_value:
+        :param agent_id:
+        :return:
+        """
+        agent_id = agent_id or self.agent_id
+        resp = create_bpms_instance(self.access_token, agent_id, process_code, originator_user_id,
+                                    dept_id, approvers, form_component_value)
+        return resp
+
+    @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
+    def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
+        resp = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
+        return resp
 
 if __name__ == '__main__':
     pass

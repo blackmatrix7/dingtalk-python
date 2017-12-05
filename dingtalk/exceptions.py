@@ -26,6 +26,8 @@ class DingTalkExceptions:
     get_departs_err = SysException(err_code=3005, err_msg='获取部门错误')
     # 获取用户错误
     get_users_err = SysException(err_code=3006, err_msg='获取用户错误')
+    # 创建流程错误
+    create_bmps_err = SysException(err_code=3006, err_msg='获取用户错误')
 
 
 if __name__ == '__main__':
