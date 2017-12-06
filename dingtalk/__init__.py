@@ -218,20 +218,20 @@ class DingTalkApp:
         return resp
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
-    def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers, form_component_value, agent_id=None):
+    def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers, form_component_values, agent_id=None):
         """
         发起审批实例
         :param process_code:
         :param originator_user_id:
         :param dept_id:
         :param approvers:
-        :param form_component_value:
+        :param form_component_values:
         :param agent_id:
         :return:
         """
         agent_id = agent_id or self.agent_id
-        resp = create_bpms_instance(self.access_token, agent_id, process_code, originator_user_id,
-                                    dept_id, approvers, form_component_value)
+        resp = create_bpms_instance(self.access_token, process_code, originator_user_id,
+                                    dept_id, approvers, form_component_values, agent_id)
         return resp
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')

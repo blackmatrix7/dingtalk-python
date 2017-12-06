@@ -18,7 +18,7 @@ no_value = object()
 
 
 def create_bpms_instance(access_token, process_code, originator_user_id,
-                         dept_id, approvers, form_component_value, agent_id=None,
+                         dept_id, approvers, form_component_values, agent_id=None,
                          cc_list=None, cc_position='FINISH'):
     """
     发起审批实例
@@ -27,7 +27,7 @@ def create_bpms_instance(access_token, process_code, originator_user_id,
     :param originator_user_id:
     :param dept_id:
     :param approvers:
-    :param form_component_value:
+    :param form_component_values:
     :param agent_id:
     :param cc_list:
     :param cc_position:
@@ -36,7 +36,8 @@ def create_bpms_instance(access_token, process_code, originator_user_id,
     args = locals()
     url = get_request_url('dingtalk.smartwork.bpms.processinstance.create', access_token)
     payload = {}
-    for key in ('process_code', 'originator_user_id', 'dept_id', 'approvers', 'form_component_value',
+    form_component_values = json.dumps(form_component_values)
+    for key in ('process_code', 'originator_user_id', 'dept_id', 'approvers', 'form_component_values',
                 'agent_id', 'cc_list', 'cc_position'):
         if args.get(key, no_value) is not None:
             payload.update({key: args[key]})

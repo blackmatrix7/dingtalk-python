@@ -8,8 +8,10 @@
 # @Software: PyCharm
 import unittest
 from extensions import cache
+from datetime import datetime
 from dingtalk import DingTalkApp
 from config import current_config
+from dateutil.relativedelta import relativedelta
 
 __author__ = 'blackmatrix'
 
@@ -17,7 +19,7 @@ __author__ = 'blackmatrix'
 class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = DingTalkApp(name='test', cache=cache,
+        self.app = DingTalkApp(name='vcan', cache=cache,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET)
 
@@ -34,6 +36,9 @@ class DingTalkTestCase(unittest.TestCase):
     # 获取系统标签
     def test_get_label_groups(self):
         label_groups = self.app.get_label_groups()
+        assert label_groups
+        label_groups = self.app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
+        assert label_groups
         return label_groups
 
     # 获取用户
@@ -77,6 +82,106 @@ class DingTalkTestCase(unittest.TestCase):
                    'mobile': '13058888888'}
         result = self.app.add_corp_ext(contact)
         assert result is not None
+
+    # 测试新增工作流实例
+    def test_bmps_create(self):
+        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                'originator_user_id': '112322273839908294',
+                'dept_id': '49381153',
+                'approvers': ['112322273839908294'],
+                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+                                          {'value': '哈哈哈哈', 'name': '部门'},
+                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
+        resp = self.app.create_bpms_instance(**args)
+        assert resp
+
+    # 测试获取工作流实例列表
+    def test_bpms_list(self):
+        """
+
+        刚刚发起流程时，返回情况
+        **********************
+        [
+            {'title': '阿三的测试流程',
+             'originator_dept_id': '49381153',
+             'approver_userid_list': {'string': ['112322273839908294']},
+             'status': 'RUNNING',
+             'process_instance_id': 'a97b96c4-6e91-40a7-9e74-658224dd5c1a',
+             'originator_userid': '112322273839908294',
+             'create_time': '2017-12-06 10:28:19',
+             'process_instance_result': '',
+             'form_component_values':
+                 {'form_component_value_vo':
+                     [{'value': '哈哈哈哈', 'name': '姓名'},
+                      {'value': '哈哈哈哈', 'name': '部门'},
+                      {'value': '哈哈哈哈', 'name': '加班事由'}]
+                 }
+            }
+        ]
+        第一次审批同意时
+        **********************
+        [
+            {'create_time': '2017-12-06 10:28:19',
+             'originator_dept_id': '49381153',
+             'process_instance_id': 'a97b96c4-6e91-40a7-9e74-658224dd5c1a',
+             'approver_userid_list': {'string': ['112322273839908294']},
+             'title': '阿三的测试流程',
+             'status': 'RUNNING',
+             'process_instance_result': 'agree',
+             'form_component_values':
+                 {'form_component_value_vo':
+                     [{'value': '哈哈哈哈', 'name': '姓名'},
+                      {'value': '哈哈哈哈', 'name': '部门'},
+                      {'value': '哈哈哈哈', 'name': '加班事由'}]
+                 },
+             'originator_userid': '112322273839908294'}
+        ]
+        第二次审批同意时
+        **********************
+        [
+            {'create_time': '2017-12-06 10:28:19',
+             'approver_userid_list': {'string': ['112322273839908294']},
+             'process_instance_result': 'agree',
+             'form_component_values':
+                {'form_component_value_vo':
+                    [{'name': '姓名', 'value': '哈哈哈哈'},
+                     {'name': '部门', 'value': '哈哈哈哈'},
+                     {'name': '加班事由', 'value': '哈哈哈哈'}]},
+             'process_instance_id': 'a97b96c4-6e91-40a7-9e74-658224dd5c1a',
+             'originator_dept_id': '49381153',
+             'title': '阿三的测试流程',
+             'status': 'RUNNING',
+             'originator_userid': '112322273839908294'}]}
+        最后一次审批通过时
+        **********************
+        [
+            {'create_time': '2017-12-06 10:28:19',
+             'process_instance_result': 'agree',
+             'status': 'COMPLETED',
+             'process_instance_id': 'a97b96c4-6e91-40a7-9e74-658224dd5c1a',
+             'title': '阿三的测试流程',
+             'originator_userid': '112322273839908294',
+             'originator_dept_id': '49381153',
+             'approver_userid_list': {'string': ['112322273839908294']},
+             'form_component_values':
+                {'form_component_value_vo':
+                    [{'name': '姓名', 'value': '哈哈哈哈'},
+                     {'name': '部门', 'value': '哈哈哈哈'},
+                     {'name': '加班事由', 'value': '哈哈哈哈'}]},
+             'finish_time': '2017-12-06 10:41:54'
+            }
+        ]
+        :return:
+        """
+        start_date = datetime.now() - relativedelta(month=1)
+        data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                                               start_time=start_date)
+        assert data
+
+    # 测试钉钉实例绑定的方法
+    def test_dingtalk_methods(self):
+        methods = self.app.methods
+        assert methods
 
 
 if __name__ == '__main__':
