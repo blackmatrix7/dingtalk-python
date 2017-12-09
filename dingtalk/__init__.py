@@ -11,8 +11,9 @@ from operator import methodcaller
 from .foundation import get_timestamp
 from .contacts import get_dempartment_list, get_user_list
 from .workflow import create_bpms_instance, get_bpms_instance_list
-from .authentication import get_access_token, get_jsapi_ticket, sign
+from .auth import get_access_token, get_jsapi_ticket, sign
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
+from .messages import async_send_msg, get_msg_send_result
 
 __author__ = 'blackmatrix'
 
@@ -237,6 +238,19 @@ class DingTalkApp:
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
         resp = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
+        return resp
+
+    @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
+    def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
+        resp = async_send_msg(access_token=self.access_token, agent_id=self.agent_id, msgtype=msgtype,
+                              userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
+                              msgcontent=msgcontent)
+        return resp
+
+    @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
+    def get_msg_send_result(self, task_id, agent_id=None):
+        agent_id = agent_id or self.agent_id
+        resp = get_msg_send_result(self.access_token, agent_id, task_id)
         return resp
 
 if __name__ == '__main__':
