@@ -13,7 +13,7 @@ from .contacts import get_dempartment_list, get_user_list
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .auth import get_access_token, get_jsapi_ticket, sign
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
-from .messages import async_send_msg, get_msg_send_result
+from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 
 __author__ = 'blackmatrix'
 
@@ -251,6 +251,12 @@ class DingTalkApp:
     def get_msg_send_result(self, task_id, agent_id=None):
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_result(self.access_token, agent_id, task_id)
+        return resp
+
+    @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
+    def get_msg_send_progress(self, task_id, agent_id=None):
+        agent_id = agent_id or self.agent_id
+        resp = get_msg_send_progress(self.access_token, agent_id, task_id)
         return resp
 
 if __name__ == '__main__':

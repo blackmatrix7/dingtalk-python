@@ -53,5 +53,15 @@ def get_msg_send_result(access_token, agent_id, task_id):
         raise DingTalkExceptions.get_ext_list_err
 
 
+def get_msg_send_progress(access_token, agent_id, task_id):
+    url = get_request_url('dingtalk.corp.message.corpconversation.getsendprogress', access_token)
+    payload = {'task_id': task_id, 'agent_id': agent_id}
+    resp = requests.get(url, params=payload)
+    if resp.status_code == 200:
+        return resp.json()
+    else:
+        raise DingTalkExceptions.get_ext_list_err
+
+
 if __name__ == '__main__':
     pass
