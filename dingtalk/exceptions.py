@@ -27,9 +27,13 @@ class DingTalkExceptions:
     # 获取用户错误
     get_users_err = SysException(err_code=3006, err_msg='获取用户错误')
     # 创建用户错误
-    create_user = SysException(err_code=3007, err_msg='创建用户错误')
+    create_user_err = SysException(err_code=3007, err_msg='创建用户错误')
+    # 更新用户错误
+    update_user_err = SysException(err_code=3008, err_msg='更新用户错误')
+    # 更新用户错误
+    delete_user_err = SysException(err_code=3009, err_msg='删除用户错误')
     # 创建流程错误
-    create_bmps_err = SysException(err_code=3007, err_msg='获取用户错误')
+    create_bmps_err = SysException(err_code=3009, err_msg='获取用户错误')
 
 
 if __name__ == '__main__':

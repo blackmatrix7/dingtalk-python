@@ -59,9 +59,34 @@ def create_user(access_token, **user_info):
     if resp.status_code == 200 and data['errcode'] == 0:
         return data
     else:
-        raise DingTalkExceptions.create_user
+        raise DingTalkExceptions.create_user_err
 
 
+def update_user(access_token, lang='zh_CN', **user_info):
+    """
+    更新用户
+    :param access_token:
+    :param lang:
+    :param user_info:
+    :return:
+    """
+    url = DING_UPDATE_USER.format(access_token=access_token)
+    user_info.update({'lang': lang})
+    resp = requests.post(url, json=user_info)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.update_user_err
 
-if __name__ == '__main__':
-    pass
+
+def delete_user(access_token, userid):
+    url = DING_DELETE_USER.format(access_token=access_token)
+    params = {'userid': userid}
+    resp = requests.get(url, params=params)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.delete_user_err
+
