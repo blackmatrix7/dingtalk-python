@@ -20,6 +20,7 @@ class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = DingTalkApp(name='vcan', cache=cache,
+                               agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET)
 
@@ -182,6 +183,59 @@ class DingTalkTestCase(unittest.TestCase):
     def test_dingtalk_methods(self):
         methods = self.app.methods
         assert methods
+
+    # def test_async_send_msg(self):
+    #     # 获取部门
+    #     dept_list = self.app.get_dempartment_list()
+    #     dept_ids = [dept['id'] for dept in dept_list]
+    #     # 获取用户
+    #     user_list = self.app.get_user_list(dept_ids[1])
+    #     user_ids = [user['userid'] for user in user_list]
+    #     data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
+    #                                    msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+    #     assert data
+    #     for item in data['success_userid_list']:
+    #         task_id = item['task_id']
+    #         assert task_id
+    #         result = self.app.get_msg_send_result(task_id)
+    #         assert result
+
+    # 测试获取用户信息
+    def test_get_user_info(self):
+        # 获取部门
+        dept_list = self.app.get_dempartment_list()
+        dept_ids = [dept['id'] for dept in dept_list]
+        # 获取用户
+        user_list = self.app.get_user_list(dept_ids[1])
+        user_id = [user['userid'] for user in user_list][0]
+        data = self.app.get_user_info(user_id=user_id)
+        assert data
+
+    def test_user_operator(self):
+        dept_list = self.app.get_dempartment_list()
+        dept_id = [dept['id'] for dept in dept_list][1]
+        user_info = {
+            'name': '马小云',
+            'orderInDepts': {dept_id: 8},
+            'department': [dept_id],
+            'position': '马云，你不认识？？！！',
+            'mobile': '13058888882'
+        }
+        result = self.app.create_user(**user_info)
+        assert result
+        user_id = result['userid']
+        new_user_info = {
+            'userid': user_id,
+            'name': '马小云',
+            'orderInDepts': {dept_id: 8},
+            'department': [dept_id],
+            'position': '我就是马小云！！！',
+            'mobile': '13058888882'
+        }
+        result = self.app.update_user(**new_user_info)
+        assert result
+        result = self.app.delete_user(userid=user_id)
+        assert result
 
 
 if __name__ == '__main__':
