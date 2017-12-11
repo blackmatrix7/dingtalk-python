@@ -6,8 +6,8 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : methods.py
 # @Software: PyCharm
+from .configs import *
 from datetime import datetime
-from config import current_config
 
 __author__ = 'blackmatrix'
 
@@ -32,16 +32,9 @@ def get_request_url(method, access_token, format_='json', v='2.0', simplify='fal
     :return:
     """
     timestamp = get_timestamp()
-    url = '{0}?method={1}&session={2}&timestamp={3}&format={4}&v={5}'.format(
-        current_config.DING_METHODS_URL, method, access_token, timestamp, format_, v)
+    url = '{0}?method={1}&session={2}&timestamp={3}&format={4}&v={5}'.format(DING_METHODS_URL, method, access_token, timestamp, format_, v)
     if format_ == 'json':
         url = '{0}&simplify={1}'.format(url, simplify)
     if partner_id:
         url = '{0}&partner_id={1}'.format(url, partner_id)
     return url
-
-
-
-
-if __name__ == '__main__':
-    pass

@@ -8,8 +8,8 @@
 # @Software: PyCharm
 import logging
 import requests
+from .configs import *
 from toolkit.retry import retry
-from config import current_config
 from .exceptions import DingTalkExceptions
 
 __author__ = 'blackmatrix'
@@ -22,7 +22,7 @@ def get_access_token(corp_id, corp_secret):
     :return:
     """
     payload = {'corpid': corp_id, 'corpsecret': corp_secret}
-    resp = requests.get(current_config.DING_GET_ACCESS_TOKEN, params=payload)
+    resp = requests.get(DING_GET_ACCESS_TOKEN, params=payload)
     if resp.status_code == 200:
         data = resp.json()
         if data['errcode'] == 0 and data['errmsg'] == 'ok':
@@ -36,7 +36,7 @@ def get_access_token(corp_id, corp_secret):
 @retry(max_retries=5, step=5, callback=logging.error)
 def get_jsapi_ticket(accsess_token):
     payload = {'access_token': accsess_token}
-    resp = requests.get(current_config.DING_GET_JSAPI_TICKET, params=payload)
+    resp = requests.get(DING_GET_JSAPI_TICKET, params=payload)
     if resp.status_code == 200:
         data = resp.json()
         if data['errcode'] == 0 and data['errmsg'] == 'ok':
