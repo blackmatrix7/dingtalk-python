@@ -22,7 +22,7 @@ def async_send_msg(access_token, msgtype, agent_id, msgcontent, userid_list=None
         pass
     args = locals().copy()
     payload = {}
-    url = get_request_url('dingtalk.corp.message.corpconversation.asyncsend', access_token)
+    url = get_request_url(access_token, 'dingtalk.corp.message.corpconversation.asyncsend')
     # 请求参数整理
     for k, v in args.items():
         if k in ('msgtype', 'agent_id', 'msgcontent', 'userid_list', 'dept_id_list'):
@@ -44,7 +44,7 @@ def async_send_msg(access_token, msgtype, agent_id, msgcontent, userid_list=None
 
 
 def get_msg_send_result(access_token, agent_id, task_id):
-    url = get_request_url('dingtalk.corp.message.corpconversation.getsendresult', access_token)
+    url = get_request_url(access_token, 'dingtalk.corp.message.corpconversation.getsendresult')
     payload = {'task_id': task_id, 'agent_id': agent_id}
     resp = requests.get(url, params=payload)
     if resp.status_code == 200:
@@ -54,7 +54,7 @@ def get_msg_send_result(access_token, agent_id, task_id):
 
 
 def get_msg_send_progress(access_token, agent_id, task_id):
-    url = get_request_url('dingtalk.corp.message.corpconversation.getsendprogress', access_token)
+    url = get_request_url(access_token, 'dingtalk.corp.message.corpconversation.getsendprogress')
     payload = {'task_id': task_id, 'agent_id': agent_id}
     resp = requests.get(url, params=payload)
     if resp.status_code == 200:

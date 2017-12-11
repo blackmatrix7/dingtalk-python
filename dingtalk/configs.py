@@ -15,8 +15,9 @@ DING_GET_JSAPI_TICKET = 'https://oapi.dingtalk.com/get_jsapi_ticket'
 # 根据部门id获取用户列表
 DING_GET_USER_LIST = 'https://oapi.dingtalk.com/user/simplelist'
 # 获取用户
-# https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.QD6kx0&treeId=385&articleId=106816&docType=1#s1
 DING_GET_USER = 'https://oapi.dingtalk.com/user/get'
+# 创建用户
+DING_CREATE_USER = 'https://oapi.dingtalk.com/user/create?access_token={access_token}'
 DING_GET_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list'
 DING_METHODS_URL = 'https://eco.taobao.com/router/rest'
 

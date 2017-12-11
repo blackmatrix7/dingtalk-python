@@ -11,8 +11,8 @@ from operator import methodcaller
 from .foundation import get_timestamp
 from .auth import get_access_token, get_jsapi_ticket, sign
 from .workflow import create_bpms_instance, get_bpms_instance_list
-from .contacts import get_dempartment_list, get_user_list, get_user_info
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
+from .contacts import get_dempartment_list, get_user_list, get_user, create_user
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 
 __author__ = 'blackmatrix'
@@ -129,8 +129,17 @@ class DingTalkApp:
         return user_list
 
     def get_user_info(self, user_id):
-        user_info = get_user_info(self.access_token, user_id)
+        user_info = get_user(self.access_token, user_id)
         return user_info
+
+    def create_user(self, **user_info):
+        """
+        创建用户
+        :param user_info:
+        :return:
+        """
+        result = create_user(self.access_token, **user_info)
+        return result
 
     def get_dempartment_list(self, id_=None):
         key_name = '{}_dept_list'.format(self.name)

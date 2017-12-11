@@ -22,7 +22,7 @@ def get_label_groups(access_token, size=20, offset=0):
     :param offset:
     :return:
     """
-    url = get_request_url('dingtalk.corp.ext.listlabelgroups', access_token)
+    url = get_request_url(access_token, 'dingtalk.corp.ext.listlabelgroups')
     payload = {'size': size, 'offset': offset}
     resp = requests.get(url, params=payload)
     if resp.status_code == 200:
@@ -36,7 +36,7 @@ def get_corp_ext_list(access_token, size=20, offset=0):
     获取外部联系人
     :return:
     """
-    url = get_request_url('dingtalk.corp.ext.list', access_token)
+    url = get_request_url(access_token, 'dingtalk.corp.ext.list')
     payload = {'size': size, 'offset': offset}
     resp = requests.get(url, params=payload)
     if resp.status_code == 200:
@@ -50,7 +50,7 @@ def add_corp_ext(access_token, contact: dict):
     新增外部联系人
     :return:
     """
-    url = get_request_url('dingtalk.corp.ext.add', access_token)
+    url = get_request_url(access_token, 'dingtalk.corp.ext.add')
     contact = json.dumps(contact)
     resp = requests.post(url, data={'contact': contact.encode('utf-8')})
     if resp.status_code == 200:

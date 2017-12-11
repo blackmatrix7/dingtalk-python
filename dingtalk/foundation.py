@@ -20,21 +20,24 @@ def get_timestamp():
     return datetime.now().strftime('yyyy-MM-dd HH:mm:ss')
 
 
-def get_request_url(method, access_token, format_='json', v='2.0', simplify='false', partner_id=None):
+def get_request_url(access_token, method=None, format_='json', v='2.0', simplify='false', partner_id=None, url=None):
     """
     通用的获取请求地址的方法
-    :param method:
     :param access_token:
+    :param method:
     :param format_:
     :param v:
     :param simplify:
     :param partner_id:
+    :param url:
     :return:
     """
     timestamp = get_timestamp()
-    url = '{0}?method={1}&session={2}&timestamp={3}&format={4}&v={5}'.format(DING_METHODS_URL, method, access_token, timestamp, format_, v)
+    base_url = url or DING_METHODS_URL
+    request_url = '{0}?method={1}&session={2}&timestamp={3}&format={4}&v={5}'.format(base_url, method, access_token,
+                                                                                     timestamp, format_, v)
     if format_ == 'json':
-        url = '{0}&simplify={1}'.format(url, simplify)
+        request_url = '{0}&simplify={1}'.format(request_url, simplify)
     if partner_id:
-        url = '{0}&partner_id={1}'.format(url, partner_id)
-    return url
+        request_url = '{0}&partner_id={1}'.format(request_url, partner_id)
+    return request_url

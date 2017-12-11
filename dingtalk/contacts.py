@@ -36,7 +36,7 @@ def get_dempartment_list(access_token, id_=None, lang='zh_CN'):
         raise DingTalkExceptions.get_departs_err
 
 
-def get_user_info(access_token, userid):
+def get_user(access_token, userid):
     params = {'access_token': access_token, 'userid': userid}
     resp = requests.get(DING_GET_USER, params=params)
     data = resp.json()
@@ -44,6 +44,23 @@ def get_user_info(access_token, userid):
         return data
     else:
         raise DingTalkExceptions.get_users_err
+
+
+def create_user(access_token, **user_info):
+    """
+    创建用户
+    :param access_token:
+    :param user_info:
+    :return:
+    """
+    url = DING_CREATE_USER.format(access_token=access_token)
+    resp = requests.post(url, json=user_info)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.create_user
+
 
 
 if __name__ == '__main__':

@@ -34,7 +34,7 @@ def create_bpms_instance(access_token, process_code, originator_user_id,
     :return:
     """
     args = locals()
-    url = get_request_url('dingtalk.smartwork.bpms.processinstance.create', access_token)
+    url = get_request_url(access_token, 'dingtalk.smartwork.bpms.processinstance.create')
     payload = {}
     form_component_values = json.dumps(form_component_values)
     for key in ('process_code', 'originator_user_id', 'dept_id', 'approvers', 'form_component_values',
@@ -65,7 +65,7 @@ def get_bpms_instance_list(access_token, process_code, start_time, end_time=None
         end_time = datetime.timestamp(end_time)
         end_time = int(round(end_time * 1000))
     args = locals()
-    url = get_request_url('dingtalk.smartwork.bpms.processinstance.list', access_token)
+    url = get_request_url(access_token, 'dingtalk.smartwork.bpms.processinstance.list')
     payload = {}
     for key in ('process_code', 'start_time', 'end_time', 'size', 'cursor'):
         if args.get(key, no_value) is not None:
