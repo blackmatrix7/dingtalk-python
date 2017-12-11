@@ -13,7 +13,8 @@ from .auth import get_access_token, get_jsapi_ticket, sign
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
-from .contacts import get_dempartment_list, get_user_list, get_user, create_user, update_user, delete_user
+from .contacts import get_user_list, get_user, create_user, update_user, delete_user, \
+    get_dempartment, get_dempartment_list
 
 __author__ = 'blackmatrix'
 
@@ -169,6 +170,11 @@ class DingTalkApp:
             return depart_list
 
         return _get_dempartment_list(_id=id_)
+
+    def get_dempartment(self, id_):
+        data = get_dempartment(self.access_token, id_)
+        dept_info = data['department']
+        return dept_info
 
     @dingtalk('dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):

@@ -24,18 +24,6 @@ def get_user_list(access_token, department_id, lang='zh_CN', offset=0, size=20, 
         raise DingTalkExceptions.get_users_err
 
 
-def get_dempartment_list(access_token, id_=None, lang='zh_CN'):
-    params = {'access_token': access_token, 'lang': lang}
-    if id_:
-        params.update({'id': id_})
-    resp = requests.get(DING_GET_DEPARTMENTS, params=params)
-    data = resp.json()
-    if resp.status_code == 200 and data['errcode'] == 0:
-        return data
-    else:
-        raise DingTalkExceptions.get_departs_err
-
-
 def get_user(access_token, userid):
     params = {'access_token': access_token, 'userid': userid}
     resp = requests.get(DING_GET_USER, params=params)
@@ -89,4 +77,32 @@ def delete_user(access_token, userid):
         return data
     else:
         raise DingTalkExceptions.delete_user_err
+
+
+def get_dempartment_list(access_token, id_=None, lang='zh_CN'):
+    params = {'access_token': access_token, 'lang': lang}
+    if id_:
+        params.update({'id': id_})
+    resp = requests.get(DING_GET_DEPARTMENTS, params=params)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.get_departs_err
+
+
+def get_dempartment(access_token, id_):
+    """
+    获取部门详情
+    :param access_token:
+    :param id_:
+    :return:
+    """
+    params = {'access_token': access_token, 'id_': id_}
+    resp = requests.get(DING_GET_DEPARTMENT, params=params)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.get_departs_err
 
