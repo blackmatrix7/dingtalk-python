@@ -12,8 +12,11 @@ __author__ = 'blackmatrix'
 
 DING_GET_ACCESS_TOKEN = 'https://oapi.dingtalk.com/gettoken'
 DING_GET_JSAPI_TICKET = 'https://oapi.dingtalk.com/get_jsapi_ticket'
+# 根据部门id获取用户列表
 DING_GET_USER_LIST = 'https://oapi.dingtalk.com/user/simplelist'
-DING_GET_USER_INFO = 'https://oapi.dingtalk.com/user/getuserinfo'
+# 获取用户
+# https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.QD6kx0&treeId=385&articleId=106816&docType=1#s1
+DING_GET_USER = 'https://oapi.dingtalk.com/user/get'
 DING_GET_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list'
 DING_METHODS_URL = 'https://eco.taobao.com/router/rest'
 

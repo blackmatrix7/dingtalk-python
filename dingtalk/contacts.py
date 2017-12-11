@@ -38,7 +38,7 @@ def get_dempartment_list(access_token, id_=None, lang='zh_CN'):
 
 def get_user_info(access_token, userid):
     params = {'access_token': access_token, 'userid': userid}
-    resp = requests.get(DING_GET_USER_LIST, params=params)
+    resp = requests.get(DING_GET_USER, params=params)
     data = resp.json()
     if resp.status_code == 200 and data['errcode'] == 0:
         return data

@@ -9,9 +9,9 @@
 import json
 from operator import methodcaller
 from .foundation import get_timestamp
-from .contacts import get_dempartment_list, get_user_list
-from .workflow import create_bpms_instance, get_bpms_instance_list
 from .auth import get_access_token, get_jsapi_ticket, sign
+from .workflow import create_bpms_instance, get_bpms_instance_list
+from .contacts import get_dempartment_list, get_user_list, get_user_info
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 
@@ -127,6 +127,10 @@ class DingTalkApp:
         data = get_user_list(self.access_token, department_id)
         user_list = data['userlist']
         return user_list
+
+    def get_user_info(self, user_id):
+        user_info = get_user_info(self.access_token, user_id)
+        return user_info
 
     def get_dempartment_list(self, id_=None):
         key_name = '{}_dept_list'.format(self.name)
@@ -258,6 +262,7 @@ class DingTalkApp:
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_progress(self.access_token, agent_id, task_id)
         return resp
+
 
 if __name__ == '__main__':
     pass
