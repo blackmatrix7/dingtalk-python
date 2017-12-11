@@ -237,6 +237,14 @@ class DingTalkTestCase(unittest.TestCase):
         result = self.app.delete_user(userid=user_id)
         assert result
 
+    #
+    def test_get_dept_info(self):
+        # 获取部门详情
+        dept_list = self.app.get_dempartment_list()
+        for dept in dept_list:
+            dept_id = dept['id']
+            resp = self.app.get_dempartment(dept_id)
+            assert resp
 
 if __name__ == '__main__':
     pass
