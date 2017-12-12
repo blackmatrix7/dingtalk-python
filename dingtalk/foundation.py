@@ -8,6 +8,7 @@
 # @Software: PyCharm
 from .configs import *
 from datetime import datetime
+from .exceptions import DingTalkExceptions
 
 __author__ = 'blackmatrix'
 
@@ -41,3 +42,25 @@ def get_request_url(access_token, method=None, format_='json', v='2.0', simplify
     if partner_id:
         request_url = '{0}&partner_id={1}'.format(request_url, partner_id)
     return request_url
+
+
+def dingtalk_resp(func):
+    def wrapper(*args, **kwargs):
+        resp = func(*args, **kwargs)
+        data = resp.json()
+        if resp.status_code == 200:
+            if 'errcode' in data and data['errcode'] != 0:
+                raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
+                                                           err_code=data['errcode'],
+                                                           err_msg=data['errmsg'])
+            elif 'error_response' in data and data['error_response']['code'] != 0:
+                raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
+                                                           err_code=data['error_response']['sub_code'],
+                                                           err_msg=data['error_response']['sub_msg'])
+            else:
+                return data
+        else:
+            raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
+                                                       err_code=data['errcode'],
+                                                       err_msg=data['errmsg'])
+    return wrapper

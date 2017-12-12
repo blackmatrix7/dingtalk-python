@@ -17,6 +17,7 @@ __author__ = 'blackmatrix'
 no_value = object()
 
 
+@dingtalk_resp
 def create_bpms_instance(access_token, process_code, originator_user_id,
                          dept_id, approvers, form_component_values, agent_id=None,
                          cc_list=None, cc_position='FINISH'):
@@ -41,13 +42,10 @@ def create_bpms_instance(access_token, process_code, originator_user_id,
                 'agent_id', 'cc_list', 'cc_position'):
         if args.get(key, no_value) is not None:
             payload.update({key: args[key]})
-    resp = requests.post(url, data=payload)
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        raise DingTalkExceptions.create_bmps_err
+    return requests.post(url, data=payload)
 
 
+@dingtalk_resp
 def get_bpms_instance_list(access_token, process_code, start_time, end_time=None, size=10, cursor=0):
     """
     企业可以根据审批流的唯一标识，分页获取该审批流对应的审批实例。只能取到权限范围内的相关部门的审批实例
@@ -70,11 +68,7 @@ def get_bpms_instance_list(access_token, process_code, start_time, end_time=None
     for key in ('process_code', 'start_time', 'end_time', 'size', 'cursor'):
         if args.get(key, no_value) is not None:
             payload.update({key: args[key]})
-    resp = requests.get(url, params=payload)
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        raise DingTalkExceptions.create_bmps_err
+    return requests.get(url, params=payload)
 
 if __name__ == '__main__':
     pass

@@ -43,24 +43,18 @@ def async_send_msg(access_token, msgtype, agent_id, msgcontent, userid_list=None
     return result
 
 
+@dingtalk_resp
 def get_msg_send_result(access_token, agent_id, task_id):
     url = get_request_url(access_token, 'dingtalk.corp.message.corpconversation.getsendresult')
     payload = {'task_id': task_id, 'agent_id': agent_id}
-    resp = requests.get(url, params=payload)
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        raise DingTalkExceptions.get_ext_list_err
+    return requests.get(url, params=payload)
 
 
+@dingtalk_resp
 def get_msg_send_progress(access_token, agent_id, task_id):
     url = get_request_url(access_token, 'dingtalk.corp.message.corpconversation.getsendprogress')
     payload = {'task_id': task_id, 'agent_id': agent_id}
-    resp = requests.get(url, params=payload)
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        raise DingTalkExceptions.get_ext_list_err
+    return requests.get(url, params=payload)
 
 
 if __name__ == '__main__':

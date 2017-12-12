@@ -10,41 +10,27 @@ import logging
 import requests
 from .configs import *
 from toolkit.retry import retry
-from .exceptions import DingTalkExceptions
+from .foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'
 
 
 @retry(max_retries=5, step=5, callback=logging.error)
+@dingtalk_resp
 def get_access_token(corp_id, corp_secret):
     """
     获取Access Token
     :return:
     """
     payload = {'corpid': corp_id, 'corpsecret': corp_secret}
-    resp = requests.get(DING_GET_ACCESS_TOKEN, params=payload)
-    if resp.status_code == 200:
-        data = resp.json()
-        if data['errcode'] == 0 and data['errmsg'] == 'ok':
-            return data
-        else:
-            raise DingTalkExceptions.get_access_token_err
-    else:
-        raise DingTalkExceptions.get_access_token_err
+    return requests.get(DING_GET_ACCESS_TOKEN, params=payload)
 
 
 @retry(max_retries=5, step=5, callback=logging.error)
+@dingtalk_resp
 def get_jsapi_ticket(accsess_token):
     payload = {'access_token': accsess_token}
-    resp = requests.get(DING_GET_JSAPI_TICKET, params=payload)
-    if resp.status_code == 200:
-        data = resp.json()
-        if data['errcode'] == 0 and data['errmsg'] == 'ok':
-            return data
-        else:
-            raise DingTalkExceptions.get_jsapi_ticket_err
-    else:
-        raise DingTalkExceptions.get_jsapi_ticket_err
+    return requests.get(DING_GET_JSAPI_TICKET, params=payload)
 
 
 def sign(ticket, nonce_str, time_stamp, url):
