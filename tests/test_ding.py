@@ -6,12 +6,14 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : test_ding.py
 # @Software: PyCharm
+import json
 import unittest
 from extensions import cache
 from datetime import datetime
 from dingtalk import DingTalkApp
 from config import current_config
 from dateutil.relativedelta import relativedelta
+from dingtalk.exceptions import SysException
 
 __author__ = 'blackmatrix'
 
@@ -81,8 +83,11 @@ class DingTalkTestCase(unittest.TestCase):
                    'company_name': '企业名',
                    'share_userids': user_ids[0:2],
                    'mobile': '13058888888'}
-        result = self.app.add_corp_ext(contact)
-        assert result is not None
+        try:
+            result = self.app.add_corp_ext(contact)
+            assert result is not None
+        except SysException as ex:
+            assert '外部联系人已存在' in str(ex)
 
     # 测试新增工作流实例
     def test_bmps_create(self):

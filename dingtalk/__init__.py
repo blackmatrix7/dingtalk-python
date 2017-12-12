@@ -7,6 +7,7 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
+from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
 from .auth import get_access_token, get_jsapi_ticket, sign
@@ -272,6 +273,10 @@ class DingTalkApp:
         :return:
         """
         agent_id = agent_id or self.agent_id
+        try:
+            form_component_values = json.dumps(form_component_values)
+        except JSONDecodeError:
+            pass
         resp = create_bpms_instance(self.access_token, process_code, originator_user_id,
                                     dept_id, approvers, form_component_values, agent_id)
         return resp

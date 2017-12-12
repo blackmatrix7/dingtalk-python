@@ -49,14 +49,16 @@ def dingtalk_resp(func):
         resp = func(*args, **kwargs)
         data = resp.json()
         if resp.status_code == 200:
+            # 针对钉钉几种有明确返回错误信息的情况进行处理
             if 'errcode' in data and data['errcode'] != 0:
                 raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
                                                            err_code=data['errcode'],
                                                            err_msg=data['errmsg'])
             elif 'error_response' in data and data['error_response']['code'] != 0:
-                raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
-                                                           err_code=data['error_response']['sub_code'],
-                                                           err_msg=data['error_response']['sub_msg'])
+                err_code = data['error_response'].get('sub_code') or data['error_response']['code']
+                err_msg = data['error_response'].get('sub_msg') or data['error_response']['msg']
+                raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code, err_code=err_code, err_msg=err_msg)
+            # 其他暂时无法明确返回错误的，直接返回接口调用结果
             else:
                 return data
         else:
