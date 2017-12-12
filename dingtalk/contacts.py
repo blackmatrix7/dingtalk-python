@@ -79,7 +79,7 @@ def delete_user(access_token, userid):
         raise DingTalkExceptions.delete_user_err
 
 
-def get_dempartment_list(access_token, id_=None, lang='zh_CN'):
+def get_department_list(access_token, id_=None, lang='zh_CN'):
     params = {'access_token': access_token, 'lang': lang}
     if id_:
         params.update({'id': id_})
@@ -91,7 +91,7 @@ def get_dempartment_list(access_token, id_=None, lang='zh_CN'):
         raise DingTalkExceptions.get_departs_err
 
 
-def get_dempartment(access_token, id_):
+def get_department(access_token, id_):
     """
     获取部门详情
     :param access_token:
@@ -105,4 +105,25 @@ def get_dempartment(access_token, id_):
         return data
     else:
         raise DingTalkExceptions.get_departs_err
+
+
+def create_department(access_token, **dept_info):
+    url = DING_CREATE_DEPARTMENT.format(access_token=access_token)
+    resp = requests.post(url, json=dept_info)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.create_departs_err
+
+
+def update_department(access_token, **dept_info):
+    url = DING_UPDATE_DEPARTMENT.format(access_token=access_token)
+    resp = requests.post(url, json=dept_info)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.create_departs_err
+
 

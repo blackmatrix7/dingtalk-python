@@ -44,14 +44,14 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 获取用户
     def test_get_user_list(self):
-        dept_list = self.app.get_dempartment_list()
+        dept_list = self.app.get_department_list()
         dept_id = dept_list[0]['id']
         user_list = self.app.get_user_list(dept_id)
         return user_list
 
     # 获取部门
     def test_get_dempartment_list(self):
-        dept_list = self.app.get_dempartment_list()
+        dept_list = self.app.get_department_list()
         return dept_list
 
     # 获取外部联系人
@@ -65,7 +65,7 @@ class DingTalkTestCase(unittest.TestCase):
         label_groups = self.app.get_label_groups()
         label_ids = [v for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
         # 获取部门
-        dept_list = self.app.get_dempartment_list()
+        dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
         user_list = self.app.get_user_list(dept_ids[0])
@@ -186,7 +186,7 @@ class DingTalkTestCase(unittest.TestCase):
 
     # def test_async_send_msg(self):
     #     # 获取部门
-    #     dept_list = self.app.get_dempartment_list()
+    #     dept_list = self.app.get_department_list()
     #     dept_ids = [dept['id'] for dept in dept_list]
     #     # 获取用户
     #     user_list = self.app.get_user_list(dept_ids[1])
@@ -203,7 +203,7 @@ class DingTalkTestCase(unittest.TestCase):
     # 测试获取用户信息
     def test_get_user_info(self):
         # 获取部门
-        dept_list = self.app.get_dempartment_list()
+        dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
         user_list = self.app.get_user_list(dept_ids[1])
@@ -212,7 +212,7 @@ class DingTalkTestCase(unittest.TestCase):
         assert data
 
     def test_user_operator(self):
-        dept_list = self.app.get_dempartment_list()
+        dept_list = self.app.get_department_list()
         dept_id = [dept['id'] for dept in dept_list][1]
         user_info = {
             'name': '马小云',
@@ -240,11 +240,26 @@ class DingTalkTestCase(unittest.TestCase):
     #
     def test_get_dept_info(self):
         # 获取部门详情
-        dept_list = self.app.get_dempartment_list()
+        dept_list = self.app.get_department_list()
         for dept in dept_list:
             dept_id = dept['id']
-            resp = self.app.get_dempartment(dept_id)
+            resp = self.app.get_department(dept_id)
             assert resp
+
+    def test_dept_operator(self):
+        dept_info = {
+            'name': '霍格沃茨魔法学校',
+            'parentid': 1
+        }
+        dept = self.app.create_department(**dept_info)
+        dept_id = dept['id']
+
+        new_dept_info = {
+            'name': '霍格沃茨魔法学校：格兰芬多',
+            'parentid': 1
+        }
+        dept = self.app.create_department(**dept_info)
+        dept_id = dept['id']
 
 if __name__ == '__main__':
     pass
