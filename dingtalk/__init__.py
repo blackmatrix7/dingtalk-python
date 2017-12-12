@@ -14,7 +14,7 @@ from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 from .contacts import get_user_list, get_user, create_user, update_user, delete_user, \
-    get_department, get_department_list, create_department
+    get_department, get_department_list, create_department, delete_department, update_department
 
 __author__ = 'blackmatrix'
 
@@ -164,20 +164,27 @@ class DingTalkApp:
         key_name = '{}_dept_list'.format(self.name)
 
         @self.cache.cached(key_name, 3600)
-        def _get_dempartment_list(_id):
-            data = get_department_list(self.access_token, _id)
+        def _get_dempartment_list(access_token, _id):
+            data = get_department_list(access_token, _id)
             depart_list = data['department']
             return depart_list
 
-        return _get_dempartment_list(_id=id_)
+        return _get_dempartment_list(self.access_token, _id=id_)
 
     def get_department(self, id_):
         data = get_department(self.access_token, id_)
-        dept_info = data['department']
-        return dept_info
+        return data
 
     def create_department(self, **dept_info):
         data = create_department(self.access_token, **dept_info)
+        return data['id']
+
+    def update_department(self, **dept_info):
+        data = update_department(self.access_token, **dept_info)
+        return data['id']
+
+    def delete_department(self, id_):
+        data = delete_department(self.access_token, id_)
         return data
 
     @dingtalk('dingtalk.corp.ext.listlabelgroups')

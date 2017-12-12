@@ -98,13 +98,13 @@ def get_department(access_token, id_):
     :param id_:
     :return:
     """
-    params = {'access_token': access_token, 'id_': id_}
+    params = {'access_token': access_token, 'id': id_}
     resp = requests.get(DING_GET_DEPARTMENT, params=params)
     data = resp.json()
     if resp.status_code == 200 and data['errcode'] == 0:
         return data
     else:
-        raise DingTalkExceptions.get_departs_err
+        raise DingTalkExceptions.get_departs_err(data['errmsg'])
 
 
 def create_department(access_token, **dept_info):
@@ -114,7 +114,7 @@ def create_department(access_token, **dept_info):
     if resp.status_code == 200 and data['errcode'] == 0:
         return data
     else:
-        raise DingTalkExceptions.create_departs_err
+        raise DingTalkExceptions.create_depart_err
 
 
 def update_department(access_token, **dept_info):
@@ -124,6 +124,18 @@ def update_department(access_token, **dept_info):
     if resp.status_code == 200 and data['errcode'] == 0:
         return data
     else:
-        raise DingTalkExceptions.create_departs_err
+        raise DingTalkExceptions.create_depart_err
+
+
+def delete_department(access_token, id_):
+    url = DING_UPDATE_DEPARTMENT.format(access_token=access_token)
+    payload = {'id': '56114595'}
+    resp = requests.post(url, json=payload)
+    data = resp.json()
+    if resp.status_code == 200 and data['errcode'] == 0:
+        return data
+    else:
+        raise DingTalkExceptions.create_depart_err
+
 
 

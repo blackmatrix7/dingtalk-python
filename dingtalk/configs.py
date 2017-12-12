@@ -27,11 +27,13 @@ DING_DELETE_USER = 'https://oapi.dingtalk.com/user/delete?access_token={access_t
 # 获取部门列表
 DING_GET_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list'
 # 获取部门详情
-DING_GET_DEPARTMENT = 'https://oapi.dingtalk.com/department/get?access_token={access_token}'
+DING_GET_DEPARTMENT = 'https://oapi.dingtalk.com/department/get'
 # 创建部门
 DING_CREATE_DEPARTMENT = 'https://oapi.dingtalk.com/department/create?access_token={access_token}'
 # 更新部门
 DING_UPDATE_DEPARTMENT = 'https://oapi.dingtalk.com/department/update?access_token={access_token}'
+# 删除部门
+DING_DELETE_DEPARTMENT = 'https://oapi.dingtalk.com/department/delete?access_token={access_token}'
 
 
 if __name__ == '__main__':

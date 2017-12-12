@@ -25,9 +25,11 @@ class DingTalkExceptions:
     # 获取部门错误
     get_departs_err = SysException(err_code=3005, err_msg='获取部门错误')
     # 创建部门错误
-    create_departs_err = SysException(err_code=3005, err_msg='创建部门错误')
+    create_depart_err = SysException(err_code=3005, err_msg='创建部门错误')
     # 更新部门错误
-    update_departs_err = SysException(err_code=3005, err_msg='更新部门错误')
+    update_depart_err = SysException(err_code=3005, err_msg='更新部门错误')
+    # 删除部门错误
+    delete_depart_err = SysException(err_code=3005, err_msg='删除部门错误')
     # 获取用户错误
     get_users_err = SysException(err_code=3006, err_msg='获取用户错误')
     # 创建用户错误
