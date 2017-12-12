@@ -48,7 +48,3 @@ def add_corp_ext(access_token, contact: dict):
     url = get_request_url(access_token, 'dingtalk.corp.ext.add')
     contact = json.dumps(contact)
     return requests.post(url, data={'contact': contact.encode('utf-8')})
-
-
-if __name__ == '__main__':
-    pass

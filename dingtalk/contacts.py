@@ -103,4 +103,7 @@ def get_user_departments(access_token, userid):
     return requests.get(DING_GET_USER_DEPARTMENTS, params=params)
 
 
-
+@dingtalk_resp
+def get_org_user_count(access_token, only_active):
+    params = {'access_token': access_token, 'onlyActive': only_active}
+    return requests.get(DING_GET_ORG_USER_COUNT, params=params)

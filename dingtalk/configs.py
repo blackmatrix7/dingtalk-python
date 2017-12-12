@@ -36,6 +36,8 @@ DING_UPDATE_DEPARTMENT = 'https://oapi.dingtalk.com/department/update?access_tok
 DING_DELETE_DEPARTMENT = 'https://oapi.dingtalk.com/department/delete'
 # 查询指定用户的所有上级父部门路径
 DING_GET_USER_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list_parent_depts'
+# 获取企业员工人数
+DING_GET_ORG_USER_COUNT = 'https://oapi.dingtalk.com/user/get_org_user_count'
 
 
 if __name__ == '__main__':

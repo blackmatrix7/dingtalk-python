@@ -15,7 +15,8 @@ from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 from .contacts import get_user_list, get_user, create_user, update_user, delete_user, \
-    get_department, get_department_list, create_department, delete_department, update_department, get_user_departments
+    get_department, get_department_list, create_department, delete_department, update_department, \
+    get_user_departments, get_org_user_count
 
 __author__ = 'blackmatrix'
 
@@ -191,6 +192,15 @@ class DingTalkApp:
         """
         data = get_user_departments(self.access_token, userid)
         return data
+
+    def get_org_user_count(self, only_active):
+        """
+        获取企业员工人数
+        :param only_active: 0:非激活人员数量，1:已经激活人员数量
+        :return:
+        """
+        data = get_org_user_count(self.access_token, only_active)
+        return data['count']
 
     @dingtalk('dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):

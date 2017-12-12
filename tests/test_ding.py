@@ -294,6 +294,13 @@ class DingTalkTestCase(unittest.TestCase):
         depts = self.app.get_user_departments(user_id)
         assert depts
 
+    def test_get_org_user_count(self):
+        result = self.app.get_org_user_count(0)
+        assert result > 1
+        result = self.app.get_org_user_count(1)
+        assert result > 1
+
+
 
 
 if __name__ == '__main__':
