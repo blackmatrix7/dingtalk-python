@@ -15,7 +15,7 @@ from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 from .contacts import get_user_list, get_user, create_user, update_user, delete_user, \
-    get_department, get_department_list, create_department, delete_department, update_department
+    get_department, get_department_list, create_department, delete_department, update_department, get_user_departments
 
 __author__ = 'blackmatrix'
 
@@ -179,6 +179,17 @@ class DingTalkApp:
 
     def delete_department(self, id_):
         data = delete_department(self.access_token, id_)
+        return data
+
+    def get_user_departments(self, userid):
+        """
+        查询指定用户的所有上级父部门路径
+        查询主管理员时，会返回无此用户，原因不明。
+        可能是钉钉有意设置。
+        :param userid:
+        :return:
+        """
+        data = get_user_departments(self.access_token, userid)
         return data
 
     @dingtalk('dingtalk.corp.ext.listlabelgroups')

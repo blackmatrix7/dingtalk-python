@@ -34,6 +34,8 @@ DING_CREATE_DEPARTMENT = 'https://oapi.dingtalk.com/department/create?access_tok
 DING_UPDATE_DEPARTMENT = 'https://oapi.dingtalk.com/department/update?access_token={access_token}'
 # 删除部门
 DING_DELETE_DEPARTMENT = 'https://oapi.dingtalk.com/department/delete'
+# 查询指定用户的所有上级父部门路径
+DING_GET_USER_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list_parent_depts'
 
 
 if __name__ == '__main__':

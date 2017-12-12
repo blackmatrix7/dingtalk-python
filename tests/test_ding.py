@@ -91,15 +91,21 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 测试新增工作流实例
     def test_bmps_create(self):
-        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                'originator_user_id': '112322273839908294',
-                'dept_id': '49381153',
-                'approvers': ['112322273839908294'],
-                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
-                                          {'value': '哈哈哈哈', 'name': '部门'},
-                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        resp = self.app.create_bpms_instance(**args)
-        assert resp
+        """
+        发起审批流程
+        为了避免频繁发起审批流程，默认不执行此测试用例
+        :return:
+        """
+        assert self.app.access_token
+        # args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+        #         'originator_user_id': '112322273839908294',
+        #         'dept_id': '49381153',
+        #         'approvers': ['112322273839908294'],
+        #         'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+        #                                   {'value': '哈哈哈哈', 'name': '部门'},
+        #                                   {'value': '哈哈哈哈', 'name': '加班事由'}]}
+        # resp = self.app.create_bpms_instance(**args)
+        # assert resp
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -189,21 +195,27 @@ class DingTalkTestCase(unittest.TestCase):
         methods = self.app.methods
         assert methods
 
-    # def test_async_send_msg(self):
-    #     # 获取部门
-    #     dept_list = self.app.get_department_list()
-    #     dept_ids = [dept['id'] for dept in dept_list]
-    #     # 获取用户
-    #     user_list = self.app.get_user_list(dept_ids[1])
-    #     user_ids = [user['userid'] for user in user_list]
-    #     data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
-    #                                    msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
-    #     assert data
-    #     for item in data['success_userid_list']:
-    #         task_id = item['task_id']
-    #         assert task_id
-    #         result = self.app.get_msg_send_result(task_id)
-    #         assert result
+    def test_async_send_msg(self):
+        """
+        测试异步发送消息
+        为了避免频繁发送消息，默认不运行测试用例
+        :return:
+        """
+        assert self.app.access_token
+        # # 获取部门
+        # dept_list = self.app.get_department_list()
+        # dept_ids = [dept['id'] for dept in dept_list]
+        # # 获取用户
+        # user_list = self.app.get_user_list(dept_ids[1])
+        # user_ids = [user['userid'] for user in user_list]
+        # data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
+        #                                msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+        # assert data
+        # for item in data['success_userid_list']:
+        #     task_id = item['task_id']
+        #     assert task_id
+        #     result = self.app.get_msg_send_result(task_id)
+        #     assert result
 
     # 测试获取用户信息
     def test_get_user_info(self):
@@ -271,6 +283,17 @@ class DingTalkTestCase(unittest.TestCase):
                 dept_id = dept['id']
                 result = self.app.delete_department(dept_id)
                 assert result
+
+    def test_get_user_depts(self):
+        # 获取部门
+        dept_list = self.app.get_department_list()
+        dept_ids = [dept['id'] for dept in dept_list]
+        # 获取用户
+        user_list = self.app.get_user_list(dept_ids[1])
+        user_id = [user['userid'] for user in user_list][1]
+        depts = self.app.get_user_departments(user_id)
+        assert depts
+
 
 
 if __name__ == '__main__':

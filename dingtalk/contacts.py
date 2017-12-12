@@ -97,3 +97,10 @@ def delete_department(access_token, id_):
     return requests.get(DING_DELETE_DEPARTMENT, params=params)
 
 
+@dingtalk_resp
+def get_user_departments(access_token, userid):
+    params = {'access_token': access_token, 'userId': userid}
+    return requests.get(DING_GET_USER_DEPARTMENTS, params=params)
+
+
+
