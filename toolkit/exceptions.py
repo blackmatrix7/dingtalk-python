@@ -13,7 +13,7 @@ __author__ = 'blackmatrix'
 _no_value = object()
 
 
-class SysException(Exception):
+class SysException(BaseException):
 
     """
     以描述符进行异常管理：
@@ -21,7 +21,7 @@ class SysException(Exception):
     读取异常信息时，每次实例化一个全新的异常实例，避免对异常信息的修改影响全局
     """
 
-    def __init__(self, err_code, err_msg, http_code=500, err_type=Exception):
+    def __init__(self, err_code, err_msg, http_code=500, err_type=BaseException):
         self.err_msg = err_msg
         self.err_type = err_type
         self.err_code = err_code
@@ -31,8 +31,8 @@ class SysException(Exception):
         raise AttributeError('禁止修改异常设定')
 
     def __get__(self, instance, owner):
-        supers = (SysException, self.err_type, Exception) \
-            if self.err_type and self.err_type is not Exception else (SysException, Exception)
+        supers = (SysException, self.err_type, BaseException) \
+            if self.err_type and self.err_type is not BaseException else (SysException, BaseException)
         api_ex_cls = types.new_class('SysException', supers, {}, lambda ns: ns)
         api_ex = api_ex_cls(err_msg=self.err_msg, err_code=self.err_code, http_code=self.http_code)
         return api_ex
