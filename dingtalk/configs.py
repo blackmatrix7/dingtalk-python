@@ -33,7 +33,7 @@ DING_CREATE_DEPARTMENT = 'https://oapi.dingtalk.com/department/create?access_tok
 # 更新部门
 DING_UPDATE_DEPARTMENT = 'https://oapi.dingtalk.com/department/update?access_token={access_token}'
 # 删除部门
-DING_DELETE_DEPARTMENT = 'https://oapi.dingtalk.com/department/delete?access_token={access_token}'
+DING_DELETE_DEPARTMENT = 'https://oapi.dingtalk.com/department/delete'
 
 
 if __name__ == '__main__':

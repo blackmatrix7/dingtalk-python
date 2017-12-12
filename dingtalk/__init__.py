@@ -48,13 +48,12 @@ class DingTalkApp:
 
     def get_access_token(self):
         """
-        获取钉钉 access token，access token 7200秒过期
-        在缓存中设置7000秒过期，每次过期会自动重新获取 access token
+        在缓存中设置access token 3000秒过期，每次过期会自动重新获取 access token
         :return:
         """
         key_name = '{}_access_token'.format(self.name)
 
-        @self.cache.cached(key_name, 7000)
+        @self.cache.cached(key_name, 3000)
         def _get_access_token():
             resp = get_access_token(self.corp_id, self.corp_secret)
             access_token = resp['access_token']
@@ -161,15 +160,9 @@ class DingTalkApp:
         return result
 
     def get_department_list(self, id_=None):
-        key_name = '{}_dept_list'.format(self.name)
-
-        @self.cache.cached(key_name, 3600)
-        def _get_dempartment_list(access_token, _id):
-            data = get_department_list(access_token, _id)
-            depart_list = data['department']
-            return depart_list
-
-        return _get_dempartment_list(self.access_token, _id=id_)
+        data = get_department_list(self.access_token, id_)
+        depart_list = data['department']
+        return depart_list
 
     def get_department(self, id_):
         data = get_department(self.access_token, id_)

@@ -246,22 +246,26 @@ class DingTalkTestCase(unittest.TestCase):
         assert resp
 
     def test_dept_operator(self):
-        # dept_info = {
-        #     'name': '霍格沃茨魔法学校',
-        #     'parentid': 1
-        # }
-        # dept = self.app.create_department(**dept_info)
-        # dept_id = dept['id']
-        # assert dept, dept_id
-        # new_dept_info = {
-        #     'id': dept_id,
-        #     'name': '霍格沃茨魔法学校：格兰芬多',
-        #     'parentid': 1
-        # }
-        # dept = self.app.update_department(**new_dept_info)
-        # assert dept
-        result = self.app.delete_department('56114595')
-        assert result
+        dept_info = {
+            'name': '霍格沃茨魔法学校',
+            'parentid': 1
+        }
+        dept_id = self.app.create_department(**dept_info)
+        assert dept_id
+        new_dept_info = {
+            'id': dept_id,
+            'name': '霍格沃茨魔法学校：格兰芬多',
+            'parentid': 1
+        }
+        dept = self.app.update_department(**new_dept_info)
+        assert dept
+        dept_list = self.app.get_department_list()
+        assert dept_list
+        for dept in dept_list:
+            if '霍格沃茨魔法学校' in dept['name']:
+                dept_id = dept['id']
+                result = self.app.delete_department(dept_id)
+                assert result
 
 
 if __name__ == '__main__':

@@ -114,7 +114,7 @@ def create_department(access_token, **dept_info):
     if resp.status_code == 200 and data['errcode'] == 0:
         return data
     else:
-        raise DingTalkExceptions.create_depart_err
+        raise DingTalkExceptions.create_depart_err(data['errmsg'])
 
 
 def update_department(access_token, **dept_info):
@@ -128,14 +128,13 @@ def update_department(access_token, **dept_info):
 
 
 def delete_department(access_token, id_):
-    url = DING_UPDATE_DEPARTMENT.format(access_token=access_token)
-    payload = {'id': '56114595'}
-    resp = requests.post(url, json=payload)
+    params = {'access_token': access_token, 'id': id_}
+    resp = requests.get(DING_DELETE_DEPARTMENT, params=params)
     data = resp.json()
     if resp.status_code == 200 and data['errcode'] == 0:
         return data
     else:
-        raise DingTalkExceptions.create_depart_err
+        raise DingTalkExceptions.delete_depart_err(data['errmsg'])
 
 
 
