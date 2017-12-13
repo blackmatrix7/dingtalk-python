@@ -6,6 +6,7 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : methods.py
 # @Software: PyCharm
+import requests
 from .configs import *
 from datetime import datetime
 from .exceptions import DingTalkExceptions
@@ -66,3 +67,12 @@ def dingtalk_resp(func):
                                                        err_code=data['errcode'],
                                                        err_msg=data['errmsg'])
     return wrapper
+
+
+def call_dingtalk_webapi(access_token, method_name, http_method='POST', **kwargs):
+    url = get_request_url(access_token, method_name)
+    if http_method.upper() == 'POST':
+        resp = requests.post(url, data=kwargs)
+    else:
+        resp = requests.get(url, params=kwargs)
+    return resp

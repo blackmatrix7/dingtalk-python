@@ -8,7 +8,7 @@
 # @Software: PyCharm
 import requests
 from .configs import *
-from .foundation import dingtalk_resp
+from .foundation import dingtalk_resp, call_dingtalk_webapi
 
 __author__ = 'blackmatrix'
 
@@ -107,3 +107,8 @@ def get_user_departments(access_token, userid):
 def get_org_user_count(access_token, only_active):
     params = {'access_token': access_token, 'onlyActive': only_active}
     return requests.get(DING_GET_ORG_USER_COUNT, params=params)
+
+
+@dingtalk_resp
+def get_role_simple_list(access_token, role_id, size=20, offset=0):
+    return call_dingtalk_webapi('dingtalk.corp.role.simplelist', 'POST', role_id=role_id, size=size, offset=offset)
