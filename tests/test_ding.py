@@ -82,7 +82,7 @@ class DingTalkTestCase(unittest.TestCase):
                    'state_code': '86',
                    'company_name': '企业名',
                    'share_userids': user_ids[0:2],
-                   'mobile': '13058888888'}
+                   'mobile': '13023438888'}
         try:
             result = self.app.add_corp_ext(contact)
             assert result is not None
@@ -308,7 +308,12 @@ class DingTalkTestCase(unittest.TestCase):
         result = self.app.get_all_corp_role_list()
         assert result
 
+    def test_get_role_simple_list(self):
+        role_group_list = self.app.get_all_corp_role_list()
+        role_id_list = [v for role_group in role_group_list for role in role_group['roles'] for k, v in role.items() if k == 'id']
+        user_id_list = []
+        for role_id in role_id_list:
+            user = self.app.get_role_simple_list(role_id=role_id) or []
+            user_id_list.extend(user)
+        assert user_id_list
 
-
-if __name__ == '__main__':
-    pass

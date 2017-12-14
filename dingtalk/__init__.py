@@ -328,10 +328,17 @@ class DingTalkApp:
     def get_corp_role_list(self, size=20, offset=0):
         resp = get_corp_role_list(self.access_token, size=size, offset=offset)
         data = resp['dingtalk_corp_role_list_response']['result']['list']
-        return data.get('role_groups')
+        if data.get('role_groups') is None:
+            return None
+        else:
+            role_groups = data.get('role_groups')
+            for role_group in role_groups:
+                # 钉钉返回的格式嵌套了两层roles，对格式做下处理
+                role_group['roles'] = role_group.pop('roles').pop('roles')
+            return role_groups
 
     def get_all_corp_role_list(self):
-        size = 1
+        size = 100
         offset = 0
         dd_role_list = []
         while True:
@@ -342,6 +349,15 @@ class DingTalkApp:
                 dd_role_list.extend(dd_roles)
                 offset += size
         return dd_role_list
+
+    @dingtalk('dingtalk.corp.role.simplelist')
+    def get_role_simple_list(self, role_id, size=20, offset=0):
+        resp = get_role_simple_list(self.access_token, role_id=role_id, size=size, offset=offset)
+        # 返回的数据格式，嵌套这么多层，不累吗？
+        resp_user_list = resp['dingtalk_corp_role_simplelist_response']['result']['list']
+        if resp_user_list and 'emp_simple_list' in resp_user_list:
+            return resp_user_list['emp_simple_list']
+
 
 if __name__ == '__main__':
     pass
