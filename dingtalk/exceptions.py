@@ -20,28 +20,8 @@ class DingTalkExceptions:
     get_jsapi_ticket_err = SysException(err_code=3002, err_msg='获取 jsapi ticket 错误')
     # 钉钉接口返回错误
     dingtalk_resp_err = SysException(err_code=3003, err_msg='钉钉接口返回错误')
-    # 获取外部联系人错误
-    get_ext_list_err = SysException(err_code=3003, err_msg='获取外部联系人错误')
-    # 获取标签错误
-    get_labels_err = SysException(err_code=3004, err_msg='获取标签错误')
-    # 获取部门错误
-    get_departs_err = SysException(err_code=3005, err_msg='获取部门错误')
-    # 创建部门错误
-    create_depart_err = SysException(err_code=3005, err_msg='创建部门错误')
-    # 更新部门错误
-    update_depart_err = SysException(err_code=3005, err_msg='更新部门错误')
-    # 删除部门错误
-    delete_depart_err = SysException(err_code=3005, err_msg='删除部门错误')
-    # 获取用户错误
-    get_users_err = SysException(err_code=3006, err_msg='获取用户错误')
-    # 创建用户错误
-    create_user_err = SysException(err_code=3007, err_msg='创建用户错误')
-    # 更新用户错误
-    update_user_err = SysException(err_code=3008, err_msg='更新用户错误')
-    # 更新用户错误
-    delete_user_err = SysException(err_code=3009, err_msg='删除用户错误')
-    # 创建流程错误
-    create_bmps_err = SysException(err_code=3009, err_msg='获取用户错误')
+    # 钉钉接口参数不合法
+    webapi_args_err = SysException(err_code=3003, err_msg='钉钉接口参数不合法')
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
+from .contacts import *
 from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
@@ -14,9 +15,6 @@ from .auth import get_access_token, get_jsapi_ticket, sign
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
-from .contacts import get_user_list, get_user, create_user, update_user, delete_user, \
-    get_department, get_department_list, create_department, delete_department, update_department, \
-    get_user_departments, get_org_user_count
 
 __author__ = 'blackmatrix'
 
@@ -326,7 +324,24 @@ class DingTalkApp:
         resp = get_msg_send_progress(self.access_token, agent_id, task_id)
         return resp
 
+    @dingtalk('dingtalk.corp.role.list')
+    def get_corp_role_list(self, size=20, offset=0):
+        resp = get_corp_role_list(self.access_token, size=size, offset=offset)
+        data = resp['dingtalk_corp_role_list_response']['result']['list']
+        return data.get('role_groups')
 
+    def get_all_corp_role_list(self):
+        size = 1
+        offset = 0
+        dd_role_list = []
+        while True:
+            dd_roles = self.get_corp_role_list(size=size, offset=offset)
+            if dd_roles is None or len(dd_roles) <= 0:
+                break
+            else:
+                dd_role_list.extend(dd_roles)
+                offset += size
+        return dd_role_list
 
 if __name__ == '__main__':
     pass

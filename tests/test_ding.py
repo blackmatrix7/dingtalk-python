@@ -3,7 +3,7 @@
 # @Time : 2017/11/28 下午3:16
 # @Author : Matrix
 # @Github : https://github.com/blackmatrix7/
-# @Blog : http://www.cnblogs.com/blackmatrix/
+# @Blog :
 # @File : test_ding.py
 # @Software: PyCharm
 import json
@@ -300,6 +300,13 @@ class DingTalkTestCase(unittest.TestCase):
         result = self.app.get_org_user_count(1)
         assert result > 1
 
+    def test_corp_role_list(self):
+        result = self.app.get_corp_role_list()
+        assert result
+
+    def test_get_all_corp_role_list(self):
+        result = self.app.get_all_corp_role_list()
+        assert result
 
 
 
