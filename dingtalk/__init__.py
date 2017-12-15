@@ -352,12 +352,16 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.corp.role.simplelist')
     def get_role_simple_list(self, role_id, size=20, offset=0):
-        resp = get_role_simple_list(self.access_token, role_id=role_id, size=size, offset=offset)
+        data = get_role_simple_list(self.access_token, role_id=role_id, size=size, offset=offset)
         # 返回的数据格式，嵌套这么多层，不累吗？
-        resp_user_list = resp['dingtalk_corp_role_simplelist_response']['result']['list']
-        if resp_user_list and 'emp_simple_list' in resp_user_list:
-            return resp_user_list['emp_simple_list']
+        user_list = data['dingtalk_corp_role_simplelist_response']['result']['list']
+        if user_list and 'emp_simple_list' in user_list:
+            return user_list['emp_simple_list']
 
+    @dingtalk('dingtalk.corp.role.getrolegroup')
+    def get_role_group(self, group_id):
+        data = get_role_group(self.access_token, group_id=group_id)
+        return data
 
 if __name__ == '__main__':
     pass

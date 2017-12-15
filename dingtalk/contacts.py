@@ -156,3 +156,16 @@ def remove_roles_for_emps(access_token, rolelid_list: list, userid_list: list):
         raise DingTalkExceptions.webapi_args_err('员工id不能超过100个')
     return call_dingtalk_webapi(access_token, 'dingtalk.corp.role.removerolesforemps', 'POST',
                                 rolelid_list=rolelid_list, userid_list=userid_list)
+
+
+@dingtalk_resp
+def get_role_group(access_token, group_id):
+    """
+    该接口通过groupId参数可以获取该角色组详细信息以及下面所有关联的角色的信息。
+    :param access_token:
+    :param group_id:
+    :return:
+    """
+    return call_dingtalk_webapi(access_token, 'dingtalk.corp.role.removerolesforemps', 'GET', group_id=group_id)
+
+
