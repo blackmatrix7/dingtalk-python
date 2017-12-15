@@ -45,6 +45,5 @@ def add_corp_ext(access_token, contact: dict):
     新增外部联系人
     :return:
     """
-    url = get_request_url(access_token, 'dingtalk.corp.ext.add')
     contact = json.dumps(contact)
-    return requests.post(url, data={'contact': contact.encode('utf-8')})
+    return call_dingtalk_webapi(access_token, 'dingtalk.corp.ext.add', 'POST', contact=contact.encode('utf-8'))
