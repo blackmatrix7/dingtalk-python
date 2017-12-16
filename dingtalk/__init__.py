@@ -7,6 +7,7 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
+from uuid import uuid4
 from .contacts import *
 from json import JSONDecodeError
 from operator import methodcaller
@@ -68,7 +69,7 @@ class DingTalkApp:
     def get_jsapi_ticket(self):
         key_name = '{}_jsapi_ticket'.format(self.name)
 
-        @self.cache.cached(key_name, 7000)
+        @self.cache.cached(key_name, 3000)
         def _get_jsapi_ticket():
             resp = get_jsapi_ticket(self.access_token)
             ticket = resp['ticket']
@@ -80,17 +81,21 @@ class DingTalkApp:
     def jsapi_ticket(self):
         return self.get_jsapi_ticket()
 
+    @property
+    def noncestr(self):
+        return str(uuid4())
+
     @staticmethod
-    def sign(ticket, nonce_str, time_stamp, url):
+    def sign(ticket, noncestr, timestamp, url):
         """
         计算签名信息
         :param ticket:
-        :param nonce_str:
-        :param time_stamp:
+        :param noncestr:
+        :param timestamp:
         :param url:
         :return:
         """
-        return sign(ticket, nonce_str, time_stamp, url)
+        return sign(ticket, noncestr, timestamp, url)
 
     @property
     def timestamp(self):

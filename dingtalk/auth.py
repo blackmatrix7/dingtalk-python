@@ -33,9 +33,9 @@ def get_jsapi_ticket(accsess_token):
     return requests.get(DING_GET_JSAPI_TICKET, params=payload)
 
 
-def sign(ticket, nonce_str, time_stamp, url):
+def sign(ticket, noncestr, timestamp, url):
     import hashlib
-    plain = 'jsapi_ticket={0}&&noncestr={1}&&timestamp={2}&url={3}'.format(ticket, nonce_str, time_stamp, url)
+    plain = 'jsapi_ticket={0}&&noncestr={1}&&timestamp={2}&url={3}'.format(ticket, noncestr, timestamp, url)
     plain_bytes = plain.encode('utf-8')
     sha1 = hashlib.sha1(plain_bytes).hexdigest()
     return sha1
