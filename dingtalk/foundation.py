@@ -19,7 +19,11 @@ def get_timestamp():
     生成时间戳
     :return:
     """
-    return datetime.now().strftime('yyyy-MM-dd HH:mm:ss')
+
+    now = datetime.now()
+    timestamp = datetime.timestamp(now)
+    timestamp = int(round(timestamp * 1000))
+    return timestamp
 
 
 def get_request_url(access_token, method=None, format_='json', v='2.0', simplify='false', partner_id=None, url=None):

@@ -86,16 +86,16 @@ class DingTalkApp:
         return str(uuid4())
 
     @staticmethod
-    def sign(ticket, noncestr, timestamp, url):
+    def sign(jsapi_ticket, noncestr, timestamp, url):
         """
         计算签名信息
-        :param ticket:
+        :param jsapi_ticket:
         :param noncestr:
         :param timestamp:
         :param url:
         :return:
         """
-        return sign(ticket, noncestr, timestamp, url)
+        return sign(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
 
     @property
     def timestamp(self):

@@ -6,6 +6,7 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : token.py
 # @Software: PyCharm
+import hashlib
 import logging
 import requests
 from .configs import *
@@ -33,9 +34,12 @@ def get_jsapi_ticket(accsess_token):
     return requests.get(DING_GET_JSAPI_TICKET, params=payload)
 
 
-def sign(ticket, noncestr, timestamp, url):
-    import hashlib
-    plain = 'jsapi_ticket={0}&&noncestr={1}&&timestamp={2}&url={3}'.format(ticket, noncestr, timestamp, url)
+def sign(**kwargs):
+    keys = sorted(kwargs)
+    plain = ''
+    for key in keys:
+        plain += '{0}={1}&'.format(key, kwargs.get(key))
+    plain = plain.strip('&')
     plain_bytes = plain.encode('utf-8')
     sha1 = hashlib.sha1(plain_bytes).hexdigest()
     return sha1
