@@ -230,7 +230,13 @@ class DingTalkTestCase(unittest.TestCase):
 
     def test_user_operator(self):
         dept_list = self.app.get_department_list()
-        dept_id = [dept['id'] for dept in dept_list][1]
+        dept_id = None
+        for dept in dept_list:
+            if dept['name'] == '信息部':
+                dept_id = dept['id']
+                break
+        if dept_id is None:
+            dept_id = dept_list[1]
         user_info = {
             'name': '马小云',
             'orderInDepts': {dept_id: 8},
@@ -316,4 +322,13 @@ class DingTalkTestCase(unittest.TestCase):
             user = self.app.get_role_simple_list(role_id=role_id) or []
             user_id_list.extend(user)
         assert user_id_list
+
+    def test_sign(self):
+        jsapi_ticket = 'raj3X1Z2OIYqxuQ29WVK1uvhIvrsXC4qPwYE1KQ174zx7MfhX2qHKdtFE2XdUxbdp1WfoctcNCmBfbfYEJj5um'
+        noncestr = 'abcdefg'
+        timestamp = '1440678945'
+        url = 'http://调用jsapi页面'
+        sign = self.app.sign(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
+        assert sign == '750d0719eeb810f6fa12b04d87d0d7789c4bc64f'
+
 
