@@ -7,13 +7,14 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
-from uuid import uuid4
+import logging
 from .contacts import *
+from toolkit.retry import retry
 from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
-from .auth import get_access_token, get_jsapi_ticket, sign
 from .workflow import create_bpms_instance, get_bpms_instance_list
+from .auth import get_access_token, get_jsapi_ticket, create_signature
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 
@@ -36,12 +37,13 @@ def dingtalk(method_name):
 
 class DingTalkApp:
 
-    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None):
+    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None, noncestr=None):
         self.name = name
         self.cache = cache
         self.corp_id = corp_id
         self.corp_secret = corp_secret
         self.agent_id = agent_id
+        self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
 
     @property
     def methods(self):
@@ -54,39 +56,52 @@ class DingTalkApp:
         """
         key_name = '{}_access_token'.format(self.name)
 
-        @self.cache.cached(key_name, 3000)
+        @self.cache.cached(key_name, 7000)
         def _get_access_token():
             resp = get_access_token(self.corp_id, self.corp_secret)
-            access_token = resp['access_token']
-            return access_token
+            data = resp['access_token']
+            return data
+        access_token = _get_access_token()
+        return access_token
 
-        return _get_access_token()
+    def refresh_access_token(self):
+        """
+        刷新access_token
+        :return:
+        """
+        key_name = '{}_access_token'.format(self.name)
+        resp = get_access_token(self.corp_id, self.corp_secret)
+        access_token = resp['access_token']
+        self.cache.set(key_name, access_token, 7000)
+        return access_token
 
     @property
     def access_token(self):
         return self.get_access_token()
 
     def get_jsapi_ticket(self):
-        key_name = '{}_jsapi_ticket'.format(self.name)
+        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
+        access_token_key = '{}_access_token'.format(self.name)
 
-        @self.cache.cached(key_name, 3000)
+        @self.cache.delcache(access_token_key)
+        def callback(err):
+            logging.error(err)
+
+        @retry(max_retries=5, step=5, callback=callback)
+        @self.cache.cached(jsapi_ticket_key, 3000)
         def _get_jsapi_ticket():
             resp = get_jsapi_ticket(self.access_token)
             ticket = resp['ticket']
             return ticket
-
-        return _get_jsapi_ticket()
+        jsapi_ticket = _get_jsapi_ticket()
+        return jsapi_ticket
 
     @property
     def jsapi_ticket(self):
         return self.get_jsapi_ticket()
 
-    @property
-    def noncestr(self):
-        return str(uuid4())
-
     @staticmethod
-    def sign(jsapi_ticket, noncestr, timestamp, url):
+    def signature(jsapi_ticket, noncestr, timestamp, url):
         """
         计算签名信息
         :param jsapi_ticket:
@@ -95,7 +110,13 @@ class DingTalkApp:
         :param url:
         :return:
         """
-        return sign(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
+        logging.info('jsapi_ticket:{}'.format(jsapi_ticket))
+        logging.info('noncestr:{}'.format(noncestr))
+        logging.info('timestamp:{}'.format(timestamp))
+        logging.info('url:{}'.format(url))
+        sign = create_signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
+        logging.info('sign:{}'.format(sign))
+        return sign
 
     @property
     def timestamp(self):
@@ -163,6 +184,10 @@ class DingTalkApp:
         """
         result = delete_user(self.access_token, userid)
         return result
+
+    def get_user_by_code(self, code: str):
+        data = get_user_by_code(self.access_token, code)
+        return data
 
     def get_department_list(self, id_=None):
         data = get_department_list(self.access_token, id_)

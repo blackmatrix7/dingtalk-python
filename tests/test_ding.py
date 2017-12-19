@@ -229,36 +229,38 @@ class DingTalkTestCase(unittest.TestCase):
         assert data
 
     def test_user_operator(self):
-        dept_list = self.app.get_department_list()
-        dept_id = None
-        for dept in dept_list:
-            if dept['name'] == '信息部':
-                dept_id = dept['id']
-                break
-        if dept_id is None:
-            dept_id = dept_list[1]
-        user_info = {
-            'name': '马小云',
-            'orderInDepts': {dept_id: 8},
-            'department': [dept_id],
-            'position': '马云，你不认识？？！！',
-            'mobile': '13058888882'
-        }
-        result = self.app.create_user(**user_info)
-        assert result
-        user_id = result['userid']
-        new_user_info = {
-            'userid': user_id,
-            'name': '马小云',
-            'orderInDepts': {dept_id: 8},
-            'department': [dept_id],
-            'position': '我就是马小云！！！',
-            'mobile': '13058888882'
-        }
-        result = self.app.update_user(**new_user_info)
-        assert result
-        result = self.app.delete_user(userid=user_id)
-        assert result
+        # 通常情况下不测试创建用户
+        pass
+        # dept_list = self.app.get_department_list()
+        # dept_id = None
+        # for dept in dept_list:
+        #     if dept['name'] == '信息部':
+        #         dept_id = dept['id']
+        #         break
+        # if dept_id is None:
+        #     dept_id = dept_list[1]
+        # user_info = {
+        #     'name': '马小云',
+        #     'orderInDepts': {dept_id: 8},
+        #     'department': [dept_id],
+        #     'position': '马云，你不认识？？！！',
+        #     'mobile': '13058888882'
+        # }
+        # result = self.app.create_user(**user_info)
+        # assert result
+        # user_id = result['userid']
+        # new_user_info = {
+        #     'userid': user_id,
+        #     'name': '马小云',
+        #     'orderInDepts': {dept_id: 8},
+        #     'department': [dept_id],
+        #     'position': '我就是马小云！！！',
+        #     'mobile': '13058888882'
+        # }
+        # result = self.app.update_user(**new_user_info)
+        # assert result
+        # result = self.app.delete_user(userid=user_id)
+        # assert result
 
     #
     def test_get_dept_info(self):
@@ -328,7 +330,7 @@ class DingTalkTestCase(unittest.TestCase):
         noncestr = 'abcdefg'
         timestamp = '1440678945'
         url = 'http://调用jsapi页面'
-        sign = self.app.sign(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
+        sign = self.app.signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
         assert sign == '750d0719eeb810f6fa12b04d87d0d7789c4bc64f'
 
 

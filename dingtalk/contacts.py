@@ -169,3 +169,8 @@ def get_role_group(access_token, group_id):
     return call_dingtalk_webapi(access_token, 'dingtalk.corp.role.removerolesforemps', 'GET', group_id=group_id)
 
 
+@dingtalk_resp
+def get_user_by_code(access_token, code):
+    params = {'access_token': access_token, 'code': code}
+    resp = requests.get(DING_GET_USER_BY_CODE, params=params)
+    return resp

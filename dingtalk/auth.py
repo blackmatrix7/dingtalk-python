@@ -27,14 +27,14 @@ def get_access_token(corp_id, corp_secret):
     return requests.get(DING_GET_ACCESS_TOKEN, params=payload)
 
 
-@retry(max_retries=5, step=5, callback=logging.error)
 @dingtalk_resp
 def get_jsapi_ticket(accsess_token):
-    payload = {'access_token': accsess_token}
-    return requests.get(DING_GET_JSAPI_TICKET, params=payload)
+    params = {'access_token': accsess_token}
+    data = requests.get(DING_GET_JSAPI_TICKET, params=params)
+    return data
 
 
-def sign(**kwargs):
+def create_signature(**kwargs):
     keys = sorted(kwargs)
     plain = ''
     for key in keys:

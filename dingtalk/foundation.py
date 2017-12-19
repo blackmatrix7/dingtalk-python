@@ -22,7 +22,7 @@ def get_timestamp():
 
     now = datetime.now()
     timestamp = datetime.timestamp(now)
-    timestamp = int(round(timestamp * 1000))
+    timestamp = int(round(timestamp))
     return timestamp
 
 

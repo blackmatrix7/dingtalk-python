@@ -38,6 +38,8 @@ DING_DELETE_DEPARTMENT = 'https://oapi.dingtalk.com/department/delete'
 DING_GET_USER_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list_parent_depts'
 # 获取企业员工人数
 DING_GET_ORG_USER_COUNT = 'https://oapi.dingtalk.com/user/get_org_user_count'
+# 通过CODE换取用户身份
+DING_GET_USER_BY_CODE = 'https://oapi.dingtalk.com/user/getuserinfo'
 
 
 if __name__ == '__main__':
