@@ -22,9 +22,7 @@ def get_label_groups(access_token, size=20, offset=0):
     :param offset:
     :return:
     """
-    url = get_request_url(access_token, 'dingtalk.corp.ext.listlabelgroups')
-    payload = {'size': size, 'offset': offset}
-    return requests.get(url, params=payload)
+    return call_dingtalk_webapi(access_token, 'dingtalk.corp.ext.listlabelgroups', 'GET', size=size, offset=offset)
 
 
 @dingtalk_resp
@@ -33,10 +31,7 @@ def get_corp_ext_list(access_token, size=20, offset=0):
     获取外部联系人
     :return:
     """
-    url = get_request_url(access_token, 'dingtalk.corp.ext.list')
-    payload = {'size': size, 'offset': offset}
-    resp = requests.get(url, params=payload)
-    return resp
+    return call_dingtalk_webapi(access_token, 'dingtalk.corp.ext.list', 'GET', size=size, offset=offset)
 
 
 @dingtalk_resp
