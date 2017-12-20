@@ -46,4 +46,5 @@ def add_corp_ext(access_token, contact: dict):
     :return:
     """
     contact = json.dumps(contact)
-    return call_dingtalk_webapi(access_token, 'dingtalk.corp.ext.add', 'POST', contact=contact.encode('utf-8'))
+    data = call_dingtalk_webapi(access_token, 'dingtalk.corp.ext.add', 'POST', contact=contact)
+    return data

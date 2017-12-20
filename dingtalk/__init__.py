@@ -8,6 +8,7 @@
 # @Software: PyCharm
 import json
 import logging
+from .space import *
 from .contacts import *
 from toolkit.retry import retry
 from json import JSONDecodeError
@@ -37,12 +38,13 @@ def dingtalk(method_name):
 
 class DingTalkApp:
 
-    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None, noncestr=None):
+    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None, noncestr=None, domain=None):
         self.name = name
         self.cache = cache
         self.corp_id = corp_id
         self.corp_secret = corp_secret
         self.agent_id = agent_id
+        self.domain = domain or 'A2UOM1pZOxQ'
         self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
 
     @property
@@ -51,7 +53,7 @@ class DingTalkApp:
 
     def get_access_token(self):
         """
-        在缓存中设置access token 3000秒过期，每次过期会自动重新获取 access token
+        在缓存中设置access token 7000秒过期，每次过期会自动重新获取 access token
         :return:
         """
         key_name = '{}_access_token'.format(self.name)
@@ -84,6 +86,7 @@ class DingTalkApp:
         access_token_key = '{}_access_token'.format(self.name)
 
         @self.cache.delcache(access_token_key)
+        @self.cache.delcache(jsapi_ticket_key)
         def callback(err):
             logging.error(err)
 
@@ -392,6 +395,14 @@ class DingTalkApp:
     def get_role_group(self, group_id):
         data = get_role_group(self.access_token, group_id=group_id)
         return data
+
+    def get_customer_space(self):
+        data = get_custom_space(self.access_token, self.domain, self.agent_id)
+        return data['spaceid']
+
+    @property
+    def space_id(self):
+        return self.get_customer_space()
 
 if __name__ == '__main__':
     pass
