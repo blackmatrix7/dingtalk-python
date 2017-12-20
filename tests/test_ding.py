@@ -72,17 +72,17 @@ class DingTalkTestCase(unittest.TestCase):
         # 获取用户
         user_list = self.app.get_user_list(dept_ids[0])
         user_ids = [user['userid'] for user in user_list]
-        contact = {'title': '开发工程师',
-                   'share_deptids': dept_ids[1:3],
-                   'label_ids': label_ids[0:3],
+        contact = {'title': '掌门',
+                   'share_deptids': dept_ids[2:4],
+                   'label_ids': label_ids[2:5],
                    'remark': '备注内容',
-                   'address': '地址内容',
-                   'name': '张三',
-                   'follower_userid': user_ids[0],
+                   'address': '武当山',
+                   'name': '张三丰',
+                   'follower_userid': user_ids[2],
                    'state_code': '86',
-                   'company_name': '企业名',
-                   'share_userids': user_ids[0:2],
-                   'mobile': '13023438888'}
+                   'company_name': '武当派1',
+                   'share_userids': user_ids[2:6],
+                   'mobile': '13058889999'}
         try:
             result = self.app.add_corp_ext(contact)
             assert result is not None
@@ -229,8 +229,12 @@ class DingTalkTestCase(unittest.TestCase):
         assert data
 
     def test_user_operator(self):
-        # 通常情况下不测试创建用户
-        pass
+        """
+        测试创建用户
+        为避免在群里频繁出现欢迎信息，通常不测试此方法
+        :return:
+        """
+        assert self.app.access_token
         # dept_list = self.app.get_department_list()
         # dept_id = None
         # for dept in dept_list:
