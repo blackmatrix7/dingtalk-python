@@ -57,14 +57,13 @@ class DingTalkApp:
         :return:
         """
         key_name = '{}_access_token'.format(self.name)
-
-        @self.cache.cached(key_name, 7000)
-        def _get_access_token():
+        if self.cache.get(key_name) is not None:
+            data = self.cache.get(key_name)
+        else:
             resp = get_access_token(self.corp_id, self.corp_secret)
             data = resp['access_token']
-            return data
-        access_token = _get_access_token()
-        return access_token
+            self.cache.set(key_name,  data, 7000)
+        return data
 
     def refresh_access_token(self):
         """
@@ -85,17 +84,21 @@ class DingTalkApp:
         jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
         access_token_key = '{}_access_token'.format(self.name)
 
-        @self.cache.delcache(access_token_key)
-        @self.cache.delcache(jsapi_ticket_key)
         def callback(err):
+            self.cache.delete(access_token_key)
+            self.cache.delete(jsapi_ticket_key)
             logging.error(err)
 
         @retry(max_retries=5, step=5, callback=callback)
-        @self.cache.cached(jsapi_ticket_key, 3000)
         def _get_jsapi_ticket():
-            resp = get_jsapi_ticket(self.access_token)
-            ticket = resp['ticket']
+            if self.cache.get(jsapi_ticket_key):
+                ticket = self.cache.get(jsapi_ticket_key)
+            else:
+                resp = get_jsapi_ticket(self.access_token)
+                ticket = resp['ticket']
+                self.cache.set(jsapi_ticket_key, ticket, 3000)
             return ticket
+
         jsapi_ticket = _get_jsapi_ticket()
         return jsapi_ticket
 
