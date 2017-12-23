@@ -401,11 +401,12 @@ class DingTalkApp:
 
     def get_customer_space(self):
         data = get_custom_space(self.access_token, self.domain, self.agent_id)
-        return data['spaceid']
+        return data
 
     @property
     def space_id(self):
-        return self.get_customer_space()
+        data = self.get_customer_space()
+        return data['spaceid']
 
 if __name__ == '__main__':
     pass

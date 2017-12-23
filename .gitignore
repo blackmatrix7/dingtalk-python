@@ -93,3 +93,6 @@ ENV/
 
 # local config
 localconfig.py
+
+# react
+node_mudules/
