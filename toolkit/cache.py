@@ -160,7 +160,7 @@ class Cache(Client):
             # 如果生成参数签名过程中出现异常，则返回None
             return args_sig
 
-    def cached(self, key, timeout=36000, maxsize=30):
+    def cached(self, key, timeout=3600, maxsize=30):
         """
         函数装饰器，装饰到函数上时，会优先返回缓存的值。
         :param key: memcached key
