@@ -16,7 +16,7 @@ from .foundation import dingtalk_resp
 __author__ = 'blackmatrix'
 
 
-@retry(max_retries=5, step=5, callback=logging.error)
+@retry(max_retries=5, delay=1, callback=logging.error)
 @dingtalk_resp
 def get_access_token(corp_id, corp_secret):
     """
