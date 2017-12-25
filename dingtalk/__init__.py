@@ -16,8 +16,8 @@ from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
 from .workflow import create_bpms_instance, get_bpms_instance_list
-from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
+from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 
 __author__ = 'blackmatrix'
