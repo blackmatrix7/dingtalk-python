@@ -335,7 +335,7 @@ class DingTalkTestCase(unittest.TestCase):
         noncestr = 'abcdefg'
         timestamp = '1440678945'
         url = 'http://调用jsapi页面'
-        sign = self.app.signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
+        sign = self.app.jsapi_signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
         assert sign == '750d0719eeb810f6fa12b04d87d0d7789c4bc64f'
 
     @staticmethod

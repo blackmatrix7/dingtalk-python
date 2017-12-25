@@ -16,7 +16,7 @@ from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
 from .workflow import create_bpms_instance, get_bpms_instance_list
-from .auth import get_access_token, get_jsapi_ticket, create_signature
+from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 
@@ -114,7 +114,7 @@ class DingTalkApp:
         return self.get_jsapi_ticket()
 
     @staticmethod
-    def signature(jsapi_ticket, noncestr, timestamp, url):
+    def jsapi_signature(jsapi_ticket, noncestr, timestamp, url):
         """
         计算签名信息
         :param jsapi_ticket:
@@ -127,7 +127,7 @@ class DingTalkApp:
         logging.info('noncestr:{}'.format(noncestr))
         logging.info('timestamp:{}'.format(timestamp))
         logging.info('url:{}'.format(url))
-        sign = create_signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
+        sign = generate_jsapi_signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
         logging.info('sign:{}'.format(sign))
         return sign
 

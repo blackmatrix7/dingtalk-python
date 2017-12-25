@@ -34,7 +34,7 @@ def get_jsapi_ticket(accsess_token):
     return data
 
 
-def create_signature(**kwargs):
+def generate_jsapi_signature(**kwargs):
     keys = sorted(kwargs)
     plain = ''
     for key in keys:
