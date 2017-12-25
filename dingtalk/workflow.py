@@ -40,7 +40,7 @@ def create_bpms_instance(access_token, process_code, originator_user_id,
     form_component_values = json.dumps(form_component_values)
     for key in ('process_code', 'originator_user_id', 'dept_id', 'approvers', 'form_component_values',
                 'agent_id', 'cc_list', 'cc_position'):
-        if args.get(key, no_value) is not None:
+        if args.get(key) is not None:
             payload.update({key: args[key]})
     return requests.post(url, data=payload)
 

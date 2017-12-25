@@ -10,6 +10,7 @@ import json
 import logging
 from .space import *
 from .contacts import *
+from .callback import *
 from toolkit.retry import retry
 from json import JSONDecodeError
 from operator import methodcaller
@@ -38,12 +39,15 @@ def dingtalk(method_name):
 
 class DingTalkApp:
 
-    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None, noncestr=None, domain=None):
+    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None,
+                 noncestr=None, domain=None, callback_url=None, aes_key=None):
         self.name = name
         self.cache = cache
         self.corp_id = corp_id
         self.corp_secret = corp_secret
         self.agent_id = agent_id
+        self.callback_url = callback_url
+        self.aes_key = aes_key
         self.domain = domain or 'A2UOM1pZOxQ'
         self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
 
@@ -62,7 +66,7 @@ class DingTalkApp:
         else:
             resp = get_access_token(self.corp_id, self.corp_secret)
             data = resp['access_token']
-            self.cache.set(key_name,  data, 7000)
+            self.cache.set(key_name, data, 7000)
         return data
 
     def refresh_access_token(self):
@@ -85,9 +89,12 @@ class DingTalkApp:
         access_token_key = '{}_access_token'.format(self.name)
 
         def callback(err):
-            self.cache.delete(access_token_key)
-            self.cache.delete(jsapi_ticket_key)
             logging.error(err)
+            try:
+                self.cache.delete(access_token_key)
+                self.cache.delete(jsapi_ticket_key)
+            except Exception as ex:
+                logging.error(ex)
 
         @retry(max_retries=5, step=5, callback=callback)
         def _get_jsapi_ticket():
@@ -407,6 +414,18 @@ class DingTalkApp:
     def space_id(self):
         data = self.get_customer_space()
         return data['spaceid']
+
+    def register_callback(self, callback_tag):
+        """
+        向钉钉注册回调接口。
+        注册回调前需要在初始化DingTalk App时传入aes_key和callback_url
+        其中callback_url必须返回经过加密的字符串“success”的json数据
+        :param callback_tag:
+        :return:
+        """
+        if self.aes_key is None or self.callback_url is None:
+            raise RuntimeError('注册回调前需要在初始化DingTalk App时传入aes_key和callback_url')
+
 
 if __name__ == '__main__':
     pass
