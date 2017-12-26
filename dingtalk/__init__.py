@@ -7,6 +7,7 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
+import struct
 import logging
 from .space import *
 from .contacts import *
@@ -15,6 +16,7 @@ from toolkit.retry import retry
 from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
+from .crypto import generate_signature, check_signature
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
@@ -40,14 +42,17 @@ def dingtalk(method_name):
 class DingTalkApp:
 
     def __init__(self, name, cache, corp_id, corp_secret, agent_id=None,
-                 noncestr=None, domain=None, callback_url=None, aes_key=None):
+                 noncestr=None, domain=None, callback_url=None, aes_key=None,
+                 token=''):
         self.name = name
         self.cache = cache
         self.corp_id = corp_id
         self.corp_secret = corp_secret
         self.agent_id = agent_id
         self.callback_url = callback_url
-        self.aes_key = aes_key
+        # AES_KEY
+        self.aes_key = aes_key or 'gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI'
+        self.token = token or 'LnPxMAp7doy'
         self.domain = domain or 'A2UOM1pZOxQ'
         self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
 
@@ -426,6 +431,8 @@ class DingTalkApp:
         """
         if self.aes_key is None or self.callback_url is None:
             raise RuntimeError('注册回调前需要在初始化DingTalk App时传入aes_key和callback_url')
+        data = register_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
+        return data
 
     def encrypt(self, plaintext):
         """
@@ -449,7 +456,18 @@ class DingTalkApp:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
         from .crypto import decrypt
         plaintext = decrypt(self.aes_key, ciphertext)
-        return plaintext
+        buf = plaintext[:16]
+        length = struct.unpack('!i', plaintext[16:20])[0]
+        msg = plaintext[20: 20 + length]
+        key = plaintext[20 + length:]
+        return msg, key, buf
+
+    def generate_signature(self, data, nonce):
+        sign = generate_signature(self.access_token, data, self.timestamp, nonce)
+        return sign
+
+    def check_signature(self, signature, data, timestamp, nonce):
+        return check_signature(self.access_token, data, signature, timestamp, nonce)
 
 if __name__ == '__main__':
     pass

@@ -43,7 +43,7 @@ DING_GET_USER_BY_CODE = 'https://oapi.dingtalk.com/user/getuserinfo'
 # 获取企业下的自定义空间
 DING_GET_CSPACE = 'https://oapi.dingtalk.com/cspace/get_custom_space'
 # 注册回调
-DING_REGISTER_CALL_BACK = 'https://oapi.dingtalk.com/call_back/register_call_back'
+DING_REGISTER_CALL_BACK = 'https://oapi.dingtalk.com/call_back/register_call_back?access_token={access_token}'
 
 
 if __name__ == '__main__':

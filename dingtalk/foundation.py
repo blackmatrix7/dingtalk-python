@@ -58,7 +58,7 @@ def dingtalk_resp(func):
             if 'errcode' in data and data['errcode'] != 0:
                 raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
                                                            err_code=data['errcode'],
-                                                           err_msg=data['errmsg'])
+                                                           err_msg=data.get('errmsg') or data['errcode'])
             elif 'error_response' in data and data['error_response']['code'] != 0:
                 err_code = data['error_response'].get('sub_code') or data['error_response']['code']
                 err_msg = data['error_response'].get('sub_msg') or data['error_response']['msg']
