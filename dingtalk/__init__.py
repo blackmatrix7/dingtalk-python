@@ -427,6 +427,29 @@ class DingTalkApp:
         if self.aes_key is None or self.callback_url is None:
             raise RuntimeError('注册回调前需要在初始化DingTalk App时传入aes_key和callback_url')
 
+    def encrypt(self, plaintext):
+        """
+        钉钉加密数据
+        :param plaintext:
+        :return:
+        """
+        if self.aes_key is None:
+            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
+        from .crypto import encrypt
+        ciphertext = encrypt(aes_key=self.aes_key, plaintext=plaintext, key=self.corp_id)
+        return ciphertext
+
+    def decrypt(self, ciphertext):
+        """
+        钉钉解密数据
+        :param ciphertext:
+        :return:
+        """
+        if self.aes_key is None:
+            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
+        from .crypto import decrypt
+        plaintext = decrypt(self.aes_key, ciphertext)
+        return plaintext
 
 if __name__ == '__main__':
     pass

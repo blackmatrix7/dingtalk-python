@@ -26,11 +26,11 @@ def check_signature(access_token, encrypt_text, signature, timestamp, nonce):
     return sign == signature
 
 
-def decrypt(aes_key, encrypt_text):
+def decrypt(aes_key, ciphertext):
     aes_key = base64.b64decode(aes_key + '=')
-    encrypt_text = base64.b64decode(encrypt_text)
+    ciphertext = base64.b64decode(ciphertext)
     aes = AES.new(aes_key, AES.MODE_CBC, aes_key[:16])
-    raw = aes.decrypt(encrypt_text).decode('utf-8')
+    raw = aes.decrypt(ciphertext).decode('utf-8')
     data = raw[raw.index('{'): raw.rindex('}') + 1]
     key = raw[raw.rindex('}') + 1:]
     buf = raw[:raw.rindex('{')]

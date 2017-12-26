@@ -25,7 +25,8 @@ class DingTalkTestCase(unittest.TestCase):
         self.app = DingTalkApp(name='vcan', cache=cache,
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
-                               corp_secret=current_config.DING_CORP_SECRET)
+                               corp_secret=current_config.DING_CORP_SECRET,
+                               aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
 
     # 获取 access token
     def test_get_access_token(self):
@@ -98,15 +99,15 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                'originator_user_id': '112322273839908294',
-                'dept_id': '49381153',
-                'approvers': ['112322273839908294'],
-                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
-                                          {'value': '哈哈哈哈', 'name': '部门'},
-                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        resp = self.app.create_bpms_instance(**args)
-        assert resp
+        # args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+        #         'originator_user_id': '112322273839908294',
+        #         'dept_id': '49381153',
+        #         'approvers': ['112322273839908294'],
+        #         'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+        #                                   {'value': '哈哈哈哈', 'name': '部门'},
+        #                                   {'value': '哈哈哈哈', 'name': '加班事由'}]}
+        # resp = self.app.create_bpms_instance(**args)
+        # assert resp
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -343,12 +344,12 @@ class DingTalkTestCase(unittest.TestCase):
         signature = '5a65ceeef9aab2d149439f82dc191dd6c5cbe2c0'
         timestamp = '1445827045067'
         nonce = 'nEXhMP4r'
-        encrypt = '1a3NBxmCFwkCJvfoQ7WhJHB+iX3qHPsc9JbaDznE1i03peOk1LaOQoRz3+nly' \
-                  'GNhwmwJ3vDMG+OzrHMeiZI7gTRWVdUBmfxjZ8Ej23JVYa9VrYeJ5as7XM/ZpulX8' \
-                  'NEQis44w53h1qAgnC3PRzM7Zc/D6Ibr0rgUathB6zRHP8PYrfgnNOS9PhSBdHleg' \
-                  'K+AGGanfwjXuQ9+0pZcy0w9lQ=='
+        encrypt_text = '1a3NBxmCFwkCJvfoQ7WhJHB+iX3qHPsc9JbaDznE1i03peOk1LaOQoRz3+nly' \
+                       'GNhwmwJ3vDMG+OzrHMeiZI7gTRWVdUBmfxjZ8Ej23JVYa9VrYeJ5as7XM/ZpulX8' \
+                       'NEQis44w53h1qAgnC3PRzM7Zc/D6Ibr0rgUathB6zRHP8PYrfgnNOS9PhSBdHleg' \
+                       'K+AGGanfwjXuQ9+0pZcy0w9lQ=='
         access_token = '123456'
-        result = check_signature(access_token=access_token, encrypt_text=encrypt,
+        result = check_signature(access_token=access_token, encrypt_text=encrypt_text,
                                  signature=signature, timestamp=timestamp, nonce=nonce)
         assert result is True
 
@@ -363,5 +364,11 @@ class DingTalkTestCase(unittest.TestCase):
         new_encrypt_text = encrypt(aes_key=aes_key, plaintext=data, key=key, buf=buf)
         new_data, new_key, new_buf = decrypt(aes_key, new_encrypt_text)
         assert data == new_data and key == new_key and buf == new_buf
+
+    def test_app_decrypt_encrypt(self):
+        plaintext = json.dumps({'input': 'hello world'})
+        ciphertext = self.app.encrypt(plaintext)
+        new_plaintext, new_key, new_buf = self.app.decrypt(ciphertext)
+        assert plaintext == new_plaintext
 
 
