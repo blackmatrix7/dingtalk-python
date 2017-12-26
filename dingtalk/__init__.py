@@ -88,7 +88,7 @@ class DingTalkApp:
         jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
         access_token_key = '{}_access_token'.format(self.name)
 
-        def callback(err):
+        def _callback(err):
             logging.error(err)
             try:
                 self.cache.delete(access_token_key)
@@ -96,7 +96,7 @@ class DingTalkApp:
             except Exception as ex:
                 logging.error(ex)
 
-        @retry(max_retries=5, step=5, callback=callback)
+        @retry(max_retries=5, step=5, callback=_callback)
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key):
                 ticket = self.cache.get(jsapi_ticket_key)
@@ -140,8 +140,10 @@ class DingTalkApp:
         传入方法名和参数，直接调用指定的钉钉接口，参数只需要传入钉钉的请求参数部分；
         不需要传入钉钉的公共参数部分，公共参数会自动补完。
         例如，需要调用"获取外部联系人标签"的接口，伪代码：
+        # 实例化一个DingTalk App
         app = DingTalkApp(.....)
-        app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
+        # 传入需要调用的接口方法名及参数，返回接口调用结果
+        data = app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
         :param method_name:
         :param args:
         :param kwargs:
@@ -266,7 +268,6 @@ class DingTalkApp:
         while True:
             # 钉钉接口存在Bug，偏移量已经超出数据数量时，仍会返回数据
             # 对此需要做特殊处理，今后如此Bug被修复，可以简化代码实现
-
             # 返回的数据是否重复
             valid_data = False
             # 获取钉钉的接口数据

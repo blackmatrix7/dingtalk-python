@@ -10,9 +10,9 @@ import json
 import unittest
 from extensions import cache
 from datetime import datetime
+from dingtalk.crypto import *
 from dingtalk import DingTalkApp
 from config import current_config
-from dingtalk.crypto import check_signature
 from dingtalk.exceptions import SysException
 from dateutil.relativedelta import relativedelta
 
@@ -348,8 +348,20 @@ class DingTalkTestCase(unittest.TestCase):
                   'NEQis44w53h1qAgnC3PRzM7Zc/D6Ibr0rgUathB6zRHP8PYrfgnNOS9PhSBdHleg' \
                   'K+AGGanfwjXuQ9+0pZcy0w9lQ=='
         access_token = '123456'
-        result = check_signature(access_token=access_token, encrypt=encrypt,
+        result = check_signature(access_token=access_token, encrypt_text=encrypt,
                                  signature=signature, timestamp=timestamp, nonce=nonce)
         assert result is True
+
+    @staticmethod
+    def test_decrypt_encrypt():
+        encrypt_text = '1a3NBxmCFwkCJvfoQ7WhJHB+iX3qHPsc9JbaDznE1i03peOk1LaOQoRz3+nly' \
+                  'GNhwmwJ3vDMG+OzrHMeiZI7gTRWVdUBmfxjZ8Ej23JVYa9VrYeJ5as7XM/ZpulX8' \
+                  'NEQis44w53h1qAgnC3PRzM7Zc/D6Ibr0rgUathB6zRHP8PYrfgnNOS9PhSBdHleg' \
+                  'K+AGGanfwjXuQ9+0pZcy0w9lQ=='
+        aes_key = '4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij'
+        data, key, buf = decrypt(aes_key, encrypt_text)
+        new_encrypt_text = encrypt(aes_key=aes_key, plaintext=data, key=key, buf=buf)
+        new_data, new_key, new_buf = decrypt(aes_key, new_encrypt_text)
+        assert data == new_data and key == new_key and buf == new_buf
 
 
