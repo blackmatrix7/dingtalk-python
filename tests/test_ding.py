@@ -99,15 +99,15 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        # args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-        #         'originator_user_id': '112322273839908294',
-        #         'dept_id': '49381153',
-        #         'approvers': ['112322273839908294'],
-        #         'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
-        #                                   {'value': '哈哈哈哈', 'name': '部门'},
-        #                                   {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        # resp = self.app.create_bpms_instance(**args)
-        # assert resp
+        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                'originator_user_id': '112322273839908294',
+                'dept_id': '49381153',
+                'approvers': ['112322273839908294'],
+                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+                                          {'value': '哈哈哈哈', 'name': '部门'},
+                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
+        resp = self.app.create_bpms_instance(**args)
+        assert resp
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -353,7 +353,7 @@ class DingTalkTestCase(unittest.TestCase):
                        'NEQis44w53h1qAgnC3PRzM7Zc/D6Ibr0rgUathB6zRHP8PYrfgnNOS9PhSBdHleg' \
                        'K+AGGanfwjXuQ9+0pZcy0w9lQ=='
         access_token = '123456'
-        result = check_signature(access_token=access_token, data=encrypt_text,
+        result = check_signature(access_token=access_token, ciphertext=encrypt_text,
                                  signature=signature, timestamp=timestamp, nonce=nonce)
         assert result is True
 

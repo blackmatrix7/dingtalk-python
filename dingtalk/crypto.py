@@ -15,21 +15,30 @@ from Crypto.Cipher import AES
 __author__ = 'blackmatrix'
 
 
-def generate_signature(access_token: str, encrypt_text: str, timestamp: str, nonce: str):
+def generate_signature(access_token: str, ciphertext: str, timestamp: str, nonce: str):
     """
     创建签名
     :param access_token:
-    :param encrypt_text:
+    :param ciphertext: 密文
     :param timestamp:
     :param nonce:
     :return:
     """
-    sign = hashlib.sha1(''.join(sorted([access_token, timestamp, nonce, encrypt_text])).encode())
+    sign = hashlib.sha1(''.join(sorted([access_token, timestamp, nonce, ciphertext])).encode())
     return sign.hexdigest()
 
 
-def check_signature(access_token, data, signature, timestamp, nonce):
-    sign = generate_signature(access_token, data, timestamp, nonce)
+def check_signature(access_token, ciphertext, signature, timestamp, nonce):
+    """
+    验证签名
+    :param access_token: access token
+    :param ciphertext: 加密后的数据
+    :param signature: 签名
+    :param timestamp: 时间戳
+    :param nonce:
+    :return:
+    """
+    sign = generate_signature(access_token, ciphertext, timestamp, nonce)
     return sign == signature
 
 

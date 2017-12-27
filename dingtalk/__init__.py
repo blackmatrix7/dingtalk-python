@@ -523,9 +523,17 @@ class DingTalkApp:
         sign = generate_signature(self.access_token, data, timestamp, nonce)
         return sign
 
-    def check_signature(self, signature, data, timestamp, nonce):
+    def check_signature(self, signature, ciphertext, timestamp, nonce):
+        """
+        验证签名
+        :param signature: 需要验证的签名
+        :param ciphertext: 加密后的数据
+        :param timestamp: 时间戳
+        :param nonce: 字符串，叫什么忘了
+        :return:
+        """
         from .crypto import check_signature
-        return check_signature(self.access_token, data, signature, timestamp, nonce)
+        return check_signature(self.access_token, ciphertext, signature, timestamp, nonce)
 
 if __name__ == '__main__':
     pass
