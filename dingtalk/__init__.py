@@ -44,7 +44,20 @@ class DingTalkApp:
 
     def __init__(self, name, cache, corp_id, corp_secret, agent_id=None,
                  noncestr=None, domain=None, callback_url=None, aes_key=None,
-                 token=''):
+                 token=None):
+        """
+
+        :param name:
+        :param cache:
+        :param corp_id:
+        :param corp_secret:
+        :param agent_id:
+        :param noncestr:
+        :param domain: 域名
+        :param callback_url: 回调函数地址，回调函数必须符合check_url方法的要求
+        :param aes_key: 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
+        :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
+        """
         self.name = name
         self.cache = cache
         self.corp_id = corp_id
