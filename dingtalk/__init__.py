@@ -7,16 +7,16 @@
 # @File : __init__.py.py
 # @Software: PyCharm
 import json
-import struct
 import logging
 from .space import *
 from .contacts import *
 from .callback import *
+from datetime import datetime
 from toolkit.retry import retry
 from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
-from .crypto import generate_signature, check_signature
+from dateutil.relativedelta import relativedelta
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
@@ -351,8 +351,41 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
-        resp = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
-        return resp
+        """
+
+        :param process_code:
+        :param start_time:
+        :param end_time:
+        :param size: 每次获取的记录条数，最大只能是10
+        :param cursor:
+        :return:
+        """
+        data = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
+        instance_list = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result']['list'].get('process_instance_top_vo', [])
+        next_cursor = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result'].get('next_cursor', 0)
+        return instance_list, next_cursor
+
+    def get_all_bpms_instance_list(self, process_code, start_time=None, end_time=None):
+        """
+
+        :param process_code:
+        :param start_time: 起始时间，如果不传，默认当前时间往前推6个月
+        :return:
+        """
+        now = datetime.now()
+        start_time = start_time or now - relativedelta(month=6)
+        end_time = end_time or now
+        size = 10
+        cursor = 0
+        bpms_instance_list = []
+        while True:
+            instance_list, next_cursor = self.get_bpms_instance_list(process_code, start_time, end_time=end_time, size=size, cursor=cursor)
+            bpms_instance_list.extend(instance_list)
+            if next_cursor > 0:
+                cursor = next_cursor
+            else:
+                break
+        return bpms_instance_list
 
     @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
@@ -434,7 +467,20 @@ class DingTalkApp:
         data = register_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
         return data
 
-    def encrypt(self, plaintext):
+    def encrypt(self, plaintext, buf=None):
+        """
+        钉钉加密数据
+        :param plaintext:
+        :param buf:
+        :return:
+        """
+        if self.aes_key is None:
+            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
+        from .crypto import encrypt
+        ciphertext = encrypt(aes_key=self.aes_key, plaintext=plaintext, key=self.corp_id, buf=buf)
+        return ciphertext
+
+    def encrypt_str(self, plaintext):
         """
         钉钉加密数据
         :param plaintext:
@@ -442,8 +488,8 @@ class DingTalkApp:
         """
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from .crypto import encrypt
-        ciphertext = encrypt(aes_key=self.aes_key, plaintext=plaintext, key=self.corp_id)
+        from .crypto import encrypt_str
+        ciphertext = encrypt_str(aes_key=self.aes_key, plaintext=plaintext)
         return ciphertext
 
     def decrypt(self, ciphertext):
@@ -455,18 +501,28 @@ class DingTalkApp:
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
         from .crypto import decrypt
-        plaintext = decrypt(self.aes_key, ciphertext)
-        buf = plaintext[:16]
-        length = struct.unpack('!i', plaintext[16:20])[0]
-        msg = plaintext[20: 20 + length]
-        key = plaintext[20 + length:]
+        msg, key, buf = decrypt(self.aes_key, ciphertext)
         return msg, key, buf
 
-    def generate_signature(self, data, nonce):
-        sign = generate_signature(self.access_token, data, self.timestamp, nonce)
+    def decrypt_str(self, ciphertext):
+        """
+        钉钉解密数据
+        :param ciphertext:
+        :return:
+        """
+        if self.aes_key is None:
+            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
+        from .crypto import decrypt_str
+        temp = decrypt_str(self.aes_key, ciphertext)
+        return temp
+
+    def generate_signature(self, data, timestamp, nonce):
+        from .crypto import generate_signature
+        sign = generate_signature(self.access_token, data, timestamp, nonce)
         return sign
 
     def check_signature(self, signature, data, timestamp, nonce):
+        from .crypto import check_signature
         return check_signature(self.access_token, data, signature, timestamp, nonce)
 
 if __name__ == '__main__':
