@@ -10,41 +10,46 @@ import uuid
 import struct
 import base64
 import hashlib
+import logging
 from Crypto.Cipher import AES
 
 __author__ = 'blackmatrix'
 
 
-def generate_signature(access_token: str, ciphertext: str, timestamp: str, nonce: str):
+def generate_signature(token: str, ciphertext: str, timestamp: str, nonce: str):
     """
     创建签名
-    :param access_token:
+    :param token:
     :param ciphertext: 密文
     :param timestamp:
     :param nonce:
     :return:
     """
-    sign = hashlib.sha1(''.join(sorted([access_token, timestamp, nonce, ciphertext])).encode())
-    return sign.hexdigest()
+    sign = hashlib.sha1(''.join(sorted([token, timestamp, nonce, ciphertext])).encode())
+    sign = sign.hexdigest()
+    logging.info('signature：' + sign)
+    return sign
 
 
-def check_signature(access_token, ciphertext, signature, timestamp, nonce):
+def check_signature(token, ciphertext, signature, timestamp, nonce):
     """
     验证签名
-    :param access_token: access token
+    算法请访问
+    https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7386797.0.0.EkauZY&source=search&treeId=366&articleId=107524&docType=1
+    :param token: token
     :param ciphertext: 加密后的数据
     :param signature: 签名
     :param timestamp: 时间戳
     :param nonce:
     :return:
     """
-    sign = generate_signature(access_token, ciphertext, timestamp, nonce)
+    sign = generate_signature(token, ciphertext, timestamp, nonce)
     return sign == signature
 
 
 def pkcs7_unpad(text):
     """
-    删除 PKCS#7 方式填充的字符串
+    删除PKCS#7方式填充的字符串
     :param text:
     :return: str
     """
@@ -53,6 +58,7 @@ def pkcs7_unpad(text):
 
 def pkcs7_pad(multiple, text):
     """
+    PKCS#7方式填充字符串
     :param multiple:
     :param text: str
     :return: str

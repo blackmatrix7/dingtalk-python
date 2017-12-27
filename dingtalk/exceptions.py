@@ -21,7 +21,9 @@ class DingTalkExceptions:
     # 钉钉接口返回错误
     dingtalk_resp_err = SysException(err_code=3003, err_msg='钉钉接口返回错误')
     # 钉钉接口参数不合法
-    webapi_args_err = SysException(err_code=3003, err_msg='钉钉接口参数不合法')
+    webapi_args_err = SysException(err_code=3004, err_msg='钉钉接口参数不合法')
+    # 钉钉接口参数不合法
+    sign_err = SysException(err_code=3005, err_msg='签名验证失败')
 
 
 if __name__ == '__main__':

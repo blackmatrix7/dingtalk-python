@@ -348,12 +348,12 @@ class DingTalkTestCase(unittest.TestCase):
         signature = '5a65ceeef9aab2d149439f82dc191dd6c5cbe2c0'
         timestamp = '1445827045067'
         nonce = 'nEXhMP4r'
-        encrypt_text = '1a3NBxmCFwkCJvfoQ7WhJHB+iX3qHPsc9JbaDznE1i03peOk1LaOQoRz3+nly' \
-                       'GNhwmwJ3vDMG+OzrHMeiZI7gTRWVdUBmfxjZ8Ej23JVYa9VrYeJ5as7XM/ZpulX8' \
-                       'NEQis44w53h1qAgnC3PRzM7Zc/D6Ibr0rgUathB6zRHP8PYrfgnNOS9PhSBdHleg' \
-                       'K+AGGanfwjXuQ9+0pZcy0w9lQ=='
-        access_token = '123456'
-        result = check_signature(access_token=access_token, ciphertext=encrypt_text,
+        ciphertext = '1a3NBxmCFwkCJvfoQ7WhJHB+iX3qHPsc9JbaDznE1i03peOk1LaOQoRz3+nly' \
+                     'GNhwmwJ3vDMG+OzrHMeiZI7gTRWVdUBmfxjZ8Ej23JVYa9VrYeJ5as7XM/ZpulX8' \
+                     'NEQis44w53h1qAgnC3PRzM7Zc/D6Ibr0rgUathB6zRHP8PYrfgnNOS9PhSBdHleg' \
+                     'K+AGGanfwjXuQ9+0pZcy0w9lQ=='
+        token = '123456'
+        result = check_signature(token=token, ciphertext=ciphertext,
                                  signature=signature, timestamp=timestamp, nonce=nonce)
         assert result is True
 

@@ -16,6 +16,7 @@ from toolkit.retry import retry
 from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
+from .exceptions import DingTalkExceptions
 from dateutil.relativedelta import relativedelta
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
@@ -520,12 +521,14 @@ class DingTalkApp:
 
     def generate_signature(self, data, timestamp, nonce):
         from .crypto import generate_signature
-        sign = generate_signature(self.access_token, data, timestamp, nonce)
+        sign = generate_signature(self.token, data, timestamp, nonce)
         return sign
 
     def check_signature(self, signature, ciphertext, timestamp, nonce):
         """
         验证签名
+        算法请访问
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7386797.0.0.EkauZY&source=search&treeId=366&articleId=107524&docType=1
         :param signature: 需要验证的签名
         :param ciphertext: 加密后的数据
         :param timestamp: 时间戳
@@ -533,7 +536,34 @@ class DingTalkApp:
         :return:
         """
         from .crypto import check_signature
-        return check_signature(self.access_token, ciphertext, signature, timestamp, nonce)
+        return check_signature(self.token, ciphertext, signature, timestamp, nonce)
+
+    def check_url(self, ding_nonce, ding_sign, ding_timestamp, ding_encrypt, ):
+        """
+        一个钉钉注册回调的check_url方法
+        文档：
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.x75fVY&treeId=385&articleId=104975&docType=1#s12
+        :param ding_nonce: 钉钉返回的随机字符串
+        :param ding_sign: 钉钉返回的签名
+        :param ding_timestamp: 钉钉返回的时间戳
+        :param ding_encrypt: 钉钉返回的加密后数据
+        :return: 返回带success的json
+        """
+        # 验证签名
+        if self.check_signature(ding_sign, ding_encrypt, ding_timestamp, ding_nonce) is False:
+            raise DingTalkExceptions.sign_err
+        # 签名验证成功后，解密数据
+        ding_data, corp_id, buf = self.decrypt(ding_encrypt)
+        # 加密success数据
+        encrypt = self.encrypt('success', buf).decode()
+        # 创建时间戳
+        timestamp = str(self.timestamp)
+        # 获取随机字符串
+        nonce = self.noncestr
+        # 创建签名
+        signature = self.generate_signature(encrypt, timestamp, nonce)
+        # 返回结果
+        return {'msg_signature': signature, 'timeStamp': timestamp, 'nonce': nonce, 'encrypt': encrypt}
 
 if __name__ == '__main__':
     pass
