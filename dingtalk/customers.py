@@ -7,8 +7,7 @@
 # @File : customers.py
 # @Software: PyCharm
 import json
-import requests
-from .foundation import *
+from .foundation import call_dingtalk_webapi, dingtalk_resp
 
 __author__ = 'blackmatrix'
 
