@@ -345,9 +345,10 @@ class DingTalkApp:
             form_component_values = json.dumps(form_component_values)
         except JSONDecodeError:
             pass
-        resp = create_bpms_instance(self.access_token, process_code, originator_user_id,
+        data = create_bpms_instance(self.access_token, process_code, originator_user_id,
                                     dept_id, approvers, form_component_values, agent_id)
-        return resp
+        return {'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id'],
+                'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id']}
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
@@ -367,9 +368,10 @@ class DingTalkApp:
 
     def get_all_bpms_instance_list(self, process_code, start_time=None, end_time=None):
         """
-
+        获取"全部"审批实例
         :param process_code:
         :param start_time: 起始时间，如果不传，默认当前时间往前推6个月
+        :param end_time: 结束时间，如果不传，默认当前时间
         :return:
         """
         now = datetime.now()
