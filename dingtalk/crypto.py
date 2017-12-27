@@ -51,7 +51,7 @@ def pkcs7_pad(multiple, text):
     return text + (multiple - len(text) % multiple) * chr(multiple - len(text) % multiple)
 
 
-def decrypt_str(aes_key, ciphertext):
+def decrypt_text(aes_key, ciphertext):
     aes_key = base64.b64decode(aes_key + '=')
     ciphertext = base64.b64decode(ciphertext)
     aes = AES.new(aes_key, AES.MODE_CBC, aes_key[:16])
@@ -61,7 +61,7 @@ def decrypt_str(aes_key, ciphertext):
 
 
 def decrypt(aes_key, ciphertext):
-    raw = decrypt_str(aes_key, ciphertext)
+    raw = decrypt_text(aes_key, ciphertext)
     buf = raw[:16].decode().strip()
     length = struct.unpack('!i', raw[16:20])[0]
     msg = raw[20: 20 + length].decode().strip()
@@ -69,7 +69,7 @@ def decrypt(aes_key, ciphertext):
     return msg, key, buf
 
 
-def encrypt_str(aes_key, plaintext):
+def encrypt_text(aes_key, plaintext):
     aes_key = base64.b64decode(aes_key + '=')
     aes = AES.new(aes_key, AES.MODE_CBC, aes_key[:16])
     ciphertext = pkcs7_pad(16, plaintext)
@@ -82,7 +82,7 @@ def encrypt(aes_key, plaintext, key, buf=None):
     buf = buf or str(uuid.uuid4()).replace('-', '')
     buf = buf[:16]
     length = struct.pack('!i', len(plaintext)).decode()
-    ciphertext = encrypt_str(aes_key, buf + length + plaintext + key)
+    ciphertext = encrypt_text(aes_key, buf + length + plaintext + key)
     return ciphertext
 
 if __name__ == '__main__':

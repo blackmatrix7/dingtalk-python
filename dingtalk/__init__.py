@@ -472,7 +472,7 @@ class DingTalkApp:
     def encrypt(self, plaintext, buf=None):
         """
         钉钉加密数据
-        :param plaintext:
+        :param plaintext: 明文
         :param buf:
         :return:
         """
@@ -482,22 +482,22 @@ class DingTalkApp:
         ciphertext = encrypt(aes_key=self.aes_key, plaintext=plaintext, key=self.corp_id, buf=buf)
         return ciphertext
 
-    def encrypt_str(self, plaintext):
+    def encrypt_text(self, plaintext: str):
         """
-        钉钉加密数据
-        :param plaintext:
+        对纯文本进行加密
+        :param plaintext: 明文
         :return:
         """
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from .crypto import encrypt_str
-        ciphertext = encrypt_str(aes_key=self.aes_key, plaintext=plaintext)
+        from .crypto import encrypt_text
+        ciphertext = encrypt_text(aes_key=self.aes_key, plaintext=plaintext)
         return ciphertext
 
-    def decrypt(self, ciphertext):
+    def decrypt(self, ciphertext: str):
         """
         钉钉解密数据
-        :param ciphertext:
+        :param ciphertext: 密文
         :return:
         """
         if self.aes_key is None:
@@ -506,16 +506,16 @@ class DingTalkApp:
         msg, key, buf = decrypt(self.aes_key, ciphertext)
         return msg, key, buf
 
-    def decrypt_str(self, ciphertext):
+    def decrypt_text(self, ciphertext: str):
         """
-        钉钉解密数据
-        :param ciphertext:
+        对纯文本进行解密
+        :param ciphertext: 密文
         :return:
         """
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from .crypto import decrypt_str
-        temp = decrypt_str(self.aes_key, ciphertext)
+        from .crypto import decrypt_text
+        temp = decrypt_text(self.aes_key, ciphertext)
         return temp
 
     def generate_signature(self, data, timestamp, nonce):
