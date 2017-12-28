@@ -99,10 +99,11 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
+        user_ids = ['112322273839908294', '05412318371150192', '132438000937909370']
         args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                 'originator_user_id': '112322273839908294',
                 'dept_id': '49381153',
-                'approvers': ['112322273839908294'],
+                'approvers': user_ids,
                 'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
                                           {'value': '哈哈哈哈', 'name': '部门'},
                                           {'value': '哈哈哈哈', 'name': '加班事由'}]}

@@ -551,7 +551,19 @@ class DingTalkApp:
         from .crypto import check_signature
         return check_signature(self.token, ciphertext, signature, timestamp, nonce)
 
-    def check_url(self, ding_nonce, ding_sign, ding_timestamp, ding_encrypt, ):
+    def return_success(self):
+        # 加密success数据
+        encrypt = self.encrypt('success').decode()
+        # 创建时间戳
+        timestamp = str(self.timestamp)
+        # 获取随机字符串
+        nonce = self.noncestr
+        # 创建签名
+        signature = self.generate_signature(encrypt, timestamp, nonce)
+        # 返回结果
+        return {'msg_signature': signature, 'timeStamp': timestamp, 'nonce': nonce, 'encrypt': encrypt}
+
+    def check_url(self, ding_nonce, ding_sign, ding_timestamp, ding_encrypt):
         """
         一个钉钉注册回调的check_url方法
         文档：
@@ -567,16 +579,10 @@ class DingTalkApp:
             raise DingTalkExceptions.sign_err
         # 签名验证成功后，解密数据
         ding_data, corp_id, buf = self.decrypt(ding_encrypt)
-        # 加密success数据
-        encrypt = self.encrypt('success', buf).decode()
-        # 创建时间戳
-        timestamp = str(self.timestamp)
-        # 获取随机字符串
-        nonce = self.noncestr
-        # 创建签名
-        signature = self.generate_signature(encrypt, timestamp, nonce)
+        assert ding_data and corp_id and buf
         # 返回结果
-        return {'msg_signature': signature, 'timeStamp': timestamp, 'nonce': nonce, 'encrypt': encrypt}
+        result = self.return_success()
+        return result
 
 if __name__ == '__main__':
     pass
