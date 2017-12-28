@@ -534,12 +534,12 @@ class DingTalkApp:
         temp = decrypt_text(self.aes_key, ciphertext)
         return temp
 
-    def generate_signature(self, data, timestamp, nonce):
-        from .crypto import generate_signature
-        sign = generate_signature(self.token, data, timestamp, nonce)
+    def generate_callback_signature(self, data, timestamp, nonce):
+        from .crypto import generate_callback_signature
+        sign = generate_callback_signature(self.token, data, timestamp, nonce)
         return sign
 
-    def check_signature(self, signature, ciphertext, timestamp, nonce):
+    def check_callback_signature(self, signature, ciphertext, timestamp, nonce):
         """
         验证签名
         算法请访问
@@ -550,10 +550,14 @@ class DingTalkApp:
         :param nonce: 字符串，叫什么忘了
         :return:
         """
-        from .crypto import check_signature
-        return check_signature(self.token, ciphertext, signature, timestamp, nonce)
+        from .crypto import check_callback_signature
+        return check_callback_signature(self.token, ciphertext, signature, timestamp, nonce)
 
     def return_success(self):
+        """
+        钉钉回调需要返回含有success的json，提供一个方法，快速返回一个符合钉钉要求的success json
+        :return:
+        """
         # 加密success数据
         encrypt = self.encrypt('success').decode()
         # 创建时间戳
@@ -561,7 +565,7 @@ class DingTalkApp:
         # 获取随机字符串
         nonce = self.noncestr
         # 创建签名
-        signature = self.generate_signature(encrypt, timestamp, nonce)
+        signature = self.generate_callback_signature(encrypt, timestamp, nonce)
         # 返回结果
         return {'msg_signature': signature, 'timeStamp': timestamp, 'nonce': nonce, 'encrypt': encrypt}
 
@@ -577,7 +581,7 @@ class DingTalkApp:
         :return: 返回带success的json
         """
         # 验证签名
-        if self.check_signature(ding_sign, ding_encrypt, ding_timestamp, ding_nonce) is False:
+        if self.check_callback_signature(ding_sign, ding_encrypt, ding_timestamp, ding_nonce) is False:
             raise DingTalkExceptions.sign_err
         # 签名验证成功后，解密数据
         ding_data, corp_id, buf = self.decrypt(ding_encrypt)

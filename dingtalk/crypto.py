@@ -16,7 +16,7 @@ from Crypto.Cipher import AES
 __author__ = 'blackmatrix'
 
 
-def generate_signature(token: str, ciphertext: str, timestamp: str, nonce: str):
+def generate_callback_signature(token: str, ciphertext: str, timestamp: str, nonce: str):
     """
     创建签名
     :param token:
@@ -31,7 +31,7 @@ def generate_signature(token: str, ciphertext: str, timestamp: str, nonce: str):
     return sign
 
 
-def check_signature(token, ciphertext, signature, timestamp, nonce):
+def check_callback_signature(token, ciphertext, signature, timestamp, nonce):
     """
     验证签名
     算法请访问
@@ -43,7 +43,7 @@ def check_signature(token, ciphertext, signature, timestamp, nonce):
     :param nonce:
     :return:
     """
-    sign = generate_signature(token, ciphertext, timestamp, nonce)
+    sign = generate_callback_signature(token, ciphertext, timestamp, nonce)
     return sign == signature
 
 
