@@ -11,6 +11,7 @@ import logging
 from .space import *
 from .contacts import *
 from .callback import *
+from functools import wraps
 from datetime import datetime
 from toolkit.retry import retry
 from json import JSONDecodeError
@@ -34,6 +35,7 @@ def dingtalk(method_name):
     def wrapper(func):
         methods.update({method_name: func.__name__})
 
+        @wraps(func)
         def _wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         return _wrapper
