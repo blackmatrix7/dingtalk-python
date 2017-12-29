@@ -85,7 +85,6 @@ def dingtalk_resp(func):
                 err_code = data['error_response'].get('sub_code') or data['error_response']['code']
                 err_msg = data['error_response'].get('sub_msg') or data['error_response']['msg']
                 raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code, err_code=err_code, err_msg=err_msg)
-            # 其他暂时无法明确返回错误的，直接返回接口调用结果
             else:
                 # 对于一些返回格式不统一的接口，需要对返回的数据做拆解，再判断是否存在异常
                 result = dingtalk_unpack_result(data)
@@ -97,6 +96,7 @@ def dingtalk_resp(func):
                         err_code = result.get('ding_open_errcode')
                         err_msg = result.get('error_msg')
                     raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code, err_code=err_code, err_msg=err_msg)
+                # 其他暂时无法明确返回错误的，直接返回接口调用结果
                 else:
                     return data
         else:
