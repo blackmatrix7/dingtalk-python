@@ -14,6 +14,9 @@ from .exceptions import DingTalkExceptions
 __author__ = 'blackmatrix'
 
 
+headers = {'Content-Type': 'application/json'}
+
+
 def get_timestamp():
     """
     生成时间戳

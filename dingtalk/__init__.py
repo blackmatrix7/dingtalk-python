@@ -14,7 +14,6 @@ from .callback import *
 from functools import wraps
 from datetime import datetime
 from toolkit.retry import retry
-from json import JSONDecodeError
 from operator import methodcaller
 from .foundation import get_timestamp
 from .exceptions import DingTalkExceptions
@@ -345,7 +344,8 @@ class DingTalkApp:
         return resp
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
-    def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers, form_component_values, agent_id=None):
+    def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers,
+                             form_component_values, agent_id=None, cc_list=None, cc_position='FINISH'):
         """
         发起审批实例
         :param process_code:
@@ -354,15 +354,14 @@ class DingTalkApp:
         :param approvers:
         :param form_component_values:
         :param agent_id:
+        :param cc_list:
+        :param cc_position:
         :return:
         """
         agent_id = agent_id or self.agent_id
-        try:
-            form_component_values = json.dumps(form_component_values)
-        except JSONDecodeError:
-            pass
         data = create_bpms_instance(self.access_token, process_code, originator_user_id,
-                                    dept_id, approvers, form_component_values, agent_id)
+                                    dept_id, approvers, form_component_values,
+                                    agent_id, cc_list, cc_position)
         return {'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id'],
                 'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id']}
 
@@ -541,7 +540,7 @@ class DingTalkApp:
 
     def check_callback_signature(self, signature, ciphertext, timestamp, nonce):
         """
-        验证签名
+        验证钉钉回调接口的签名
         算法请访问
         https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7386797.0.0.EkauZY&source=search&treeId=366&articleId=107524&docType=1
         :param signature: 需要验证的签名

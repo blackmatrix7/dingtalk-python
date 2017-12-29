@@ -99,11 +99,21 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        user_ids = ['112322273839908294', '05412318371150192', '132438000937909370']
+        # 获取部门
+        dept_list = self.app.get_department_list()
+        dept_ids = [dept['id'] for dept in dept_list]
+        # 测试部门
+        originator_dept_id = dept_ids[3]
+        dev_dept_id = dept_ids[1]
+        # 获取用户
+        originator_user_list = self.app.get_user_list(originator_dept_id)
+        originator_user_id = [user['userid'] for user in originator_user_list][0]
+        dev_user_list = self.app.get_user_list(dev_dept_id)
+        approvers = [user['userid'] for user in dev_user_list]
         args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                'originator_user_id': '112322273839908294',
-                'dept_id': '49381153',
-                'approvers': user_ids,
+                'originator_user_id': originator_user_id,
+                'dept_id': originator_dept_id,
+                'approvers': approvers,
                 'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
                                           {'value': '哈哈哈哈', 'name': '部门'},
                                           {'value': '哈哈哈哈', 'name': '加班事由'}]}
@@ -209,20 +219,15 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        # # 获取部门
+        # 获取部门
         # dept_list = self.app.get_department_list()
         # dept_ids = [dept['id'] for dept in dept_list]
         # # 获取用户
         # user_list = self.app.get_user_list(dept_ids[1])
-        # user_ids = [user['userid'] for user in user_list]
+        # user_ids = [user['userid'] for user in user_list][1]
         # data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
         #                                msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
         # assert data
-        # for item in data['success_userid_list']:
-        #     task_id = item['task_id']
-        #     assert task_id
-        #     result = self.app.get_msg_send_result(task_id)
-        #     assert result
 
     # 测试获取用户信息
     def test_get_user_info(self):

@@ -15,32 +15,22 @@ from .exceptions import DingTalkExceptions
 __author__ = 'blackmatrix'
 
 
+@dingtalk_resp
 def async_send_msg(access_token, msgtype, agent_id, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
     try:
         msgcontent = json.dumps(msgcontent)
     except JSONDecodeError:
         pass
+    userid_list = ','.join(userid_list)
     args = locals().copy()
     payload = {}
-    url = get_request_url(access_token, 'dingtalk.corp.message.corpconversation.asyncsend')
     # 请求参数整理
     for k, v in args.items():
         if k in ('msgtype', 'agent_id', 'msgcontent', 'userid_list', 'dept_id_list'):
             if v is not None:
                 payload.update({k: v})
-    # 钉钉的企业通知接口似乎存在bug，当向对个user_id推送时，只有第一个user_id可以收到消息
-    # 暂时的解决方案，将userid_list拆开单独请求
-    result = {'success_userid_list': [], 'failed_userid_list': []}
-    for user_id in userid_list:
-        payload['userid_list'] = [user_id]
-        resp = requests.post(url, data=payload)
-        if resp.status_code == 200:
-            resp = resp.json()
-            task_id = resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id']
-            result['success_userid_list'].append({'user_id': user_id, 'task_id': task_id})
-        else:
-            result['failed_userid_list'].append({'user_id': user_id})
-    return result
+    resp = call_dingtalk_webapi(access_token, 'dingtalk.corp.message.corpconversation.asyncsend', **payload)
+    return resp
 
 
 @dingtalk_resp
