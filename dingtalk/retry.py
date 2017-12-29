@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Time : 2017/8/18 上午9:50
 # @Author : Matrix
-# @Github : https://github.com/blackmatrix7/
-# @Blog : http://www.cnblogs.com/blackmatrix/
+# @Github :
+# @Blog :
 # @File : retry.py
 # @Software: PyCharm
 import time
@@ -62,10 +62,10 @@ def retry(max_retries: int =5, delay: (int, float) =0, step: (int, float) =0,
                     else:
                         return result
                 except exceptions as ex:
+                    func_ex = ex
                     # 回调函数返回True时，表示告知装饰器异常已经处理，终止重试
                     if callable(callback) and callback(ex) is True:
                         return
-                    func_ex = ex
                 finally:
                     max_retries -= 1
                     if delay > 0 or step > 0:

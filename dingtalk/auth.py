@@ -10,7 +10,7 @@ import hashlib
 import logging
 import requests
 from .configs import *
-from toolkit.retry import retry
+from .retry import retry
 from .foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'
