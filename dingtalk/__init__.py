@@ -11,9 +11,9 @@ import logging
 from .space import *
 from .contacts import *
 from .callback import *
+from .retry import retry
 from functools import wraps
 from datetime import datetime
-from toolkit.retry import retry
 from operator import methodcaller
 from .foundation import get_timestamp
 from .exceptions import DingTalkExceptions
