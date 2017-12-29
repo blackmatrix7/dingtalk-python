@@ -38,8 +38,9 @@ def create_bpms_instance(access_token, process_code, originator_user_id,
         form_component_values = json.dumps(form_component_values)
     except JSONDecodeError:
         pass
-    # 钉钉传入的userid，是以,分隔的字符串
-    approvers = ','.join(approvers)
+    # 钉钉传入的userid，是以,分隔的字符串，如果已经传入的是字符串，就不再处理
+    if approvers and not isinstance(approvers, str):
+        approvers = ','.join(approvers)
     args = locals()
     payload = {}
     for key in ('process_code', 'originator_user_id', 'dept_id', 'approvers', 'form_component_values',

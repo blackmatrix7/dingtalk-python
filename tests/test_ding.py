@@ -104,21 +104,34 @@ class DingTalkTestCase(unittest.TestCase):
         dept_ids = [dept['id'] for dept in dept_list]
         # 测试部门
         originator_dept_id = dept_ids[3]
-        dev_dept_id = dept_ids[1]
         # 获取用户
         originator_user_list = self.app.get_user_list(originator_dept_id)
         originator_user_id = [user['userid'] for user in originator_user_list][0]
-        dev_user_list = self.app.get_user_list(dev_dept_id)
-        approvers = [user['userid'] for user in dev_user_list]
         args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                 'originator_user_id': originator_user_id,
                 'dept_id': originator_dept_id,
-                'approvers': approvers,
+                'approvers': ['05273640343597xc66032', '11232227383990829d4', '11232227561147d773'],
                 'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
                                           {'value': '哈哈哈哈', 'name': '部门'},
                                           {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        resp = self.app.create_bpms_instance(**args)
-        assert resp
+        try:
+            # 测试错误情况
+            resp = self.app.create_bpms_instance(**args)
+            assert resp
+        except BaseException as ex:
+            assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
+        # dev_dept_id = dept_ids[1]
+        # dev_user_list = self.app.get_user_list(dev_dept_id)
+        # approvers = [user['userid'] for user in dev_user_list]
+        # args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+        #         'originator_user_id': originator_user_id,
+        #         'dept_id': originator_dept_id,
+        #         'approvers': approvers,
+        #         'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+        #                                   {'value': '哈哈哈哈', 'name': '部门'},
+        #                                   {'value': '哈哈哈哈', 'name': '加班事由'}]}
+        # resp = self.app.create_bpms_instance(**args)
+        # assert resp
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -198,6 +211,7 @@ class DingTalkTestCase(unittest.TestCase):
         ]
         :return:
         """
+        assert self.app.access_token
         start_date = datetime.now() - relativedelta(month=1)
         data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                                                start_time=start_date)

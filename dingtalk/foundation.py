@@ -52,6 +52,25 @@ def get_request_url(access_token, method=None, format_='json', v='2.0', simplify
     return request_url
 
 
+def dingtalk_unpack_result(result):
+    """
+    统一钉钉的返回格式
+    :param result:
+    :return:
+    """
+    try:
+        for k1, v1 in result.items():
+            for k2, v2 in v1.items():
+                if k2 == 'result' and isinstance(v2, dict):
+                    return v2
+            else:
+                return result
+        else:
+            return result
+    except AttributeError:
+        return result
+
+
 def dingtalk_resp(func):
     def wrapper(*args, **kwargs):
         resp = func(*args, **kwargs)
@@ -68,7 +87,18 @@ def dingtalk_resp(func):
                 raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code, err_code=err_code, err_msg=err_msg)
             # 其他暂时无法明确返回错误的，直接返回接口调用结果
             else:
-                return data
+                # 对于一些返回格式不统一的接口，需要对返回的数据做拆解，再判断是否存在异常
+                result = dingtalk_unpack_result(data)
+                if result.get('is_success', True) is False or result.get('success', True) is False:
+                    if 'error_response' in result:
+                        err_code = result['error_response'].get('ding_open_errcode')
+                        err_msg = result['error_response'].get('err_msg')
+                    else:
+                        err_code = result.get('ding_open_errcode')
+                        err_msg = result.get('error_msg')
+                    raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code, err_code=err_code, err_msg=err_msg)
+                else:
+                    return data
         else:
             raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
                                                        err_code=data['errcode'],
