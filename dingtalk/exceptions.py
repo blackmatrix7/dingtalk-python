@@ -13,7 +13,7 @@ __author__ = 'blackmatrix'
 _no_value = object()
 
 
-class SysException(BaseException):
+class DingTalkException(BaseException):
 
     """
     以描述符进行异常管理：
@@ -31,8 +31,8 @@ class SysException(BaseException):
         raise AttributeError('禁止修改异常设定')
 
     def __get__(self, instance, owner):
-        supers = (SysException, self.err_type, BaseException) \
-            if self.err_type and self.err_type is not BaseException else (SysException, BaseException)
+        supers = (DingTalkException, self.err_type, BaseException) \
+            if self.err_type and self.err_type is not BaseException else (DingTalkException, BaseException)
         api_ex_cls = types.new_class('SysException', supers, {}, lambda ns: ns)
         api_ex = api_ex_cls(err_msg=self.err_msg, err_code=self.err_code, http_code=self.http_code)
         return api_ex
@@ -55,17 +55,17 @@ class SysException(BaseException):
 
 class DingTalkExceptions:
     # 拒绝访问
-    access_denied = SysException(err_code=3000, err_msg='访问拒绝')
+    access_denied = DingTalkException(err_code=3000, err_msg='访问拒绝')
     # 获取 access token 错误
-    get_access_token_err = SysException(err_code=3001, err_msg='获取 access token 错误')
+    get_access_token_err = DingTalkException(err_code=3001, err_msg='获取 access token 错误')
     # 获取 jsapi ticket 错误
-    get_jsapi_ticket_err = SysException(err_code=3002, err_msg='获取 jsapi ticket 错误')
+    get_jsapi_ticket_err = DingTalkException(err_code=3002, err_msg='获取 jsapi ticket 错误')
     # 钉钉接口返回错误
-    dingtalk_resp_err = SysException(err_code=3003, err_msg='钉钉接口返回错误')
+    dingtalk_resp_err = DingTalkException(err_code=3003, err_msg='钉钉接口返回错误')
     # 钉钉接口参数不合法
-    webapi_args_err = SysException(err_code=3004, err_msg='钉钉接口参数不合法')
+    webapi_args_err = DingTalkException(err_code=3004, err_msg='钉钉接口参数不合法')
     # 钉钉接口参数不合法
-    sign_err = SysException(err_code=3005, err_msg='签名验证失败')
+    sign_err = DingTalkException(err_code=3005, err_msg='签名验证失败')
 
 
 if __name__ == '__main__':
