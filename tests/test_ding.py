@@ -13,7 +13,7 @@ from datetime import datetime
 from dingtalk.crypto import *
 from dingtalk import DingTalkApp
 from config import current_config
-from dingtalk.exceptions import SysException
+from dingtalk.exceptions import DingTalkException
 from dateutil.relativedelta import relativedelta
 
 __author__ = 'blackmatrix'
@@ -88,7 +88,7 @@ class DingTalkTestCase(unittest.TestCase):
         try:
             result = self.app.add_corp_ext(contact)
             assert result is not None
-        except SysException as ex:
+        except DingTalkException as ex:
             assert '外部联系人已存在' in str(ex)
 
     # 测试新增工作流实例
@@ -216,7 +216,12 @@ class DingTalkTestCase(unittest.TestCase):
         data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                                                start_time=start_date)
         assert data
+        # 测试错误情况，传入一个不存在的process_code
+        data = self.app.get_bpms_instance_list(process_code='PROC-XXXXXXXX-XXXXXXXX-XXXXXXX-X',
+                                               start_time=start_date)
+        assert data[1] == 0
 
+    # 获取全部工作流实例
     def test_all_bpms_list(self):
         data = self.app.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4')
         assert data
@@ -226,19 +231,28 @@ class DingTalkTestCase(unittest.TestCase):
         methods = self.app.methods
         assert methods
 
+    # 异步发送消息
     def test_async_send_msg(self):
         """
         测试异步发送消息
-        为了避免频繁发送消息，默认不运行测试用例
+        为了避免频繁发送消息
         :return:
         """
         assert self.app.access_token
         # 获取部门
-        # dept_list = self.app.get_department_list()
-        # dept_ids = [dept['id'] for dept in dept_list]
-        # # 获取用户
-        # user_list = self.app.get_user_list(dept_ids[1])
-        # user_ids = [user['userid'] for user in user_list][1]
+        dept_list = self.app.get_department_list()
+        dept_ids = [dept['id'] for dept in dept_list]
+        # 获取用户
+        user_list = self.app.get_user_list(dept_ids[1])
+        user_ids = [user['userid'] for user in user_list][1]
+        # 测试错误的情况，错误的msgtype
+        try:
+            data = self.app.async_send_msg(msgtype='text2', userid_list=user_ids,
+                                           msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+            assert data
+        except BaseException as ex:
+            assert '不合法的消息类型' in str(ex)
+        # # 测试正确的情况，避免频繁发送消息
         # data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
         #                                msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
         # assert data
@@ -254,6 +268,7 @@ class DingTalkTestCase(unittest.TestCase):
         data = self.app.get_user_info(user_id=user_id)
         assert data
 
+    # 测试用户操作
     def test_user_operator(self):
         """
         测试创建用户
@@ -261,14 +276,27 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        # dept_list = self.app.get_department_list()
-        # dept_id = None
-        # for dept in dept_list:
-        #     if dept['name'] == '信息部':
-        #         dept_id = dept['id']
-        #         break
-        # if dept_id is None:
-        #     dept_id = dept_list[1]
+        dept_list = self.app.get_department_list()
+        dept_id = None
+        for dept in dept_list:
+            if dept['name'] == '信息部':
+                dept_id = dept['id']
+                break
+        if dept_id is None:
+            dept_id = dept_list[1]
+        # 测试创建用户错误
+        err_user_info = {
+            'name': '马小云',
+            'orderInDepts': {dept_id: 8},
+            'department': 1234567890,
+            'position': '马云，你不认识？？！！',
+            'mobile': '13058888882'
+        }
+        try:
+            result = self.app.create_user(**err_user_info)
+            assert result
+        except BaseException as ex:
+            assert '无效的部门JSONArray对象,合法格式需要用中括号括起来,且如果属于多部门,部门id需要用逗号分隔' in str(ex)
         # user_info = {
         #     'name': '马小云',
         #     'orderInDepts': {dept_id: 8},
@@ -277,6 +305,7 @@ class DingTalkTestCase(unittest.TestCase):
         #     'mobile': '13058888882'
         # }
         # result = self.app.create_user(**user_info)
+        # assert result
         # assert result
         # user_id = result['userid']
         # new_user_info = {
@@ -292,28 +321,20 @@ class DingTalkTestCase(unittest.TestCase):
         # result = self.app.delete_user(userid=user_id)
         # assert result
 
-    #
-    def test_get_dept_info(self):
+    # 部门操作相关测试
+    def test_dept_operator(self):
         # 获取部门详情
         dept_list = self.app.get_department_list()
         dept_id = dept_list[1]['id']
         resp = self.app.get_department(dept_id)
         assert resp
-
-    def test_dept_operator(self):
-        dept_info = {
-            'name': '霍格沃茨魔法学校',
-            'parentid': 1
-        }
-        dept_id = self.app.create_department(**dept_info)
-        assert dept_id
-        new_dept_info = {
-            'id': dept_id,
-            'name': '霍格沃茨魔法学校：格兰芬多',
-            'parentid': 1
-        }
-        dept = self.app.update_department(**new_dept_info)
-        assert dept
+        # 测试错误的部门id
+        try:
+            resp = self.app.get_department(123456789)
+            assert resp
+        except BaseException as ex:
+            assert '部门不存在' in str(ex)
+        # 测试删除部门
         dept_list = self.app.get_department_list()
         assert dept_list
         for dept in dept_list:
@@ -321,7 +342,41 @@ class DingTalkTestCase(unittest.TestCase):
                 dept_id = dept['id']
                 result = self.app.delete_department(dept_id)
                 assert result
+        dept_info = {
+            'name': '霍格沃茨魔法学校',
+            'parentid': 1
+        }
+        dept_id = self.app.create_department(**dept_info)
+        assert dept_id
+        # 测试创建部门错误，key错误
+        err_dept_info = {
+            'dept_name': '霍格沃茨魔法学校',
+            'parentid': 1
+        }
+        try:
+            dept_id = self.app.create_department(**err_dept_info)
+        except BaseException as ex:
+            assert '不合法的部门名称' in str(ex)
+        new_dept_info = {
+            'id': dept_id,
+            'name': '霍格沃茨魔法学校：格兰芬多',
+            'parentid': 1
+        }
+        dept = self.app.update_department(**new_dept_info)
+        assert dept
+        # 测试更新部门错误
+        err_new_dept_info = {
+            'id': 1234567890,
+            'name': '霍格沃茨魔法学校：格兰芬多',
+            'parentid': 1
+        }
+        try:
+            dept = self.app.update_department(**err_new_dept_info)
+            assert dept
+        except BaseException as ex:
+            assert '部门不存在' in str(ex)
 
+    # 获取用户部门
     def test_get_user_depts(self):
         # 获取部门
         dept_list = self.app.get_department_list()
@@ -332,6 +387,7 @@ class DingTalkTestCase(unittest.TestCase):
         depts = self.app.get_user_departments(user_id)
         assert depts
 
+    # 获取企业员工数
     def test_get_org_user_count(self):
         result = self.app.get_org_user_count(0)
         assert result > 1
@@ -364,7 +420,7 @@ class DingTalkTestCase(unittest.TestCase):
         assert sign == '750d0719eeb810f6fa12b04d87d0d7789c4bc64f'
 
     @staticmethod
-    def test_check_signature():
+    def test_check_callback_signature():
         signature = '5a65ceeef9aab2d149439f82dc191dd6c5cbe2c0'
         timestamp = '1445827045067'
         nonce = 'nEXhMP4r'
