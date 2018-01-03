@@ -21,7 +21,7 @@ def async_send_msg(access_token, msgtype, agent_id, msgcontent, userid_list=None
         msgcontent = json.dumps(msgcontent)
     except JSONDecodeError:
         pass
-    if isinstance(userid_list, str):
+    if not isinstance(userid_list, str):
         userid_list = ','.join(userid_list)
     args = locals().copy()
     payload = {}

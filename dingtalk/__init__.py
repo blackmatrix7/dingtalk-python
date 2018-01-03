@@ -381,7 +381,7 @@ class DingTalkApp:
         next_cursor = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result'].get('next_cursor', 0)
         return instance_list, next_cursor
 
-    def get_all_bpms_instance_list(self, process_code, start_time=None, end_time=None):
+    def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
         """
         获取"全部"审批实例
         :param process_code:
@@ -390,8 +390,9 @@ class DingTalkApp:
         :return:
         """
         now = datetime.now()
-        start_time = start_time or now - relativedelta(month=6)
         end_time = end_time or now
+        if start_time > now or start_time > end_time:
+            raise DingTalkExceptions.timestamp_err('起始时间不能晚于当前时间或结束时间')
         size = 10
         cursor = 0
         bpms_instance_list = []
@@ -551,6 +552,10 @@ class DingTalkApp:
         """
         from .crypto import check_callback_signature
         return check_callback_signature(self.token, ciphertext, signature, timestamp, nonce)
+
+    def get_call_back_failed_result(self):
+        data = get_callback_failed_result(self.access_token)
+        return data['failed_list']
 
     def return_success(self):
         """

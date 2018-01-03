@@ -21,5 +21,12 @@ def register_callback(access_token, token, callback_tag, aes_key, callback_url):
     resp = requests.post(url, json=payload)
     return resp
 
+
+@dingtalk_resp
+def get_callback_failed_result(access_token):
+    url = DING_GET_CALL_BACK_FAILED_RESULT.format(access_token=access_token)
+    resp = requests.get(url)
+    return resp
+
 if __name__ == '__main__':
     pass

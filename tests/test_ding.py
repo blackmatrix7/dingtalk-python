@@ -223,7 +223,9 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 获取全部工作流实例
     def test_all_bpms_list(self):
-        data = self.app.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4')
+        start_time = datetime.now() - relativedelta(days=7)
+        data = self.app.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                                                   start_time=start_time)
         assert data
 
     # 测试钉钉实例绑定的方法
@@ -432,6 +434,9 @@ class DingTalkTestCase(unittest.TestCase):
         result = check_callback_signature(token=token, ciphertext=ciphertext,
                                           signature=signature, timestamp=timestamp, nonce=nonce)
         assert result is True
+
+    def test_get_call_back_result(self):
+        result = self.app.get_call_back_failed_result()
 
     def test_app_decrypt_encrypt(self):
         plaintext = json.dumps('success')

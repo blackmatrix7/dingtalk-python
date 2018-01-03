@@ -69,12 +69,12 @@ def get_bpms_instance_list(access_token, process_code, start_time, end_time=None
         end_time = datetime.timestamp(end_time)
         end_time = int(round(end_time * 1000))
     args = locals()
-    url = get_request_url(access_token, 'dingtalk.smartwork.bpms.processinstance.list')
     payload = {}
     for key in ('process_code', 'start_time', 'end_time', 'size', 'cursor'):
         if args.get(key, no_value) is not None:
             payload.update({key: args[key]})
-    return requests.get(url, params=payload)
+    resp = call_dingtalk_webapi(access_token, 'dingtalk.smartwork.bpms.processinstance.list', 'GET', **payload)
+    return resp
 
 if __name__ == '__main__':
     pass
