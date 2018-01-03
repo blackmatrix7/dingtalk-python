@@ -67,23 +67,25 @@ class DingTalkTestCase(unittest.TestCase):
     def test_add_contact(self):
         # 获取标签
         label_groups = self.app.get_label_groups()
-        label_ids = [v for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
+        label_ids = [str(v) for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
+        # label_ids = '[{}]'.format(','.join(label_ids[4: 7]))
+        label_ids = label_ids[4: 7]
         # 获取部门
         dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
         user_list = self.app.get_user_list(dept_ids[0])
         user_ids = [user['userid'] for user in user_list]
-        contact = {'title': '掌门',
-                   'share_deptids': dept_ids[2:4],
-                   'label_ids': label_ids[2:5],
-                   'remark': '备注内容',
-                   'address': '武当山',
-                   'name': '张三丰',
+        contact = {'title': 'master',
+                   # 'share_deptids': dept_ids[2:4],
+                   'label_ids': label_ids,
+                   # 'remark': 'nonting',
+                   # 'address': 'KungFuPanda',
+                   'name': 'shifu',
                    'follower_userid': user_ids[2],
                    'state_code': '86',
-                   'company_name': '武当派1',
-                   'share_userids': user_ids[2:6],
+                   # 'company_name': 'KungFuPanda',
+                   # 'share_userids': user_ids[2:6],
                    'mobile': '13058889999'}
         try:
             result = self.app.add_corp_ext(contact)
@@ -299,29 +301,29 @@ class DingTalkTestCase(unittest.TestCase):
             assert result
         except BaseException as ex:
             assert '无效的部门JSONArray对象,合法格式需要用中括号括起来,且如果属于多部门,部门id需要用逗号分隔' in str(ex)
-        # user_info = {
-        #     'name': '马小云',
-        #     'orderInDepts': {dept_id: 8},
-        #     'department': [dept_id],
-        #     'position': '马云，你不认识？？！！',
-        #     'mobile': '13058888882'
-        # }
-        # result = self.app.create_user(**user_info)
-        # assert result
-        # assert result
-        # user_id = result['userid']
-        # new_user_info = {
-        #     'userid': user_id,
-        #     'name': '马小云',
-        #     'orderInDepts': {dept_id: 8},
-        #     'department': [dept_id],
-        #     'position': '我就是马小云！！！',
-        #     'mobile': '13058888882'
-        # }
-        # result = self.app.update_user(**new_user_info)
-        # assert result
-        # result = self.app.delete_user(userid=user_id)
-        # assert result
+        user_info = {
+            'name': '马小云',
+            'orderInDepts': {dept_id: 8},
+            'department': [dept_id],
+            'position': '马云，你不认识？？！！',
+            'mobile': '13058888882'
+        }
+        result = self.app.create_user(**user_info)
+        assert result
+        assert result
+        user_id = result['userid']
+        new_user_info = {
+            'userid': user_id,
+            'name': '马小云',
+            'orderInDepts': {dept_id: 8},
+            'department': [dept_id],
+            'position': '我就是马小云！！！',
+            'mobile': '13058888882'
+        }
+        result = self.app.update_user(**new_user_info)
+        assert result
+        result = self.app.delete_user(userid=user_id)
+        assert result
 
     # 部门操作相关测试
     def test_dept_operator(self):
@@ -377,6 +379,14 @@ class DingTalkTestCase(unittest.TestCase):
             assert dept
         except BaseException as ex:
             assert '部门不存在' in str(ex)
+        # 测试删除部门
+        dept_list = self.app.get_department_list()
+        assert dept_list
+        for dept in dept_list:
+            if '霍格沃茨魔法学校' in dept['name']:
+                dept_id = dept['id']
+                result = self.app.delete_department(dept_id)
+                assert result
 
     # 获取用户部门
     def test_get_user_depts(self):
@@ -436,7 +446,13 @@ class DingTalkTestCase(unittest.TestCase):
         assert result is True
 
     def test_get_call_back_result(self):
-        result = self.app.get_call_back_failed_result()
+        """
+        每次有异常只能调用一次，后续再调用就会返回空列表，直至出现新的异常。
+        所以默认情况下不执行此单元测试
+        :return:
+        """
+        assert self.app.access_token
+        # self.app.get_call_back_failed_result()
 
     def test_app_decrypt_encrypt(self):
         plaintext = json.dumps('success')

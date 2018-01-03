@@ -17,7 +17,6 @@ from datetime import datetime
 from operator import methodcaller
 from .foundation import get_timestamp
 from .exceptions import DingTalkExceptions
-from dateutil.relativedelta import relativedelta
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
@@ -82,12 +81,16 @@ class DingTalkApp:
         """
         key_name = '{}_access_token'.format(self.name)
         if self.cache.get(key_name) is not None:
-            data = self.cache.get(key_name)
+            access_token = self.cache.get(key_name)
+            logging.info('在缓存中找到access token，直接返回缓存数据：{}'.format(access_token))
         else:
+            time_out = 7000
             resp = get_access_token(self.corp_id, self.corp_secret)
-            data = resp['access_token']
-            self.cache.set(key_name, data, 7000)
-        return data
+            access_token = resp['access_token']
+            logging.warning('没有在缓存中找到access token，重新向钉钉请求access token：{}'.format(access_token))
+            self.cache.set(key_name, access_token, time_out)
+            logging.info('重新将access token: {0} 写入缓存，过期时间{1}秒'.format(access_token, time_out))
+        return access_token
 
     def refresh_access_token(self):
         """
@@ -118,12 +121,16 @@ class DingTalkApp:
 
         @retry(max_retries=5, step=5, callback=_callback)
         def _get_jsapi_ticket():
-            if self.cache.get(jsapi_ticket_key):
+            if self.cache.get(jsapi_ticket_key) is not None:
                 ticket = self.cache.get(jsapi_ticket_key)
+                logging.info('在缓存中找到jsapi ticket，直接返回缓存数据：{}'.format(ticket))
             else:
+                time_out = 3000
                 resp = get_jsapi_ticket(self.access_token)
                 ticket = resp['ticket']
-                self.cache.set(jsapi_ticket_key, ticket, 3000)
+                logging.warning('没有在缓存中找到jsapi ticket，重新向钉钉请求jsapi ticket：{}'.format(ticket))
+                self.cache.set(jsapi_ticket_key, ticket, time_out)
+                logging.info('重新将jsapi ticket {0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
             return ticket
 
         jsapi_ticket = _get_jsapi_ticket()
