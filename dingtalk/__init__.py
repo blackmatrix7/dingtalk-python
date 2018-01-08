@@ -392,7 +392,7 @@ class DingTalkApp:
         """
         获取"全部"审批实例
         :param process_code:
-        :param start_time: 起始时间，如果不传，默认当前时间往前推6个月
+        :param start_time: 起始时间
         :param end_time: 结束时间，如果不传，默认当前时间
         :return:
         """
