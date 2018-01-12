@@ -511,6 +511,7 @@ class DingTalkApp:
         向钉钉注册回调接口。
         注册回调前需要在初始化DingTalk App时传入aes_key和callback_url
         其中callback_url必须返回经过加密的字符串“success”的json数据
+        可以使用return_success()方法直接返回一个符合要求的json格式。
         :param callback_tag:
         :return:
         """
@@ -569,6 +570,13 @@ class DingTalkApp:
         return temp
 
     def generate_callback_signature(self, data, timestamp, nonce):
+        """
+        创建回调函数的签名，可以用于验证钉钉回调时，传入的签名是否合法
+        :param data:
+        :param timestamp:
+        :param nonce:
+        :return:
+        """
         from .crypto import generate_callback_signature
         sign = generate_callback_signature(self.token, data, timestamp, nonce)
         return sign
@@ -581,13 +589,17 @@ class DingTalkApp:
         :param signature: 需要验证的签名
         :param ciphertext: 加密后的数据
         :param timestamp: 时间戳
-        :param nonce: 字符串，叫什么忘了
+        :param nonce: 随机字符串
         :return:
         """
         from .crypto import check_callback_signature
         return check_callback_signature(self.token, ciphertext, signature, timestamp, nonce)
 
     def get_call_back_failed_result(self):
+        """
+        获取处理失败的钉钉回调
+        :return:
+        """
         data = get_callback_failed_result(self.access_token)
         return data['failed_list']
 
