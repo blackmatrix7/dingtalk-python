@@ -82,14 +82,14 @@ class DingTalkApp:
         key_name = '{}_access_token'.format(self.name)
         if self.cache.get(key_name) is not None:
             access_token = self.cache.get(key_name)
-            logging.info('在缓存中找到access token，直接返回缓存数据：{}'.format(access_token))
+            logging.info('在缓存中找到access token({0})，直接返回缓存数据：{1}'.format(key_name, access_token))
         else:
             time_out = 7000
             resp = get_access_token(self.corp_id, self.corp_secret)
             access_token = resp['access_token']
-            logging.warning('没有在缓存中找到access token，重新向钉钉请求access token：{}'.format(access_token))
+            logging.warning('没有在缓存中找到access token({0})，重新向钉钉请求access token：{1}'.format(key_name, access_token))
             self.cache.set(key_name, access_token, time_out)
-            logging.info('重新将access token: {0} 写入缓存，过期时间{1}秒'.format(access_token, time_out))
+            logging.info('重新将access token({0}): {1} 写入缓存，过期时间{2}秒'.format(key_name, access_token, time_out))
         return access_token
 
     def refresh_access_token(self):
@@ -183,6 +183,15 @@ class DingTalkApp:
         return f(self)
 
     def get_request_url(self, method, format_='json', v='2.0', simplify='false', partner_id=None):
+        """
+        获取请求url，会自动加入公共参数
+        :param method:
+        :param format_:
+        :param v:
+        :param simplify:
+        :param partner_id:
+        :return:
+        """
         url = 'https://eco.taobao.com/router/rest?method={0}&session={1}&timestamp={2}&format={3}&v={4}'.format(
             method, self.access_token, self.timestamp, format_, v)
         if format_ == 'json':
@@ -191,10 +200,28 @@ class DingTalkApp:
             url = '{0}&partner_id={1}'.format(url, partner_id)
         return url
 
-    def get_user_list(self, department_id=None):
+    def get_user_list(self, department_id):
+        """
+        根据部门id获取用户列表
+        :param department_id:
+        :return:
+        """
         data = get_user_list(self.access_token, department_id)
         user_list = data['userlist']
         return user_list
+
+    def get_all_users(self):
+        """
+        获取整个组织架构下的所有员工
+        根据部门Id遍历获取
+        :return:
+        """
+        dept_list = self.get_department_list()
+        for dept in dept_list:
+            del dept['autoAddUser']
+            del dept['createDeptGroup']
+            dept['employees'] = self.get_user_list(dept['id'])
+        return dept_list
 
     def get_user_info(self, user_id):
         user_info = get_user(self.access_token, user_id)
@@ -392,7 +419,7 @@ class DingTalkApp:
         """
         获取"全部"审批实例
         :param process_code:
-        :param start_time: 起始时间
+        :param start_time: 起始时间，如果不传，默认当前时间往前推6个月
         :param end_time: 结束时间，如果不传，默认当前时间
         :return:
         """

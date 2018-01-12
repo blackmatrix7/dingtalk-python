@@ -214,7 +214,7 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        start_date = datetime.now() - relativedelta(month=1)
+        start_date = datetime.now() - relativedelta(days=7)
         data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                                                start_time=start_date)
         assert data
@@ -225,10 +225,10 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 获取全部工作流实例
     def test_all_bpms_list(self):
-        start_time = datetime.now() - relativedelta(days=7)
+        start_time = datetime.now() - relativedelta(days=365)
         data = self.app.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                                                    start_time=start_time)
-        assert data
+        assert data is not None
 
     # 测试钉钉实例绑定的方法
     def test_dingtalk_methods(self):
@@ -459,5 +459,13 @@ class DingTalkTestCase(unittest.TestCase):
         ciphertext = self.app.encrypt(plaintext)
         new_plaintext, new_key, new_buf = self.app.decrypt(ciphertext)
         assert plaintext == new_plaintext
+
+    def test_get_all_user_list(self):
+        """
+        测试获取全公司员工
+        :return:
+        """
+        data = self.app.get_all_users()
+        assert data
 
 
