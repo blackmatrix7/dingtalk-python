@@ -13,8 +13,8 @@ from datetime import datetime
 from dingtalk.crypto import *
 from dingtalk import DingTalkApp
 from config import current_config
-from dingtalk.exceptions import DingTalkException
 from dateutil.relativedelta import relativedelta
+from dingtalk.exceptions import DingTalkException
 
 __author__ = 'blackmatrix'
 

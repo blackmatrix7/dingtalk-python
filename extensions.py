@@ -6,14 +6,14 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : extensions.py
 # @Software: PyCharm
-from toolkit.cache import Cache
+from memcache import Client
 from config import current_config
 
 __author__ = 'blackmatrix'
 
 
 # 缓存
-cache = Cache(config=current_config)
+cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
 
 if __name__ == '__main__':

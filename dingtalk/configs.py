@@ -10,7 +10,9 @@
 __author__ = 'blackmatrix'
 
 
+# 获取ACCESS TOKEN
 DING_GET_ACCESS_TOKEN = 'https://oapi.dingtalk.com/gettoken'
+# 获取JS TICKET
 DING_GET_JSAPI_TICKET = 'https://oapi.dingtalk.com/get_jsapi_ticket'
 # 统一的方法URL
 DING_METHODS_URL = 'https://eco.taobao.com/router/rest'
