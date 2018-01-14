@@ -178,7 +178,7 @@ class DingTalkApp:
         """
         func_name = methods.get(method_name)
         if func_name is None:
-            raise AttributeError('没有找到对应的方法，可能是方法名有误，或SDK暂未实现此方法。')
+            raise AttributeError('没有找到对应的方法，可能是方法名有误，或dingtalk-python第三方SDK暂未实现此方法。')
         f = methodcaller(func_name, *args, **kwargs)
         return f(self)
 
