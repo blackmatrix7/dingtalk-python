@@ -61,15 +61,30 @@ label_groups = self.app.get_label_groups()
 # 获取审批实例
 start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
 # 以下皆是模拟数据
-data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IFWS3, start_time=start_time)
+data = app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IFWS3', 
+                                  start_time=start_time)
 ```
 
-同时，提供可以通过钉钉的接口方法名直接调用方法的途径，便于和钉钉的接口文档对应。这种方式仅限于钉钉本身提供了方法名，一些钉钉本身未提供方法名的情况下，不适用此方法。
+同时，提供可以通过钉钉的接口方法名直接调用方法的途径，便于和钉钉的接口文档对应。
 
 ```python
 # 通过run()方法，传入钉钉的接口方法名，及业务参数(不含公共参数部分)
 data = app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
 # 上面的方法等同于
 data = self.app.get_label_groups()
+```
+
+这种方式仅限于钉钉本身提供了方法名，一些钉钉本身未提供方法名的情况下，不适用此方法。如果一定要使用run的形式调用，可以在`dingtalk/__init__.py`的实现中，以装饰器的形式，给对应的方法加上一个方法名。
+
+```python
+@dingtalk('dingtalk.corp.ext.list')
+def get_ext_list(self, size=20, offset=0):
+    """
+    获取外部联系人
+    :return:
+    """
+    resp = get_corp_ext_list(self.access_token, size=size, offset=offset)
+    result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
+    return result
 ```
 
