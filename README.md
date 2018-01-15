@@ -64,5 +64,12 @@ start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, mic
 data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IFWS3, start_time=start_time)
 ```
 
-同时，提供可以通过钉钉的接口方法名直接调用方法的途径，便于和钉钉的接口文档对应。
+同时，提供可以通过钉钉的接口方法名直接调用方法的途径，便于和钉钉的接口文档对应。这种方式仅限于钉钉本身提供了方法名，一些钉钉本身未提供方法名的情况下，不适用此方法。
+
+```python
+# 通过run()方法，传入钉钉的接口方法名，及业务参数(不含公共参数部分)
+data = app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
+# 上面的方法等同于
+data = self.app.get_label_groups()
+```
 
