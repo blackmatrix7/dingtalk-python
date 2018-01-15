@@ -13,7 +13,6 @@ from datetime import datetime
 from dingtalk.crypto import *
 from dingtalk import DingTalkApp
 from config import current_config
-from dateutil.relativedelta import relativedelta
 from dingtalk.exceptions import DingTalkException
 
 __author__ = 'blackmatrix'
@@ -214,18 +213,18 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        start_date = datetime.now() - relativedelta(days=7)
+        start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
         data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                                               start_time=start_date)
+                                               start_time=start_time)
         assert data
         # 测试错误情况，传入一个不存在的process_code
         data = self.app.get_bpms_instance_list(process_code='PROC-XXXXXXXX-XXXXXXXX-XXXXXXX-X',
-                                               start_time=start_date)
+                                               start_time=start_time)
         assert data[1] == 0
 
     # 获取全部工作流实例
     def test_all_bpms_list(self):
-        start_time = datetime.now() - relativedelta(days=365)
+        start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
         data = self.app.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                                                    start_time=start_time)
         assert data is not None
