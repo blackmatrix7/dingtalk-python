@@ -310,7 +310,6 @@ class DingTalkTestCase(unittest.TestCase):
         }
         result = self.app.create_user(**user_info)
         assert result
-        assert result
         user_id = result['userid']
         new_user_info = {
             'userid': user_id,
