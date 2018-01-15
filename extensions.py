@@ -14,7 +14,3 @@ __author__ = 'blackmatrix'
 
 # 缓存
 cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
-
-
-if __name__ == '__main__':
-    pass
