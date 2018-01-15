@@ -466,4 +466,3 @@ class DingTalkTestCase(unittest.TestCase):
         data = self.app.get_all_users()
         assert data
 
-
