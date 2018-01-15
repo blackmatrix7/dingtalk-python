@@ -1,6 +1,6 @@
 # Dingtalk-Python SDK
 
-钉钉第三方SDK，Python版本
+钉钉第三方SDK，Python版本，用于企业自研微应用。
 
 ## 环境
 
@@ -29,5 +29,40 @@ urllib3==1.22
 pip install -r requirements.txt
 ```
 
-实例化DingTalk App
+### 创建memcached对象
+
+Dingtalk-Python需要依赖memcahed对access token，jsticket进行过期事件管理，所以需要python3-memcached所实例化出的对象。
+
+```python
+from memcache import Client
+# 缓存
+cache = Client([127.0.0.1:11211])
+```
+
+### 实例化DingTalk App
+
+```python
+from dingtalk import DingTalkApp
+# 模拟数据
+app = DingTalkApp(name='test', cache=cache,
+                  agent_id='152919534',
+                  corp_id='ding19cdf2s221ef83f635c2e4523eb3418f',
+                  corp_secret='3ab8Uk7Wef4ytgf7YZF2EziCAlx6AufdF3dFvfjtu3532FG3AUgWNEJys',
+                  aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
+```
+
+### 调用接口示例
+
+直接在app实例中，调用对应的方法即可，不需要传入公共参数部分，公共参数部分会自动补充。
+
+```python
+# 获取钉钉后台定义的外部联系人标签
+label_groups = self.app.get_label_groups()
+# 获取审批实例
+start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
+# 以下皆是模拟数据
+data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IFWS3, start_time=start_time)
+```
+
+同时，提供可以通过钉钉的接口方法名直接调用方法的途径，便于和钉钉的接口文档对应。
 
