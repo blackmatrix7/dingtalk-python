@@ -47,13 +47,13 @@ class DingTalkApp:
                  token=None):
         """
 
-        :param name:
-        :param cache:
-        :param corp_id:
-        :param corp_secret:
-        :param agent_id:
-        :param noncestr:
-        :param domain: 域名
+        :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
+        :param cache: python3-memcached Client创建的对象，access token 和 jsticket的管理依赖与memcached
+        :param corp_id: 钉钉的Corp Id，管理员可从后台获得
+        :param corp_secret: 钉钉的Corp Secret，管理员可从后台获得
+        :param agent_id: 钉钉的Agent Id，每个微应用有独立的agent_id，管理员可从后台获得
+        :param noncestr: 随机字符串
+        :param domain: 域名，可传入随机字符串
         :param callback_url: 回调函数地址，回调函数必须符合check_url方法的要求
         :param aes_key: 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
         :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
