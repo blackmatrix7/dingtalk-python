@@ -19,15 +19,8 @@ class CommonConfig(BaseConfig):
 
     # Cache
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
-    CACHE_KEY_PREFIX = 'default'
 
     # dingtalk
-    DING_GET_ACCESS_TOKEN = 'https://oapi.dingtalk.com/gettoken'
-    DING_GET_JSAPI_TICKET = 'https://oapi.dingtalk.com/get_jsapi_ticket'
-    DING_GET_USER_LIST = 'https://oapi.dingtalk.com/user/simplelist'
-    DING_GET_USER_INFO = 'https://oapi.dingtalk.com/user/getuserinfo'
-    DING_GET_DEPARTMENTS = 'https://oapi.dingtalk.com/department/list'
-    DING_METHODS_URL = 'https://eco.taobao.com/router/rest'
     DING_CORP_ID = None
     DING_CORP_SECRET = None
 
@@ -36,7 +29,6 @@ class DevConfig(CommonConfig):
 
     # Cache
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
-    CACHE_KEY_PREFIX = 'dev'
 
 
 default = CommonConfig()
