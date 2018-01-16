@@ -27,7 +27,7 @@ cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 dd_config = {'corp_id': current_config.DING_CORP_ID,
              'corp_secret': current_config.DING_CORP_SECRET,
              'agent_id': current_config.DING_AGENT_ID,
-             'domain': 'vcan',
+             'domain': 'test_domain',
              'aes_key': current_config.DING_AES_KEY,
              'callback_url': current_config.DING_CALLBACK}
 app = DingTalkApp(name='test', cache=cache, **dd_config)
