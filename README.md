@@ -60,7 +60,7 @@ app = DingTalkApp(name='test', cache=cache,
 
 ```python
 # 获取钉钉后台定义的外部联系人标签
-label_groups = self.app.get_label_groups()
+label_groups = app.get_label_groups()
 # 获取审批实例
 start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
 # 以下皆是模拟数据
