@@ -8,6 +8,7 @@
 # @Software: PyCharm
 import requests
 from .configs import *
+from functools import wraps
 from datetime import datetime
 from .exceptions import DingTalkExceptions
 
@@ -69,6 +70,7 @@ def dingtalk_unpack_result(result):
 
 
 def dingtalk_resp(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         resp = func(*args, **kwargs)
         data = resp.json()
