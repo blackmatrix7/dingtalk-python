@@ -11,12 +11,11 @@ import logging
 from .space import *
 from .contacts import *
 from .callback import *
-from .retry import retry
 from functools import wraps
 from datetime import datetime
 from operator import methodcaller
-from .foundation import get_timestamp
 from .exceptions import DingTalkExceptions
+from .foundation import get_timestamp, retry
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
