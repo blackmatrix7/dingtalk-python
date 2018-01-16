@@ -238,7 +238,6 @@ class DingTalkTestCase(unittest.TestCase):
     def test_async_send_msg(self):
         """
         测试异步发送消息
-        为了避免频繁发送消息
         :return:
         """
         assert self.app.access_token
@@ -255,7 +254,7 @@ class DingTalkTestCase(unittest.TestCase):
             assert data
         except BaseException as ex:
             assert '不合法的消息类型' in str(ex)
-        # # 测试正确的情况，避免频繁发送消息
+        # # 测试正确的情况，避免频繁发送消息，通常不运行此测试
         # data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
         #                                msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
         # assert data
