@@ -31,7 +31,7 @@ pip install -r requirements.txt
 
 ### 创建memcached对象
 
-Dingtalk-Python需要依赖memcahed对access token，jsticket进行过期事件管理，所以需要python3-memcached所实例化出的对象。
+Dingtalk-Python需要依赖memcahed对access token，jsticket进行过期时间管理，所以需要python3-memcached所实例化出的对象。
 
 ```python
 from memcache import Client
