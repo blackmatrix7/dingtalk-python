@@ -44,6 +44,9 @@ cache = Client([127.0.0.1:11211])
 ```python
 from dingtalk import DingTalkApp
 # 模拟数据
+# name传入企业名称，同个企业需要创建多个app实例时，请保持name的值一致
+# cache传入python3-memeched的Client类实例化出的对象
+# 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
 app = DingTalkApp(name='test', cache=cache,
                   agent_id='152919534',
                   corp_id='ding19cdf2s221ef83f635c2e4523eb3418f',
