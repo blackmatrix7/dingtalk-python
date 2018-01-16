@@ -33,7 +33,7 @@ class DingTalkException(BaseException):
     def __get__(self, instance, owner):
         supers = (DingTalkException, self.err_type, BaseException) \
             if self.err_type and self.err_type is not BaseException else (DingTalkException, BaseException)
-        api_ex_cls = types.new_class('SysException', supers, {}, lambda ns: ns)
+        api_ex_cls = types.new_class('DingTalkException', supers, {}, lambda ns: ns)
         api_ex = api_ex_cls(err_msg=self.err_msg, err_code=self.err_code, http_code=self.http_code)
         return api_ex
 
