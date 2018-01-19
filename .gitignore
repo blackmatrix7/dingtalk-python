@@ -93,6 +93,7 @@ ENV/
 
 # local config
 localconfig.py
+dingtalk/README.md
 
 # react
 node_mudules/

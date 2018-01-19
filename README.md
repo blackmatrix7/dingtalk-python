@@ -24,13 +24,17 @@ requests==2.18.4
 pip install -r requirements.txt
 ```
 
+钉钉回调消息的加密解密需要依赖pycrypto。这个包在Windows下安装比较繁琐，建议在Mac OS或Linux下进行调试。
+
+如果不需要使用钉钉回调消息，则可以不安装pycrypto，不影响其他功能的正常工作。
+
 ### 创建memcached对象
 
-Dingtalk-Python需要依赖memcahed对access token，jsticket进行过期时间管理，所以需要python3-memcached所实例化出的对象。
+Dingtalk-Python需要依赖memcahed对access token、jsticket进行过期时间管理，所以需要python3-memcached所实例化出的对象。
 
 ```python
 from memcache import Client
-# 缓存
+# memcached客户端
 cache = Client([127.0.0.1:11211])
 ```
 
@@ -38,10 +42,11 @@ cache = Client([127.0.0.1:11211])
 
 ```python
 from dingtalk import DingTalkApp
-# 模拟数据
-# name传入企业名称，同个企业需要创建多个app实例时，请保持name的值一致
+# name传入企业名称
 # cache传入python3-memeched的Client类实例化出的对象
-# 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
+# 用于加解密的aes_key，必须是43位字符串，由大小写字母和数字组成，不能有标点符号
+# 如果同个企业需要创建多个app实例时，请保持除agent_id外的参数完全一致
+# 以下实例化参数都是模拟数据
 app = DingTalkApp(name='test', cache=cache,
                   agent_id='152919534',
                   corp_id='ding19cdf2s221ef83f635c2e4523eb3418f',
