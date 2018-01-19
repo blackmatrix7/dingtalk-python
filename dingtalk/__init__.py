@@ -130,7 +130,7 @@ class DingTalkApp:
                 time_out = 3000
                 # 尝试用memcached来控制jsticket的锁
                 ticket_lock = self.cache.get(ticket_lock_key)
-                if ticket_lock is None or ticket_lock is True:
+                if ticket_lock and ticket_lock is True:
                     logging.warning('jsticket存在锁，等待其他调用者请求新的jsticket')
                     sleep(0.5)
                     return _get_jsapi_ticket()
