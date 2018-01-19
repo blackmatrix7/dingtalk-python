@@ -120,7 +120,7 @@ class DingTalkApp:
             except Exception as ex:
                 logging.error(ex)
 
-        @retry(max_retries=5, step=5, callback=_callback)
+        # @retry(max_retries=5, step=5, callback=_callback)
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key) is not None:
                 ticket = self.cache.get(jsapi_ticket_key)
