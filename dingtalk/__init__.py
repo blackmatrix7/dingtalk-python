@@ -120,7 +120,7 @@ class DingTalkApp:
             except Exception as ex:
                 logging.error(ex)
 
-        # @retry(max_retries=5, step=5, callback=_callback)
+        @retry(max_retries=5, step=5, callback=_callback)
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key) is not None:
                 ticket = self.cache.get(jsapi_ticket_key)
@@ -130,7 +130,7 @@ class DingTalkApp:
                 time_out = 3000
                 # 尝试用memcached来控制jsticket的锁
                 ticket_lock = self.cache.get(ticket_lock_key)
-                if ticket_lock is None or ticket_lock is False:
+                if ticket_lock is None or ticket_lock is True:
                     logging.warning('jsticket存在锁，等待其他调用者请求新的jsticket')
                     sleep(0.5)
                     return _get_jsapi_ticket()
@@ -145,7 +145,7 @@ class DingTalkApp:
                     logging.info('重新将jsapi ticket {0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
                     # 去除jsticket的锁
                     logging.info('去除jsticket的锁，其他调用者可以请求新的jsticket')
-                    self.cache.set(ticket_lock_key, False, 300)
+                    self.cache.delete(ticket_lock_key)
             return ticket
 
         jsapi_ticket = _get_jsapi_ticket()
