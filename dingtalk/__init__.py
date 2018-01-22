@@ -126,27 +126,32 @@ class DingTalkApp:
                 ticket = self.cache.get(jsapi_ticket_key)
                 logging.info('在缓存中找到jsapi ticket，直接返回缓存数据：{}'.format(ticket))
             else:
-                # jsapi ticket 过期事件
+                # jsapi ticket 过期事
                 time_out = 3000
                 # 尝试用memcached来控制jsticket的锁
                 ticket_lock = self.cache.get(ticket_lock_key)
+                ticket = None
                 if ticket_lock and ticket_lock is True:
                     logging.warning('jsticket存在锁，等待其他调用者请求新的jsticket')
                     sleep(0.5)
-                    return _get_jsapi_ticket()
+                    ticket = _get_jsapi_ticket()
                 else:
-                    logging.info('jsticket未加锁，可以请求新的jsticket')
-                    self.cache.set(ticket_lock_key, True, 300)
-                    logging.info('已为jsticket加锁，防止重复请求新的jsticket')
-                    resp = get_jsapi_ticket(self.access_token)
-                    ticket = resp['ticket']
-                    logging.warning('没有在缓存中找到jsapi ticket，重新向钉钉请求jsapi ticket：{}'.format(ticket))
-                    self.cache.set(jsapi_ticket_key, ticket, time_out)
-                    logging.info('重新将jsapi ticket {0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
-                    # 去除jsticket的锁
-                    logging.info('去除jsticket的锁，其他调用者可以请求新的jsticket')
-                    self.cache.delete(ticket_lock_key)
-            return ticket
+                    try:
+                        logging.info('jsticket未加锁，可以请求新的jsticket')
+                        self.cache.set(ticket_lock_key, True, 300)
+                        logging.info('已为jsticket加锁，防止重复请求新的jsticket')
+                        resp = get_jsapi_ticket(self.access_token)
+                        ticket = resp['ticket']
+                        logging.warning('没有在缓存中找到jsapi ticket，重新向钉钉请求jsapi ticket：{}'.format(ticket))
+                        self.cache.set(jsapi_ticket_key, ticket, time_out)
+                        logging.info('重新将jsapi ticket {0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
+                    except BaseException as ex:
+                        logging.error(ex)
+                    finally:
+                        # 去除jsticket的锁
+                        logging.info('去除jsticket的锁，其他调用者可以请求新的jsticket')
+                        self.cache.delete(ticket_lock_key)
+                return ticket
 
         jsapi_ticket = _get_jsapi_ticket()
         return jsapi_ticket
