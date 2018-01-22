@@ -137,12 +137,12 @@ class DingTalkApp:
                     ticket = _get_jsapi_ticket()
                 else:
                     try:
+                        logging.warning('没有在缓存中找到jsapi ticket，重新向钉钉请求jsapi ticket：{}'.format(ticket))
                         logging.info('jsticket未加锁，可以请求新的jsticket')
-                        self.cache.set(ticket_lock_key, True, 300)
+                        self.cache.set(ticket_lock_key, True, 60)
                         logging.info('已为jsticket加锁，防止重复请求新的jsticket')
                         resp = get_jsapi_ticket(self.access_token)
                         ticket = resp['ticket']
-                        logging.warning('没有在缓存中找到jsapi ticket，重新向钉钉请求jsapi ticket：{}'.format(ticket))
                         self.cache.set(jsapi_ticket_key, ticket, time_out)
                         logging.info('重新将jsapi ticket {0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
                     except BaseException as ex:
