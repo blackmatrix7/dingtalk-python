@@ -126,7 +126,7 @@ class DingTalkApp:
                 ticket = self.cache.get(jsapi_ticket_key)
                 logging.info('在缓存中找到jsapi ticket，直接返回缓存数据：{}'.format(ticket))
             else:
-                # jsapi ticket 过期事
+                # jsapi ticket 过期时间，单位秒
                 time_out = 3000
                 # 尝试用memcached来控制jsticket的锁
                 ticket_lock = self.cache.get(ticket_lock_key)
