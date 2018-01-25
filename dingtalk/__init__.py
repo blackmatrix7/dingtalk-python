@@ -11,27 +11,27 @@ import logging
 from .space import *
 from time import sleep
 from .contacts import *
-from .callback import *
 from functools import wraps
 from datetime import datetime
 from operator import methodcaller
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
 from .workflow import create_bpms_instance, get_bpms_instance_list
+from .callback import register_callback, get_callback_failed_result
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 
 __author__ = 'blackmatrix'
 
-no_value = object()
+NO_VALUE = object()
 
-methods = {}
+METHODS = {}
 
 
 def dingtalk(method_name):
     def wrapper(func):
-        methods.update({method_name: func.__name__})
+        METHODS.update({method_name: func.__name__})
 
         @wraps(func)
         def _wrapper(*args, **kwargs):
@@ -72,7 +72,7 @@ class DingTalkApp:
 
     @property
     def methods(self):
-        return methods
+        return METHODS
 
     def get_access_token(self):
         """
@@ -205,7 +205,7 @@ class DingTalkApp:
         :param kwargs:
         :return:
         """
-        func_name = methods.get(method_name)
+        func_name = METHODS.get(method_name)
         if func_name is None:
             raise AttributeError('没有找到对应的方法，可能是方法名有误，或dingtalk-python第三方SDK暂未实现此方法。')
         f = methodcaller(func_name, *args, **kwargs)
