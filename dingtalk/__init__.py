@@ -79,28 +79,37 @@ class DingTalkApp:
         在缓存中设置access token 7000秒过期，每次过期会自动重新获取 access token
         :return:
         """
-        key_name = '{}_access_token'.format(self.name)
-        if self.cache.get(key_name) is not None:
-            access_token = self.cache.get(key_name)
-            logging.info('在缓存中找到access token({0})，直接返回缓存数据：{1}'.format(key_name, access_token))
-        else:
-            time_out = 7000
-            resp = get_access_token(self.corp_id, self.corp_secret)
-            access_token = resp['access_token']
-            logging.warning('没有在缓存中找到access token({0})，重新向钉钉请求access token：{1}'.format(key_name, access_token))
-            self.cache.set(key_name, access_token, time_out)
-            logging.info('重新将access token({0}): {1} 写入缓存，过期时间{2}秒'.format(key_name, access_token, time_out))
-        return access_token
+        access_token = None
+        try:
+            key_name = '{}_access_token'.format(self.name)
+            if self.cache.get(key_name) is not None:
+                access_token = self.cache.get(key_name)
+                logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(key_name, access_token))
+            else:
+                time_out = 7000
+                resp = get_access_token(self.corp_id, self.corp_secret)
+                access_token = resp['access_token']
+                logging.warning('没有命中缓存{0}，重新向钉钉请求access token：{1}'.format(key_name, access_token))
+                self.cache.set(key_name, access_token, time_out)
+                logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(key_name, access_token, time_out))
+        except BaseException as ex:
+            logging.error('获取access token异常：{}'.format(ex))
+        finally:
+            return access_token
 
     def refresh_access_token(self):
         """
         刷新access_token
         :return:
         """
+        time_out = 7000
+        logging.info('强制刷新access token')
         key_name = '{}_access_token'.format(self.name)
         resp = get_access_token(self.corp_id, self.corp_secret)
         access_token = resp['access_token']
+        logging.info('已向钉钉请求新的access token：{}'.format(access_token))
         self.cache.set(key_name, access_token, 7000)
+        logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(key_name, access_token, time_out))
         return access_token
 
     @property
@@ -124,7 +133,7 @@ class DingTalkApp:
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key) is not None:
                 ticket = self.cache.get(jsapi_ticket_key)
-                logging.info('在缓存中找到jsapi ticket，直接返回缓存数据：{}'.format(ticket))
+                logging.info('命中缓存{}，直接返回缓存数据：{}'.format(jsapi_ticket_key, ticket))
             else:
                 # jsapi ticket 过期时间，单位秒
                 time_out = 3000
@@ -137,19 +146,19 @@ class DingTalkApp:
                     ticket = _get_jsapi_ticket()
                 else:
                     try:
-                        logging.warning('没有在缓存中找到jsapi ticket，重新向钉钉请求jsapi ticket：{}'.format(ticket))
+                        logging.warning('没有命中缓存{}，重新向钉钉请求jsapi ticket：{}'.format(jsapi_ticket_key, ticket))
                         logging.info('jsticket未加锁，可以请求新的jsticket')
                         self.cache.set(ticket_lock_key, True, 60)
                         logging.info('已为jsticket加锁，防止重复请求新的jsticket')
                         resp = get_jsapi_ticket(self.access_token)
                         ticket = resp['ticket']
                         self.cache.set(jsapi_ticket_key, ticket, time_out)
-                        logging.info('重新将jsapi ticket {0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
+                        logging.info('将{0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
                     except BaseException as ex:
                         logging.error(ex)
                     finally:
-                        # 去除jsticket的锁
-                        logging.info('去除jsticket的锁，其他调用者可以请求新的jsticket')
+                        # 解除jsticket的锁
+                        logging.info('解除jsticket的锁{}，其他调用者可以请求新的jsticket'.format(ticket_lock_key))
                         self.cache.delete(ticket_lock_key)
                 return ticket
 
