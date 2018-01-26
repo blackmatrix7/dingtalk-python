@@ -32,6 +32,8 @@ pip install -r requirements.txt
 
 Dingtalk-Python需要依赖memcahed对access token、jsticket进行过期时间管理，所以需要python3-memcached所实例化出的对象。
 
+**需要特别注意的是，对于一个企业多个微应用，或一个企业多种环境：如生产环境、测试环境这种情况，务必保证memcached缓存数据的一致，避免频繁调用钉钉jsticket的接口，导致不同缓存服务器的jsticket互相覆盖。**
+
 ```python
 from memcache import Client
 # memcached客户端
