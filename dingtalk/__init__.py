@@ -136,7 +136,7 @@ class DingTalkApp:
                     ticket = _get_jsapi_ticket()
                 else:
                     try:
-                        logging.warning('没有命中缓存{}，重新向钉钉请求jsapi ticket：{}'.format(jsapi_ticket_key, ticket))
+                        logging.warning('没有命中缓存{}，准备重新向钉钉请求jsapi ticket'.format(jsapi_ticket_key))
                         logging.info('jsticket未加锁，可以请求新的jsticket')
                         self.cache.set(ticket_lock_key, True, 60)
                         logging.info('已为jsticket加锁，防止重复请求新的jsticket')
@@ -150,7 +150,7 @@ class DingTalkApp:
                         # 解除jsticket的锁
                         logging.info('解除jsticket的锁{}，其他调用者可以请求新的jsticket'.format(ticket_lock_key))
                         self.cache.delete(ticket_lock_key)
-                return ticket
+            return ticket
 
         jsapi_ticket = _get_jsapi_ticket()
         return jsapi_ticket
