@@ -121,15 +121,7 @@ class DingTalkApp:
         access_token_key = '{}_access_token'.format(self.name)
         ticket_lock_key = '{}_ticket_lock'.format(self.name)
 
-        def _callback(err):
-            logging.error(err)
-            try:
-                self.cache.delete(access_token_key)
-                self.cache.delete(jsapi_ticket_key)
-            except Exception as ex:
-                logging.error(ex)
 
-        # @retry(max_retries=5, step=5, callback=_callback)
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key) is not None:
                 ticket = self.cache.get(jsapi_ticket_key)

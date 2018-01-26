@@ -7,15 +7,13 @@
 # @File : token.py
 # @Software: PyCharm
 import hashlib
-import logging
 import requests
 from .configs import *
-from .foundation import dingtalk_resp, retry
+from .foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'
 
 
-@retry(max_retries=5, delay=1, callback=logging.error)
 @dingtalk_resp
 def get_access_token(corp_id, corp_secret):
     """
