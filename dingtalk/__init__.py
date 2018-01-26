@@ -118,9 +118,7 @@ class DingTalkApp:
 
     def get_jsapi_ticket(self):
         jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
-        access_token_key = '{}_access_token'.format(self.name)
         ticket_lock_key = '{}_ticket_lock'.format(self.name)
-
 
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key) is not None:
