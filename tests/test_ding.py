@@ -104,7 +104,7 @@ class DingTalkTestCase(unittest.TestCase):
         dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 测试部门
-        originator_dept_id = dept_ids[3]
+        originator_dept_id = dept_ids[1]
         # 获取用户
         originator_user_list = self.app.get_user_list(originator_dept_id)
         originator_user_id = [user['userid'] for user in originator_user_list][0]
@@ -285,7 +285,7 @@ class DingTalkTestCase(unittest.TestCase):
                 dept_id = dept['id']
                 break
         if dept_id is None:
-            dept_id = dept_list[1]
+            dept_id = dept_list[1]['id']
         # 测试创建用户错误
         err_user_info = {
             'name': '马小云',
