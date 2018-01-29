@@ -8,6 +8,7 @@
 # @Software: PyCharm
 import json
 import unittest
+from time import sleep
 from extensions import cache
 from datetime import datetime
 from dingtalk.crypto import *
@@ -246,7 +247,7 @@ class DingTalkTestCase(unittest.TestCase):
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
         user_list = self.app.get_user_list(dept_ids[1])
-        user_ids = [user['userid'] for user in user_list][1]
+        user_ids = [user['userid'] for user in user_list]
         # 测试错误的情况，错误的msgtype
         try:
             data = self.app.async_send_msg(msgtype='text2', userid_list=user_ids,
@@ -258,6 +259,10 @@ class DingTalkTestCase(unittest.TestCase):
         data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
                                        msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
         assert data
+        sleep(5)
+        task_id = data['task_id']
+        result = self.app.get_msg_send_result(task_id=task_id)
+        assert result
 
     # 测试获取用户信息
     def test_get_user_info(self):
