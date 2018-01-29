@@ -91,6 +91,7 @@ class DingTalkTestCase(unittest.TestCase):
             result = self.app.add_corp_ext(contact)
             assert result is not None
         except DingTalkException as ex:
+            print(ex)
             assert '外部联系人已存在' in str(ex)
 
     # 测试新增工作流实例
