@@ -81,43 +81,33 @@ class DingTalkApp:
         """
         access_token = None
         access_token_key = '{}_access_token'.format(self.name)
-        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
         try:
             if self.cache.get(access_token_key) is not None:
                 access_token = self.cache.get(access_token_key)
                 logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(access_token_key, access_token))
             else:
                 logging.warning('没有命中缓存{0}，准备重新向钉钉请求access token'.format(access_token_key))
-                self.cache.delete(access_token_key)
-                self.cache.delete(jsapi_ticket_key)
-                logging.info('已清理access token和jsapi_ticket相关缓存'.format(access_token_key))
                 time_out = 7000
-                resp = get_access_token(self.corp_id, self.corp_secret)
-                access_token = resp['access_token']
-                logging.warning('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
-                self.cache.set(access_token_key, access_token, time_out)
-                logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(access_token_key, access_token, time_out))
+                access_token = self.refresh_access_token(time_out)
         except BaseException as ex:
             logging.error('获取access token异常：{}'.format(ex))
         finally:
             return access_token
 
-    def refresh_access_token(self):
+    def refresh_access_token(self, time_out=7000):
         """
         刷新access_token
         :return:
         """
-        time_out = 7000
-        logging.info('强制刷新access token')
-        # 清理access token 和 jsticket 的相关缓存
         access_token_key = '{}_access_token'.format(self.name)
         jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
         self.cache.delete(access_token_key)
         self.cache.delete(jsapi_ticket_key)
+        logging.info('已清理access token和jsapi_ticket相关缓存'.format(access_token_key))
         resp = get_access_token(self.corp_id, self.corp_secret)
         access_token = resp['access_token']
-        logging.info('已向钉钉请求新的access token：{}'.format(access_token))
-        self.cache.set(access_token_key, access_token, 7000)
+        logging.warning('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
+        self.cache.set(access_token_key, access_token, time_out)
         logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(access_token_key, access_token, time_out))
         return access_token
 
