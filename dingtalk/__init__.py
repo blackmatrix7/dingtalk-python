@@ -431,7 +431,8 @@ class DingTalkApp:
                                     dept_id, approvers, form_component_values,
                                     agent_id, cc_list, cc_position)
         return {'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id'],
-                'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id']}
+                'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id'],
+                'success': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['is_success']}
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
@@ -479,19 +480,24 @@ class DingTalkApp:
                               userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
                               msgcontent=msgcontent)
         return {'request_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['request_id'],
-                'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id']}
+                'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id'],
+                'success': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['success']}
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_result(self.access_token, agent_id, task_id)
-        return resp
+        return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['request_id'],
+                'send_result': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['send_result'],
+                'success': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['success']}
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
     def get_msg_send_progress(self, task_id, agent_id=None):
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_progress(self.access_token, agent_id, task_id)
-        return resp
+        return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['request_id'],
+                'progress': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['progress'],
+                'success': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['success']}
 
     @dingtalk('dingtalk.corp.role.list')
     def get_corp_role_list(self, size=20, offset=0):

@@ -122,18 +122,18 @@ class DingTalkTestCase(unittest.TestCase):
             assert resp
         except BaseException as ex:
             assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
-        # dev_dept_id = dept_ids[1]
-        # dev_user_list = self.app.get_user_list(dev_dept_id)
-        # approvers = [user['userid'] for user in dev_user_list]
-        # args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-        #         'originator_user_id': originator_user_id,
-        #         'dept_id': originator_dept_id,
-        #         'approvers': approvers,
-        #         'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
-        #                                   {'value': '哈哈哈哈', 'name': '部门'},
-        #                                   {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        # resp = self.app.create_bpms_instance(**args)
-        # assert resp
+        dev_dept_id = dept_ids[1]
+        dev_user_list = self.app.get_user_list(dev_dept_id)
+        approvers = [user['userid'] for user in dev_user_list]
+        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                'originator_user_id': originator_user_id,
+                'dept_id': originator_dept_id,
+                'approvers': approvers,
+                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+                                          {'value': '哈哈哈哈', 'name': '部门'},
+                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
+        resp = self.app.create_bpms_instance(**args)
+        assert resp
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -259,8 +259,11 @@ class DingTalkTestCase(unittest.TestCase):
         data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
                                        msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
         assert data
-        sleep(5)
         task_id = data['task_id']
+        # 获取发送进度
+        result = self.app.get_msg_send_progress(task_id)
+        assert result
+        sleep(5)
         result = self.app.get_msg_send_result(task_id=task_id)
         assert result
 
