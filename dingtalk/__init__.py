@@ -430,9 +430,9 @@ class DingTalkApp:
         data = create_bpms_instance(self.access_token, process_code, originator_user_id,
                                     dept_id, approvers, form_component_values,
                                     agent_id, cc_list, cc_position)
-        return {'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id'],
-                'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id'],
-                'success': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['is_success']}
+        return {'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id'],
+                'success': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['is_success'],
+                'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id']}
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
@@ -448,7 +448,10 @@ class DingTalkApp:
         data = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
         instance_list = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result']['list'].get('process_instance_top_vo', [])
         next_cursor = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result'].get('next_cursor', 0)
-        return instance_list, next_cursor
+        return {'request_id': data['dingtalk_smartwork_bpms_processinstance_list_response']['request_id'],
+                'success': data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['success'],
+                'instance_list': instance_list,
+                'next_cursor': next_cursor}
 
     def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
         """
@@ -465,14 +468,16 @@ class DingTalkApp:
         size = 10
         cursor = 0
         bpms_instance_list = []
+        request_id = {}
         while True:
-            instance_list, next_cursor = self.get_bpms_instance_list(process_code, start_time, end_time=end_time, size=size, cursor=cursor)
-            bpms_instance_list.extend(instance_list)
-            if next_cursor > 0:
-                cursor = next_cursor
+            result = self.get_bpms_instance_list(process_code, start_time, end_time=end_time, size=size, cursor=cursor)
+            request_id.update({result['request_id']: {'success': result['success']}})
+            bpms_instance_list.extend(result['instance_list'])
+            if result['next_cursor'] > 0:
+                cursor = result['next_cursor']
             else:
                 break
-        return bpms_instance_list
+        return {'request_id': request_id, 'bpms_instance_list': bpms_instance_list}
 
     @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):

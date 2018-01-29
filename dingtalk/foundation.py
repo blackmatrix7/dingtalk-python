@@ -142,9 +142,12 @@ def dingtalk_resp(func):
                                                            err_code=data['errcode'],
                                                            err_msg=data.get('errmsg') or data['errcode'])
             elif 'error_response' in data and data['error_response']['code'] != 0:
+                request_id = data['error_response']['request_id']
                 err_code = data['error_response'].get('sub_code') or data['error_response']['code']
                 err_msg = data['error_response'].get('sub_msg') or data['error_response']['msg']
-                raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code, err_code=err_code, err_msg=err_msg)
+                raise DingTalkExceptions.dingtalk_resp_err(http_code=resp.status_code,
+                                                           err_code=err_code,
+                                                           err_msg='{}(request_id:{})'.format(err_msg, request_id))
             else:
                 # 对于一些返回格式不统一的接口，需要对返回的数据做拆解，再判断是否存在异常
                 result = dingtalk_unpack_result(data)

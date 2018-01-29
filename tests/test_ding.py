@@ -221,7 +221,7 @@ class DingTalkTestCase(unittest.TestCase):
         # 测试错误情况，传入一个不存在的process_code
         data = self.app.get_bpms_instance_list(process_code='PROC-XXXXXXXX-XXXXXXXX-XXXXXXX-X',
                                                start_time=start_time)
-        assert data[1] == 0
+        assert len(data['instance_list']) == 0
 
     # 获取全部工作流实例
     def test_all_bpms_list(self):
