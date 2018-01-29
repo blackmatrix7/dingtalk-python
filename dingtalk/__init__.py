@@ -478,7 +478,8 @@ class DingTalkApp:
         resp = async_send_msg(access_token=self.access_token, agent_id=self.agent_id, msgtype=msgtype,
                               userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
                               msgcontent=msgcontent)
-        return resp
+        return {'request_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['request_id'],
+                'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id']}
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
