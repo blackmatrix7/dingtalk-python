@@ -171,8 +171,12 @@ class DingTalkApp:
             self.cache.set(jsapi_ticket_key, ticket, time_out)
             logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
             # 验证缓存是否写入成功
+            sleep(1)
             cache_ticket = self.cache.get(jsapi_ticket_key)
-            assert cache_ticket == ticket
+            if cache_ticket == ticket:
+                logging.info('jsapi ticket写入缓存成功')
+            else:
+                logging.error('jsapi ticket写入缓存失败，缓存数据：{}'.format(cache_ticket))
         except Exception as ex:
             # 出现异常时，清理全部jsapi ticket的相关缓存数据
             self.cache.delete(jsapi_ticket_key)
