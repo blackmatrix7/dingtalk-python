@@ -156,7 +156,7 @@ class DingTalkApp:
         try:
             # 为jsapi ticket加锁
             self.cache.set(ticket_lock_key, True, 60)
-            logging.info('已为jsticket加锁，防止重复请求新的 jsapi ticket')
+            logging.info('已为jsapi ticket加锁，防止重复请求新的 jsapi ticket')
             # 主动清理之前的jsapi ticket缓存
             self.cache.delete(jsapi_ticket_key)
             # 检查是否清理成功
@@ -164,19 +164,20 @@ class DingTalkApp:
             # 请求新的jsapi ticket
             resp = get_jsapi_ticket(self.access_token)
             ticket = resp['ticket']
+            logging.info('已向钉钉请求新的jsapi ticket：{}'.format(ticket))
             # 将新的jsapi ticket写入缓存
             self.cache.set(jsapi_ticket_key, ticket, time_out)
-            logging.info('将{0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
+            logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
             # 验证缓存是否写入成功
             cache_ticket = self.cache.get(jsapi_ticket_key)
             assert cache_ticket == ticket
         except BaseException as ex:
             # 出现异常时，清理全部jsapi ticket的相关缓存数据
             self.cache.delete(jsapi_ticket_key)
-            logging.error('强制刷新 jsapi ticket 出现异常，清理jsapi ticket缓存。异常信息：{}'.format(ex))
+            logging.error('强制刷新jsapi ticket出现异常，清理jsapi ticket缓存。异常信息：{}'.format(ex))
         finally:
             # 解除jsticket的锁
-            logging.info('解除jsticket的锁{}，其他调用者可以请求新的jsticket'.format(ticket_lock_key))
+            logging.info('解除jsapi ticket的锁{}，其他调用者可以请求新的jsapi ticket'.format(ticket_lock_key))
             self.cache.delete(ticket_lock_key)
             return ticket
 
