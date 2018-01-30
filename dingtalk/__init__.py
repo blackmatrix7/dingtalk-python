@@ -173,10 +173,10 @@ class DingTalkApp:
             # 验证缓存是否写入成功
             cache_ticket = self.cache.get(jsapi_ticket_key)
             assert cache_ticket == ticket
-        except BaseException as ex:
+        except Exception as ex:
             # 出现异常时，清理全部jsapi ticket的相关缓存数据
             self.cache.delete(jsapi_ticket_key)
-            logging.error('强制刷新jsapi ticket出现异常，清理jsapi ticket缓存。异常信息：{}'.format(ex))
+            logging.error('强制刷新jsapi ticket出现异常，清理jsapi ticket缓存。异常信息：{}'.format(str(ex)))
         finally:
             # 解除jsticket的锁
             logging.info('解除jsapi ticket的锁{}，其他调用者可以请求新的jsapi ticket'.format(ticket_lock_key))
