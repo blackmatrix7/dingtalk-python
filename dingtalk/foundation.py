@@ -100,7 +100,8 @@ def get_request_url(access_token, method=None, format_='json', v='2.0', simplify
     :param url:
     :return:
     """
-    timestamp = get_timestamp()
+    from datetime import datetime
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     base_url = url or DING_METHODS_URL
     request_url = '{0}?method={1}&session={2}&timestamp={3}&format={4}&v={5}'.format(base_url, method, access_token,
                                                                                      timestamp, format_, v)

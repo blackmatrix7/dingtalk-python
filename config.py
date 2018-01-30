@@ -13,8 +13,8 @@ __author__ = 'blackmatrix'
 
 class CommonConfig(BaseConfig):
 
-    DEBUG = True
-    TESTING = True
+    DATE_FMT = '%Y-%m-%d'
+    DATETIME_FMT = '%Y-%m-%d %H:%M:%S'
 
     # Cache
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']

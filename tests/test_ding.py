@@ -76,17 +76,19 @@ class DingTalkTestCase(unittest.TestCase):
         # 获取用户
         user_list = self.app.get_user_list(dept_ids[0])
         user_ids = [user['userid'] for user in user_list]
-        contact = {'title': 'master',
-                   # 'share_deptids': dept_ids[2:4],
-                   'label_ids': label_ids,
-                   # 'remark': 'nonting',
-                   # 'address': 'KungFuPanda',
-                   'name': 'shifu',
-                   'follower_userid': user_ids[2],
-                   'state_code': '86',
-                   # 'company_name': 'KungFuPanda',
-                   # 'share_userids': user_ids[2:6],
-                   'mobile': '13058889999'}
+        contact = {
+            # 'title': 'master',
+            # 'share_deptids': dept_ids[2:4],
+            'label_ids': [264113195, 264113208],
+            # 'remark': 'nonting',
+            # 'address': 'KungFuPanda',
+            'name': 'shifu',
+            'follower_userid': '2741125726502831',
+            'state_code': '86',
+            # 'company_name': 'KungFuPanda',
+            # 'share_userids': user_ids[2:6],
+            'mobile': '18605203032'
+        }
         try:
             result = self.app.add_corp_ext(contact)
             assert result is not None
