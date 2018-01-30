@@ -104,9 +104,11 @@ class DingTalkApp:
         logging.info('已清理access token相关缓存'.format(access_token_key))
         resp = get_access_token(self.corp_id, self.corp_secret)
         access_token = resp['access_token']
-        logging.warning('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
+        logging.info('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
         self.cache.set(access_token_key, access_token, time_out)
         logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(access_token_key, access_token, time_out))
+        # 强制刷新jsapi ticket
+        self.refresh_jsapi_ticket()
         return access_token
 
     @property
