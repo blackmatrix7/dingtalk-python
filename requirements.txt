@@ -5,6 +5,6 @@ pycrypto==2.6.1
 requests==2.18.4
 six==1.11.0
 urllib3==1.22
-redis==2.10.16
+redis==2.10.6
 # 或
 python3-memcached==1.51

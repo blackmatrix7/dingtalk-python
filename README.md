@@ -14,7 +14,7 @@ Redis（或Memcached）
 
 ```json
 pycrypto==2.6.1
-redis==2.10.16
+redis==2.10.6
 # 或
 python3-memcached==1.51
 requests==2.18.4
