@@ -84,6 +84,11 @@ class DingTalkApp:
         try:
             if self.cache.get(access_token_key) is not None:
                 access_token = self.cache.get(access_token_key)
+                # 兼容redis
+                try:
+                    access_token = access_token.decode()
+                except TypeError:
+                    pass
                 logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(access_token_key, access_token))
             else:
                 logging.warning('没有命中缓存{0}，准备重新向钉钉请求access token'.format(access_token_key))
@@ -125,6 +130,11 @@ class DingTalkApp:
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key) is not None:
                 ticket = self.cache.get(jsapi_ticket_key)
+                # 兼容redis
+                try:
+                    ticket = ticket.decode()
+                except TypeError:
+                    pass
                 logging.info('命中缓存{}，直接返回缓存数据：{}'.format(jsapi_ticket_key, ticket))
             else:
                 logging.warning('没有命中缓存{}，准备重新向钉钉请求 jsapi ticket'.format(jsapi_ticket_key))
