@@ -139,7 +139,7 @@ class DingTalkApp:
             else:
                 logging.warning('没有命中缓存{}，准备重新向钉钉请求 jsapi ticket'.format(jsapi_ticket_key))
                 # jsapi ticket 过期时间，单位秒
-                time_out = 6000
+                time_out = 1800
                 # 获取jsapi ticket的锁
                 ticket_lock = self.cache.get(ticket_lock_key)
                 if ticket_lock and ticket_lock is True:
@@ -154,7 +154,7 @@ class DingTalkApp:
         jsapi_ticket = _get_jsapi_ticket()
         return jsapi_ticket
 
-    def refresh_jsapi_ticket(self, time_out=6000):
+    def refresh_jsapi_ticket(self, time_out=3600):
         """
         强制刷新 jsapi ticket
         :param time_out:
@@ -178,13 +178,6 @@ class DingTalkApp:
             # 将新的jsapi ticket写入缓存
             self.cache.set(jsapi_ticket_key, ticket, time_out)
             logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
-            # 验证缓存是否写入成功
-            sleep(0.5)
-            cache_ticket = self.cache.get(jsapi_ticket_key)
-            if cache_ticket == ticket:
-                logging.info('jsapi ticket写入缓存成功')
-            else:
-                logging.error('jsapi ticket写入缓存失败，缓存数据：{}'.format(cache_ticket))
         except Exception as ex:
             # 出现异常时，清理全部jsapi ticket的相关缓存数据
             self.cache.delete(jsapi_ticket_key)
