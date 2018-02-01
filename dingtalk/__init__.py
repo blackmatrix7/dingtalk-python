@@ -87,7 +87,7 @@ class DingTalkApp:
                 # 兼容redis
                 try:
                     access_token = access_token.decode()
-                except TypeError:
+                except AttributeError:
                     pass
                 logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(access_token_key, access_token))
             else:
@@ -133,7 +133,7 @@ class DingTalkApp:
                 # 兼容redis
                 try:
                     ticket = ticket.decode()
-                except TypeError:
+                except AttributeError:
                     pass
                 logging.info('命中缓存{}，直接返回缓存数据：{}'.format(jsapi_ticket_key, ticket))
             else:

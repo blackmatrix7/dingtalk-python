@@ -44,7 +44,8 @@ class DingTalkTestCase(unittest.TestCase):
         assert label_groups
         label_groups = self.app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
         assert label_groups
-        return label_groups
+        all_label_groups = self.app.get_all_label_groups()
+        assert all_label_groups
 
     # 获取用户
     def test_get_user_list(self):
