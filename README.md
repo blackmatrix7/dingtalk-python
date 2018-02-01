@@ -49,7 +49,7 @@ cache = redis.Redis(host='127.0.0.1', port='6379', db=0)
 ```python
 from memcache import Client
 # memcached客户端
-cache = Client([127.0.0.1:11211])
+cache = Client(['127.0.0.1:11211'])
 ```
 
 ### 实例化DingTalk App
