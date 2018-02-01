@@ -92,6 +92,8 @@ class DingTalkApp:
                 logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(access_token_key, access_token))
             else:
                 logging.warning('没有命中缓存{0}，准备重新向钉钉请求access token'.format(access_token_key))
+                logging.info('先行清理缓存中的jsapi ticket数据')
+                self.cache.delete('{}_jsapi_ticket'.format(self.name))
                 time_out = 7000
                 access_token = self.refresh_access_token(time_out)
         except BaseException as ex:
