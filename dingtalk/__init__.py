@@ -69,6 +69,10 @@ class DingTalkApp:
         self.token = token or 'LnPxMAp7doy'
         self.domain = domain or 'A2UOM1pZOxQ'
         self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
+        # cache key
+        self.access_token_key = '{}_access_token'.format(self.name)
+        self.jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
+        self.ticket_lock_key = '{}_ticket_lock'.format(self.name)
 
     @property
     def methods(self):
@@ -80,20 +84,17 @@ class DingTalkApp:
         :return:
         """
         access_token = None
-        access_token_key = '{}_access_token'.format(self.name)
         try:
-            if self.cache.get(access_token_key) is not None:
-                access_token = self.cache.get(access_token_key)
+            if self.cache.get(self.access_token_key) is not None:
+                access_token = self.cache.get(self.access_token_key)
                 # 兼容redis
                 try:
                     access_token = access_token.decode()
                 except AttributeError:
                     pass
-                logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(access_token_key, access_token))
+                logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(self.access_token_key, access_token))
             else:
-                logging.warning('没有命中缓存{0}，准备重新向钉钉请求access token'.format(access_token_key))
-                logging.info('先行清理缓存中的jsapi ticket数据')
-                self.cache.delete('{}_jsapi_ticket'.format(self.name))
+                logging.warning('没有命中缓存{0}，准备重新向钉钉请求access token'.format(self.access_token_key))
                 time_out = 7000
                 access_token = self.refresh_access_token(time_out)
         except BaseException as ex:
@@ -106,14 +107,15 @@ class DingTalkApp:
         刷新access_token
         :return:
         """
-        access_token_key = '{}_access_token'.format(self.name)
-        self.cache.delete(access_token_key)
-        logging.info('已清理access token相关缓存'.format(access_token_key))
+        self.cache.delete(self.access_token_key)
+        logging.info('先行清理缓存中的jsapi ticket数据')
+        self.cache.delete()
+        logging.info('已清理缓存中的access token数据'.format(self.access_token_key))
         resp = get_access_token(self.corp_id, self.corp_secret)
         access_token = resp['access_token']
-        logging.info('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
-        self.cache.set(access_token_key, access_token, time_out)
-        logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(access_token_key, access_token, time_out))
+        logging.info('已重新向钉钉请求access token：{1}'.format(self.access_token_key, access_token))
+        self.cache.set(self.access_token_key, access_token, time_out)
+        logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(self.access_token_key, access_token, time_out))
         return access_token
 
     @property
@@ -126,24 +128,22 @@ class DingTalkApp:
         如果没有命中缓存，则强制刷新jsticket
         :return:
         """
-        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
-        ticket_lock_key = '{}_ticket_lock'.format(self.name)
 
         def _get_jsapi_ticket():
-            if self.cache.get(jsapi_ticket_key) is not None:
-                ticket = self.cache.get(jsapi_ticket_key)
+            if self.cache.get(self.jsapi_ticket_key) is not None:
+                ticket = self.cache.get(self.jsapi_ticket_key)
                 # 兼容redis
                 try:
                     ticket = ticket.decode()
                 except AttributeError:
                     pass
-                logging.info('命中缓存{}，直接返回缓存数据：{}'.format(jsapi_ticket_key, ticket))
+                logging.info('命中缓存{}，直接返回缓存数据：{}'.format(self.jsapi_ticket_key, ticket))
             else:
-                logging.warning('没有命中缓存{}，准备重新向钉钉请求 jsapi ticket'.format(jsapi_ticket_key))
+                logging.warning('没有命中缓存{}，准备重新向钉钉请求 jsapi ticket'.format(self.jsapi_ticket_key))
                 # jsapi ticket 过期时间，单位秒
-                time_out = 1800
+                time_out = 3600
                 # 获取jsapi ticket的锁
-                ticket_lock = self.cache.get(ticket_lock_key)
+                ticket_lock = self.cache.get(self.ticket_lock_key)
                 if ticket_lock and ticket_lock is True:
                     logging.warning('jsapi ticket 存在锁，等待其他调用者请求新的 jsapi ticket')
                     sleep(0.5)
@@ -162,32 +162,30 @@ class DingTalkApp:
         :param time_out:
         :return:
         """
-        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
-        ticket_lock_key = '{}_ticket_lock'.format(self.name)
         ticket = None
         try:
             # 为jsapi ticket加锁
-            self.cache.set(ticket_lock_key, True, 60)
+            self.cache.set(self.ticket_lock_key, True, 60)
             logging.info('已为jsapi ticket加锁，防止重复请求新的 jsapi ticket')
             # 主动清理之前的jsapi ticket缓存
-            self.cache.delete(jsapi_ticket_key)
+            self.cache.delete(self.jsapi_ticket_key)
             # 检查是否清理成功
-            assert self.cache.get(jsapi_ticket_key) is None
+            assert self.cache.get(self.jsapi_ticket_key) is None
             # 请求新的jsapi ticket
             resp = get_jsapi_ticket(self.access_token)
             ticket = resp['ticket']
             logging.info('已向钉钉请求新的jsapi ticket：{}'.format(ticket))
             # 将新的jsapi ticket写入缓存
-            self.cache.set(jsapi_ticket_key, ticket, time_out)
-            logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
+            self.cache.set(self.jsapi_ticket_key, ticket, time_out)
+            logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(self.jsapi_ticket_key, ticket, time_out))
         except Exception as ex:
             # 出现异常时，清理全部jsapi ticket的相关缓存数据
-            self.cache.delete(jsapi_ticket_key)
+            self.cache.delete(self.jsapi_ticket_key)
             logging.error('强制刷新jsapi ticket出现异常，清理jsapi ticket缓存。异常信息：{}'.format(str(ex)))
         finally:
             # 解除jsticket的锁
-            logging.info('解除jsapi ticket的锁{}，其他调用者可以请求新的jsapi ticket'.format(ticket_lock_key))
-            self.cache.delete(ticket_lock_key)
+            logging.info('解除jsapi ticket的锁{}，其他调用者可以请求新的jsapi ticket'.format(self.ticket_lock_key))
+            self.cache.delete(self.ticket_lock_key)
             return ticket
 
     @property
