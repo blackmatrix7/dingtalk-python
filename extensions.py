@@ -5,7 +5,7 @@
 # @Github : https://github.com/blackmatrix7/
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : extensions.py
-# @Software: PyCharm\
+# @Software: PyCharm
 import redis
 from dingtalk import DingTalkApp
 from config import current_config
@@ -14,12 +14,12 @@ __author__ = 'blackmatrix'
 
 
 # 缓存，Memcached支持
-# from memcache import Client
-# cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
+from memcache import Client
+cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 # 缓存，Redis支持
-cache = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
-                    port=current_config.CACHE_REDIS_PORT,
-                    db=current_config.CACHE_REDIS_DB)
+# cache = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
+#                     port=current_config.CACHE_REDIS_PORT,
+#                     db=current_config.CACHE_REDIS_DB)
 
 # 实例化一个钉钉的对象
 # 这里为了测试方便，引入了之前写的config模块，本身SDK的使用不需要此模块

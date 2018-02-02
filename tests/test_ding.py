@@ -75,12 +75,12 @@ class DingTalkTestCase(unittest.TestCase):
         dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
-        user_list = self.app.get_user_list(dept_ids[0])
+        user_list = self.app.get_user_list(dept_ids[1])
         user_ids = [user['userid'] for user in user_list]
         contact = {
             # 'title': 'master',
             # 'share_deptids': dept_ids[2:4],
-            'label_ids': [264113195, 264113208],
+            'label_ids': [265253444, 264113195],
             # 'remark': 'nonting',
             # 'address': 'KungFuPanda',
             'name': 'shifu',
