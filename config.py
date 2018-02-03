@@ -13,11 +13,14 @@ __author__ = 'blackmatrix'
 
 class CommonConfig(BaseConfig):
 
-    DEBUG = True
-    TESTING = True
+    DATE_FMT = '%Y-%m-%d'
+    DATETIME_FMT = '%Y-%m-%d %H:%M:%S'
 
     # Cache
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
+    CACHE_REDIS_SERVERS = '127.0.0.1'
+    CACHE_REDIS_PORT = '6379'
+    CACHE_REDIS_DB = 0
 
     # dingtalk
     DING_CORP_ID = None

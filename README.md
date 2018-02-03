@@ -4,9 +4,9 @@
 
 ## 环境
 
-python3
+Python3
 
-memcached
+Redis（或Memcached）
 
 ## QuickStart
 
@@ -14,6 +14,8 @@ memcached
 
 ```json
 pycrypto==2.6.1
+redis==2.10.6
+# 或
 python3-memcached==1.51
 requests==2.18.4
 ```
@@ -24,20 +26,30 @@ requests==2.18.4
 pip install -r requirements.txt
 ```
 
-钉钉回调消息的加密解密需要依赖pycrypto。这个包在Windows下安装比较繁琐，建议在Mac OS或Linux下进行调试。
+钉钉回调消息的加密解密需要依赖pycrypto。
+
+这个包在Windows下安装比较繁琐，建议在Mac OS或Linux下进行调试。
 
 如果不需要使用钉钉回调消息，则可以不安装pycrypto，不影响其他功能的正常工作。
 
-### 创建memcached对象
+Dingtalk-Python需要依赖缓存服务器对access token、jsticket进行过期时间管理，所以需要传入缓存服务器的客户端，这里可以选用Redis（推荐）或Memcached。
 
-Dingtalk-Python需要依赖memcahed对access token、jsticket进行过期时间管理，所以需要python3-memcached所实例化出的对象。
+需要特别注意的是，对于一个企业多个微应用，或一个企业多种环境：如生产环境、测试环境这种情况，务必保证缓存数据的一致，避免频繁调用钉钉jsticket的接口，导致不同缓存服务器的jsticket互相覆盖。
 
-**需要特别注意的是，对于一个企业多个微应用，或一个企业多种环境：如生产环境、测试环境这种情况，务必保证memcached缓存数据的一致，避免频繁调用钉钉jsticket的接口，导致不同缓存服务器的jsticket互相覆盖。**
+### 创建Redis对象
+
+```python
+import redis
+# 缓存，Redis支持
+cache = redis.Redis(host='127.0.0.1', port='6379', db=0)
+```
+
+### 创建Memcached对象
 
 ```python
 from memcache import Client
 # memcached客户端
-cache = Client([127.0.0.1:11211])
+cache = Client(['127.0.0.1:11211'])
 ```
 
 ### 实例化DingTalk App
@@ -45,7 +57,7 @@ cache = Client([127.0.0.1:11211])
 ```python
 from dingtalk import DingTalkApp
 # name传入企业名称
-# cache传入python3-memeched的Client类实例化出的对象
+# cache传入缓存服务器的客户端实例，可以是Redis或Memcached
 # 用于加解密的aes_key，必须是43位字符串，由大小写字母和数字组成，不能有标点符号
 # 如果同个企业需要创建多个app实例时，请保持除agent_id外的参数完全一致
 # 以下实例化参数都是模拟数据

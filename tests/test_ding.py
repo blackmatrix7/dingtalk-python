@@ -8,6 +8,7 @@
 # @Software: PyCharm
 import json
 import unittest
+from time import sleep
 from extensions import cache
 from datetime import datetime
 from dingtalk.crypto import *
@@ -43,7 +44,8 @@ class DingTalkTestCase(unittest.TestCase):
         assert label_groups
         label_groups = self.app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
         assert label_groups
-        return label_groups
+        all_label_groups = self.app.get_all_label_groups()
+        assert all_label_groups
 
     # 获取用户
     def test_get_user_list(self):
@@ -73,23 +75,26 @@ class DingTalkTestCase(unittest.TestCase):
         dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
-        user_list = self.app.get_user_list(dept_ids[0])
+        user_list = self.app.get_user_list(dept_ids[1])
         user_ids = [user['userid'] for user in user_list]
-        contact = {'title': 'master',
-                   # 'share_deptids': dept_ids[2:4],
-                   'label_ids': label_ids,
-                   # 'remark': 'nonting',
-                   # 'address': 'KungFuPanda',
-                   'name': 'shifu',
-                   'follower_userid': user_ids[2],
-                   'state_code': '86',
-                   # 'company_name': 'KungFuPanda',
-                   # 'share_userids': user_ids[2:6],
-                   'mobile': '13058889999'}
+        contact = {
+            # 'title': 'master',
+            # 'share_deptids': dept_ids[2:4],
+            'label_ids': [265253444, 264113195],
+            # 'remark': 'nonting',
+            # 'address': 'KungFuPanda',
+            'name': 'shifu',
+            'follower_userid': '2741125726502831',
+            'state_code': '86',
+            # 'company_name': 'KungFuPanda',
+            # 'share_userids': user_ids[2:6],
+            'mobile': '18605203032'
+        }
         try:
             result = self.app.add_corp_ext(contact)
             assert result is not None
         except DingTalkException as ex:
+            print(ex)
             assert '外部联系人已存在' in str(ex)
 
     # 测试新增工作流实例
@@ -104,7 +109,7 @@ class DingTalkTestCase(unittest.TestCase):
         dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 测试部门
-        originator_dept_id = dept_ids[3]
+        originator_dept_id = dept_ids[1]
         # 获取用户
         originator_user_list = self.app.get_user_list(originator_dept_id)
         originator_user_id = [user['userid'] for user in originator_user_list][0]
@@ -121,18 +126,18 @@ class DingTalkTestCase(unittest.TestCase):
             assert resp
         except BaseException as ex:
             assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
-        # dev_dept_id = dept_ids[1]
-        # dev_user_list = self.app.get_user_list(dev_dept_id)
-        # approvers = [user['userid'] for user in dev_user_list]
-        # args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-        #         'originator_user_id': originator_user_id,
-        #         'dept_id': originator_dept_id,
-        #         'approvers': approvers,
-        #         'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
-        #                                   {'value': '哈哈哈哈', 'name': '部门'},
-        #                                   {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        # resp = self.app.create_bpms_instance(**args)
-        # assert resp
+        dev_dept_id = dept_ids[1]
+        dev_user_list = self.app.get_user_list(dev_dept_id)
+        approvers = [user['userid'] for user in dev_user_list]
+        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                'originator_user_id': originator_user_id,
+                'dept_id': originator_dept_id,
+                'approvers': approvers,
+                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+                                          {'value': '哈哈哈哈', 'name': '部门'},
+                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
+        resp = self.app.create_bpms_instance(**args)
+        assert resp
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -220,7 +225,7 @@ class DingTalkTestCase(unittest.TestCase):
         # 测试错误情况，传入一个不存在的process_code
         data = self.app.get_bpms_instance_list(process_code='PROC-XXXXXXXX-XXXXXXXX-XXXXXXX-X',
                                                start_time=start_time)
-        assert data[1] == 0
+        assert len(data['instance_list']) == 0
 
     # 获取全部工作流实例
     def test_all_bpms_list(self):
@@ -246,7 +251,7 @@ class DingTalkTestCase(unittest.TestCase):
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
         user_list = self.app.get_user_list(dept_ids[1])
-        user_ids = [user['userid'] for user in user_list][1]
+        user_ids = [user['userid'] for user in user_list]
         # 测试错误的情况，错误的msgtype
         try:
             data = self.app.async_send_msg(msgtype='text2', userid_list=user_ids,
@@ -254,10 +259,17 @@ class DingTalkTestCase(unittest.TestCase):
             assert data
         except BaseException as ex:
             assert '不合法的消息类型' in str(ex)
-        # # 测试正确的情况，避免频繁发送消息，通常不运行此测试
-        # data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
-        #                                msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
-        # assert data
+        # 测试正确的情况，避免频繁发送消息，通常不运行此测试
+        data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
+                                       msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+        assert data
+        task_id = data['task_id']
+        # 获取发送进度
+        result = self.app.get_msg_send_progress(task_id)
+        assert result
+        sleep(5)
+        result = self.app.get_msg_send_result(task_id=task_id)
+        assert result
 
     # 测试获取用户信息
     def test_get_user_info(self):
@@ -285,7 +297,7 @@ class DingTalkTestCase(unittest.TestCase):
                 dept_id = dept['id']
                 break
         if dept_id is None:
-            dept_id = dept_list[1]
+            dept_id = dept_list[1]['id']
         # 测试创建用户错误
         err_user_info = {
             'name': '马小云',
