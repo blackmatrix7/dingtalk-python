@@ -17,10 +17,10 @@ from operator import methodcaller
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
 from .workflow import create_bpms_instance, get_bpms_instance_list
-from .callback import register_callback, get_callback_failed_result
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
+from .callback import register_callback, get_callback_failed_result, update_callback
 
 __author__ = 'blackmatrix'
 
@@ -81,43 +81,38 @@ class DingTalkApp:
         """
         access_token = None
         access_token_key = '{}_access_token'.format(self.name)
-        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
         try:
             if self.cache.get(access_token_key) is not None:
                 access_token = self.cache.get(access_token_key)
+                # 兼容redis
+                try:
+                    access_token = access_token.decode()
+                except AttributeError:
+                    pass
                 logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(access_token_key, access_token))
             else:
                 logging.warning('没有命中缓存{0}，准备重新向钉钉请求access token'.format(access_token_key))
-                self.cache.delete(access_token_key)
-                self.cache.delete(jsapi_ticket_key)
-                logging.info('已清理access token和jsapi_ticket相关缓存'.format(access_token_key))
+                logging.info('先行清理缓存中的jsapi ticket数据')
+                self.cache.delete('{}_jsapi_ticket'.format(self.name))
                 time_out = 7000
-                resp = get_access_token(self.corp_id, self.corp_secret)
-                access_token = resp['access_token']
-                logging.warning('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
-                self.cache.set(access_token_key, access_token, time_out)
-                logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(access_token_key, access_token, time_out))
+                access_token = self.refresh_access_token(time_out)
         except BaseException as ex:
             logging.error('获取access token异常：{}'.format(ex))
         finally:
             return access_token
 
-    def refresh_access_token(self):
+    def refresh_access_token(self, time_out=7000):
         """
         刷新access_token
         :return:
         """
-        time_out = 7000
-        logging.info('强制刷新access token')
-        # 清理access token 和 jsticket 的相关缓存
         access_token_key = '{}_access_token'.format(self.name)
-        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
         self.cache.delete(access_token_key)
-        self.cache.delete(jsapi_ticket_key)
+        logging.info('已清理access token相关缓存'.format(access_token_key))
         resp = get_access_token(self.corp_id, self.corp_secret)
         access_token = resp['access_token']
-        logging.info('已向钉钉请求新的access token：{}'.format(access_token))
-        self.cache.set(access_token_key, access_token, 7000)
+        logging.info('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
+        self.cache.set(access_token_key, access_token, time_out)
         logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(access_token_key, access_token, time_out))
         return access_token
 
@@ -126,43 +121,74 @@ class DingTalkApp:
         return self.get_access_token()
 
     def get_jsapi_ticket(self):
+        """
+        获取当前缓存中的jsapi ticket
+        如果没有命中缓存，则强制刷新jsticket
+        :return:
+        """
         jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
         ticket_lock_key = '{}_ticket_lock'.format(self.name)
 
         def _get_jsapi_ticket():
             if self.cache.get(jsapi_ticket_key) is not None:
                 ticket = self.cache.get(jsapi_ticket_key)
+                # 兼容redis
+                try:
+                    ticket = ticket.decode()
+                except AttributeError:
+                    pass
                 logging.info('命中缓存{}，直接返回缓存数据：{}'.format(jsapi_ticket_key, ticket))
             else:
+                logging.warning('没有命中缓存{}，准备重新向钉钉请求 jsapi ticket'.format(jsapi_ticket_key))
                 # jsapi ticket 过期时间，单位秒
-                time_out = 3000
-                # 尝试用memcached来控制jsticket的锁
+                time_out = 3600
+                # 获取jsapi ticket的锁
                 ticket_lock = self.cache.get(ticket_lock_key)
-                ticket = None
                 if ticket_lock and ticket_lock is True:
-                    logging.warning('jsticket存在锁，等待其他调用者请求新的jsticket')
+                    logging.warning('jsapi ticket 存在锁，等待其他调用者请求新的 jsapi ticket')
                     sleep(0.5)
                     ticket = _get_jsapi_ticket()
                 else:
-                    try:
-                        logging.warning('没有命中缓存{}，准备重新向钉钉请求jsapi ticket'.format(jsapi_ticket_key))
-                        logging.info('jsticket未加锁，可以请求新的jsticket')
-                        self.cache.set(ticket_lock_key, True, 60)
-                        logging.info('已为jsticket加锁，防止重复请求新的jsticket')
-                        resp = get_jsapi_ticket(self.access_token)
-                        ticket = resp['ticket']
-                        self.cache.set(jsapi_ticket_key, ticket, time_out)
-                        logging.info('将{0}写入缓存，过期时间{1}秒'.format(ticket, time_out))
-                    except BaseException as ex:
-                        logging.error(ex)
-                    finally:
-                        # 解除jsticket的锁
-                        logging.info('解除jsticket的锁{}，其他调用者可以请求新的jsticket'.format(ticket_lock_key))
-                        self.cache.delete(ticket_lock_key)
+                    logging.info('jsapi ticket 未加锁，可以请求新的 jsapi ticket')
+                    ticket = self.refresh_jsapi_ticket(time_out)
             return ticket
 
         jsapi_ticket = _get_jsapi_ticket()
         return jsapi_ticket
+
+    def refresh_jsapi_ticket(self, time_out=3600):
+        """
+        强制刷新 jsapi ticket
+        :param time_out:
+        :return:
+        """
+        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
+        ticket_lock_key = '{}_ticket_lock'.format(self.name)
+        ticket = None
+        try:
+            # 为jsapi ticket加锁
+            self.cache.set(ticket_lock_key, True, 60)
+            logging.info('已为jsapi ticket加锁，防止重复请求新的 jsapi ticket')
+            # 主动清理之前的jsapi ticket缓存
+            self.cache.delete(jsapi_ticket_key)
+            # 检查是否清理成功
+            assert self.cache.get(jsapi_ticket_key) is None
+            # 请求新的jsapi ticket
+            resp = get_jsapi_ticket(self.access_token)
+            ticket = resp['ticket']
+            logging.info('已向钉钉请求新的jsapi ticket：{}'.format(ticket))
+            # 将新的jsapi ticket写入缓存
+            self.cache.set(jsapi_ticket_key, ticket, time_out)
+            logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
+        except Exception as ex:
+            # 出现异常时，清理全部jsapi ticket的相关缓存数据
+            self.cache.delete(jsapi_ticket_key)
+            logging.error('强制刷新jsapi ticket出现异常，清理jsapi ticket缓存。异常信息：{}'.format(str(ex)))
+        finally:
+            # 解除jsticket的锁
+            logging.info('解除jsapi ticket的锁{}，其他调用者可以请求新的jsapi ticket'.format(ticket_lock_key))
+            self.cache.delete(ticket_lock_key)
+            return ticket
 
     @property
     def jsapi_ticket(self):
@@ -424,8 +450,9 @@ class DingTalkApp:
         data = create_bpms_instance(self.access_token, process_code, originator_user_id,
                                     dept_id, approvers, form_component_values,
                                     agent_id, cc_list, cc_position)
-        return {'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id'],
-                'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id']}
+        return {'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id'],
+                'success': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['is_success'],
+                'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id']}
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
@@ -441,7 +468,10 @@ class DingTalkApp:
         data = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
         instance_list = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result']['list'].get('process_instance_top_vo', [])
         next_cursor = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result'].get('next_cursor', 0)
-        return instance_list, next_cursor
+        return {'request_id': data['dingtalk_smartwork_bpms_processinstance_list_response']['request_id'],
+                'success': data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['success'],
+                'instance_list': instance_list,
+                'next_cursor': next_cursor}
 
     def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
         """
@@ -458,33 +488,41 @@ class DingTalkApp:
         size = 10
         cursor = 0
         bpms_instance_list = []
+        request_id = {}
         while True:
-            instance_list, next_cursor = self.get_bpms_instance_list(process_code, start_time, end_time=end_time, size=size, cursor=cursor)
-            bpms_instance_list.extend(instance_list)
-            if next_cursor > 0:
-                cursor = next_cursor
+            result = self.get_bpms_instance_list(process_code, start_time, end_time=end_time, size=size, cursor=cursor)
+            request_id.update({result['request_id']: {'success': result['success']}})
+            bpms_instance_list.extend(result['instance_list'])
+            if result['next_cursor'] > 0:
+                cursor = result['next_cursor']
             else:
                 break
-        return bpms_instance_list
+        return {'request_id': request_id, 'bpms_instance_list': bpms_instance_list}
 
     @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
         resp = async_send_msg(access_token=self.access_token, agent_id=self.agent_id, msgtype=msgtype,
                               userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
                               msgcontent=msgcontent)
-        return resp
+        return {'request_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['request_id'],
+                'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id'],
+                'success': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['success']}
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_result(self.access_token, agent_id, task_id)
-        return resp
+        return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['request_id'],
+                'send_result': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['send_result'],
+                'success': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['success']}
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
     def get_msg_send_progress(self, task_id, agent_id=None):
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_progress(self.access_token, agent_id, task_id)
-        return resp
+        return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['request_id'],
+                'progress': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['progress'],
+                'success': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['success']}
 
     @dingtalk('dingtalk.corp.role.list')
     def get_corp_role_list(self, size=20, offset=0):
@@ -546,6 +584,12 @@ class DingTalkApp:
         if self.aes_key is None or self.callback_url is None:
             raise RuntimeError('注册回调前需要在初始化DingTalk App时传入aes_key和callback_url')
         data = register_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
+        return data
+
+    def update_callback(self, callback_tag):
+        if self.aes_key is None or self.callback_url is None:
+            raise RuntimeError('更新回调前需要在初始化DingTalk App时传入aes_key和callback_url')
+        data = update_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
         return data
 
     def encrypt(self, plaintext, buf=None):

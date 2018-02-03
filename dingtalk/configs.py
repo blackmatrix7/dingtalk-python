@@ -46,6 +46,8 @@ DING_GET_USER_BY_CODE = 'https://oapi.dingtalk.com/user/getuserinfo'
 DING_GET_CSPACE = 'https://oapi.dingtalk.com/cspace/get_custom_space'
 # 注册回调
 DING_REGISTER_CALL_BACK = 'https://oapi.dingtalk.com/call_back/register_call_back?access_token={access_token}'
+# 注册回调
+DING_UPDATE_CALL_BACK = 'https://oapi.dingtalk.com/call_back/update_call_back?access_token={access_token}'
 # 获取回调失败结果
 DING_GET_CALL_BACK_FAILED_RESULT = 'https://oapi.dingtalk.com/call_back/get_call_back_failed_result?access_token={access_token}'
 
