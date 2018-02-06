@@ -41,15 +41,15 @@ class MySQLCache(Cache):
     def set(self, key, value, expires):
         from datetime import datetime, timedelta
         create_time = datetime.now()
-        expire_time = create_time + timedelta(seconds=3)
-        select_sql = "SELECT `key`, `value`, `expire_time` FROM dingtalk_cache WHERE 'key'='{}'".format(key)
+        expire_time = create_time + timedelta(seconds=expires)
+        select_sql = 'SELECT `key`, `value`, `expire_time` FROM dingtalk_cache WHERE `key`="{}"'.format(key)
         data = self.cursor.execute(select_sql)
         if data < 1:
-            sql = "INSERT INTO dingtalk_cache(`key`,`value`,create_time,expire_time) VALUES(\'{}\',\'{}\',\'{}\',\'{}\')".format(
+            sql = 'INSERT INTO dingtalk_cache(`key`,`value`,create_time,expire_time) VALUES("{}","{}","{}","{}")'.format(
                 key, value, create_time.strftime('%Y-%m-%d %H:%M:%S'), expire_time.strftime('%Y-%m-%d %H:%M:%S'))
 
         else:
-            sql = "UPDATE dingtalk_cache SET `value`={}, create_time={}, expire_time={} WHERE `key`='{}'}".format(
+            sql = 'UPDATE dingtalk_cache SET `value`="{}", create_time="{}", expire_time="{}" WHERE `key`="{}"'.format(
                 value, create_time, expire_time, key)
         self.cursor.execute(sql)
         self.connection.commit()
