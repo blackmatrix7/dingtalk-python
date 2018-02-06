@@ -25,17 +25,7 @@ AES_KEY = current_config.DING_AES_KEY
 CALLBACK_URL = current_config.DING_CALLBACK
 
 
-# 缓存，Memcached支持
-from memcache import Client
-cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
-# 缓存，Redis支持
-# import redis
-# cache = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
-#                     port=current_config.CACHE_REDIS_PORT,
-#                     db=current_config.CACHE_REDIS_DB)
-
-
-# MySQL支持
+# MySQL缓存实现
 class MySQLCache(Cache):
 
     def __init__(self):
@@ -49,15 +39,41 @@ class MySQLCache(Cache):
         self.cursor = self.connection.cursor()
 
     def set(self, key, value, expires):
-        sql = 'INSERT INTO CacheData(key, value, expire_time) VALUES({}, {}, {})'.format(key, value, expires)
+        from datetime import datetime, timedelta
+        create_time = datetime.now()
+        expire_time = create_time + timedelta(seconds=3)
+        select_sql = "SELECT `key`, `value`, `expire_time` FROM dingtalk_cache WHERE 'key'='{}'".format(key)
+        data = self.cursor.execute(select_sql)
+        if data < 1:
+            sql = "INSERT INTO dingtalk_cache(`key`,`value`,create_time,expire_time) VALUES(\'{}\',\'{}\',\'{}\',\'{}\')".format(
+                key, value, create_time.strftime('%Y-%m-%d %H:%M:%S'), expire_time.strftime('%Y-%m-%d %H:%M:%S'))
+
+        else:
+            sql = "UPDATE dingtalk_cache SET `value`={}, create_time={}, expire_time={} WHERE `key`='{}'}".format(
+                value, create_time, expire_time, key)
         self.cursor.execute(sql)
         self.connection.commit()
-        
+
     def get(self, key):
         pass
 
     def delete(self, key):
         pass
+
+cache = MySQLCache()
+cache.set('access_token', '123', 60000)
+
+# 缓存，Memcached支持
+# from memcache import Client
+# cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
+
+
+# 缓存，Redis支持
+# import redis
+# cache = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
+#                     port=current_config.CACHE_REDIS_PORT,
+#                     db=current_config.CACHE_REDIS_DB)
+
 
 # 实例化一个钉钉的对象
 dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET, 'agent_id': AGENT_ID,

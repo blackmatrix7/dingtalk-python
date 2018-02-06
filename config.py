@@ -36,6 +36,7 @@ class CommonConfig(BaseConfig):
     CACHE_MYSQL_PORT = '3306'
     CACHE_MYSQL_USER = 'root'
     CACHE_MYSQL_PASS = 'password'
+    CACHE_MYSQL_DB = 'DingTalkCache'
 
 
 class DevConfig(CommonConfig):
