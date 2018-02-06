@@ -8,3 +8,5 @@ urllib3==1.22
 redis==2.10.6
 # 或
 python3-memcached==1.51
+# 或
+pymysql==0.8.0

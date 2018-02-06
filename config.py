@@ -22,13 +22,20 @@ class CommonConfig(BaseConfig):
     CACHE_REDIS_PORT = '6379'
     CACHE_REDIS_DB = 0
 
-    # dingtalk
+    # DingTalk
+    DING_DOMAIN = 'test_domain'
     DING_CORP_ID = None
     DING_CORP_SECRET = None
     DING_AGENT_ID = None
     DING_AES_KEY = None
     # 钉钉回调地址，必须返回含有success字符串的json格式
     DING_CALLBACK = None
+
+    # 缓存数据库
+    CACHE_MYSQL_HOST = '127.0.0.1'
+    CACHE_MYSQL_PORT = '3306'
+    CACHE_MYSQL_USER = 'root'
+    CACHE_MYSQL_PASS = 'password'
 
 
 class DevConfig(CommonConfig):
