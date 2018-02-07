@@ -7,10 +7,8 @@
 # @File : messages.py
 # @Software: PyCharm
 import json
-import requests
 from .foundation import *
 from json import JSONDecodeError
-from .exceptions import DingTalkExceptions
 
 __author__ = 'blackmatrix'
 
@@ -20,6 +18,7 @@ def async_send_msg(access_token, msgtype, agent_id, msgcontent, userid_list=None
     try:
         msgcontent = json.dumps(msgcontent)
     except JSONDecodeError:
+        # 如果传入的msgcontent不能转换为json格式，依旧传给钉钉，由钉钉处理
         pass
     if not isinstance(userid_list, str):
         userid_list = ','.join(userid_list)
