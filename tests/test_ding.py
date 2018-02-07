@@ -270,6 +270,33 @@ class DingTalkTestCase(unittest.TestCase):
         sleep(5)
         result = self.app.get_msg_send_result(task_id=task_id)
         assert result
+        # 测试link消息
+        data = self.app.async_send_msg(msgtype='link', userid_list=user_ids,
+                                       msgcontent={
+                                           "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+                                           "picUrl": "@lALOACZwe2Rk",
+                                           "title": "测试",
+                                           "text": "测试"
+                                       })
+        assert data
+        # 测试发送ActionCard
+        data = self.app.async_send_msg(msgtype='action_card', userid_list=user_ids,
+                                       msgcontent={
+                                           "title": "是透出到会话列表和通知的文案",
+                                           "markdown": "支持markdown格式的正文内容",
+                                           "btn_orientation": "1",
+                                           "btn_json_list": [
+                                               {
+                                                   "title": "一个按钮",
+                                                   "action_url": "https://www.taobao.com"
+                                               },
+                                               {
+                                                   "title": "两个按钮",
+                                                   "action_url": "https://www.tmall.com"
+                                               }
+                                           ]
+                                       })
+        assert data
 
     # 测试获取用户信息
     def test_get_user_info(self):

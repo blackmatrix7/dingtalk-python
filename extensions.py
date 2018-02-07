@@ -60,12 +60,12 @@ class MySQLCache(Cache):
     def delete(self, key):
         pass
 
-cache = MySQLCache()
-cache.set('access_token', '123', 60000)
+# cache = MySQLCache()
+# cache.set('access_token', '123', 60000)
 
 # 缓存，Memcached支持
-# from memcache import Client
-# cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
+from memcache import Client
+cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
 
 # 缓存，Redis支持
