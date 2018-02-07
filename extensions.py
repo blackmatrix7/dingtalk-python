@@ -25,8 +25,30 @@ AES_KEY = current_config.DING_AES_KEY
 CALLBACK_URL = current_config.DING_CALLBACK
 
 
-# MySQL缓存实现
 class MySQLCache(Cache):
+
+    """
+    使用MySQL实现缓存对象的简单例子
+    未经过生产环境验证
+
+    SET NAMES utf8mb4;
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    -- ----------------------------
+    -- Table structure for dingtalk_cache
+    -- ----------------------------
+    DROP TABLE IF EXISTS `dingtalk_cache`;
+    CREATE TABLE `dingtalk_cache` (
+      `key` varchar(255) NOT NULL,
+      `value` varchar(255) NOT NULL,
+      `create_time` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+      `expire_time` datetime NOT NULL,
+      PRIMARY KEY (`key`),
+      KEY `row_id` (`key`,`value`,`create_time`,`expire_time`) USING BTREE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+    SET FOREIGN_KEY_CHECKS = 1;
+    """
 
     def __init__(self):
         import pymysql
@@ -42,7 +64,7 @@ class MySQLCache(Cache):
         from datetime import datetime, timedelta
         create_time = datetime.now()
         expire_time = create_time + timedelta(seconds=expires)
-        select_sql = 'SELECT `key`, `value`, `expire_time` FROM dingtalk_cache WHERE `key`="{}"'.format(key)
+        select_sql = 'SELECT `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
         data = self.cursor.execute(select_sql)
         if data < 1:
             sql = 'INSERT INTO dingtalk_cache(`key`,`value`,create_time,expire_time) VALUES("{}","{}","{}","{}")'.format(
@@ -55,17 +77,32 @@ class MySQLCache(Cache):
         self.connection.commit()
 
     def get(self, key):
-        pass
+        try:
+            from datetime import datetime
+            select_sql = 'SELECT `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
+            self.cursor.execute(select_sql)
+            row = self.cursor.fetchone()
+            key, value, expire_time = row
+            now = datetime.now()
+            if now >= expire_time:
+                return None
+            else:
+                return value
+        except Exception as ex:
+            import logging
+            logging.error(ex)
+            return None
 
     def delete(self, key):
-        pass
+        del_sql = 'DELETE FROM dingtalk_cache WHERE `key`="{}"'.format(key)
+        self.cursor.execute(del_sql)
+        self.connection.commit()
 
-# cache = MySQLCache()
-# cache.set('access_token', '123', 60000)
+cache = MySQLCache()
 
 # 缓存，Memcached支持
-from memcache import Client
-cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
+# from memcache import Client
+# cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
 
 # 缓存，Redis支持
@@ -74,8 +111,11 @@ cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 #                     port=current_config.CACHE_REDIS_PORT,
 #                     db=current_config.CACHE_REDIS_DB)
 
+# 这里选择从配置文件读取设定的缓存对象
+# cache = current_config.DINGTALK_CACHE
 
 # 实例化一个钉钉的对象
 dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET, 'agent_id': AGENT_ID,
              'domain': DOMAIN, 'aes_key': AES_KEY, 'callback_url': CALLBACK_URL}
+# redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的__init__方法即可
 app = DingTalkApp(name='test', cache=cache, **dd_config)

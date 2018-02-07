@@ -33,10 +33,19 @@ class CommonConfig(BaseConfig):
 
     # 缓存数据库
     CACHE_MYSQL_HOST = '127.0.0.1'
-    CACHE_MYSQL_PORT = '3306'
+    CACHE_MYSQL_PORT = 3306
     CACHE_MYSQL_USER = 'root'
     CACHE_MYSQL_PASS = 'password'
     CACHE_MYSQL_DB = 'DingTalkCache'
+
+    @property
+    def dingtalk_cache(self):
+        # memcached
+        from memcache import Client
+        cache = Client(self.CACHE_MEMCACHED_SERVERS)
+        return cache
+
+    DINGTALK_CACHE = dingtalk_cache
 
 
 class DevConfig(CommonConfig):
