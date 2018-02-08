@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 Dingtalk-Python需要依赖缓存服务器对access token、jsapi ticket进行会话过期时间管理，所以需要传入缓存服务器的客户端对象，这里可以选用Redis（推荐）或Memcached。
 
-需要特别注意的是，对于一个企业多个微应用，或一个企业多种环境：如生产环境、测试环境这种情况，务必保证缓存数据的一致，避免频繁调用钉钉jsapi ticket的接口，导致不同缓存服务器的jsticket互相覆盖。
+需要特别注意的是，对于一个企业多个微应用，或一个企业多种环境：如生产环境、测试环境这种情况，务必保证缓存数据的一致，避免频繁调用钉钉jsapi ticket的接口，导致不同缓存服务器的jsapi ticket互相覆盖。
 
 #### 创建Redis对象
 
