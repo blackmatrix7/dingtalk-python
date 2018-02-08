@@ -14,10 +14,10 @@ Redis（或Memcached，或自定义会话管理对象）
 
 ```json
 pycrypto==2.6.1
+requests==2.18.4
 redis==2.10.6
 # 或
 python3-memcached==1.51
-requests==2.18.4
 ```
 
 在python的环境中执行：
