@@ -97,17 +97,18 @@ class MySQLSessionManager(SessionManager):
         self.cursor.execute(del_sql)
         self.connection.commit()
 
-cache = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
-                            user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
-                            db=DING_SESSION_DB)
+# 钉钉会话管理，Mysql支持
+session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
+                                      user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
+                                      db=DING_SESSION_DB)
 
-# 缓存，Memcached支持
+# 钉钉会话管理，Memcached支持
 # from memcache import Client
-# cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
+# session_manager = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
-# 缓存，Redis支持
+# 钉钉会话管理，Redis支持
 # import redis
-# cache = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
+# session_manager = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
 #                     port=current_config.CACHE_REDIS_PORT,
 #                     db=current_config.CACHE_REDIS_DB)
 
@@ -118,4 +119,4 @@ cache = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
 dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET, 'agent_id': AGENT_ID,
              'domain': DOMAIN, 'aes_key': AES_KEY, 'callback_url': CALLBACK_URL}
 # redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的__init__方法即可
-app = DingTalkApp(name='test', cache=cache, **dd_config)
+app = DingTalkApp(name='test', cache=session_manager, **dd_config)

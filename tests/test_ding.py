@@ -9,7 +9,7 @@
 import json
 import unittest
 from time import sleep
-from extensions import cache
+from extensions import session_manager
 from datetime import datetime
 from dingtalk.crypto import *
 from dingtalk import DingTalkApp
@@ -22,7 +22,7 @@ __author__ = 'blackmatrix'
 class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = DingTalkApp(name='vcan', cache=cache,
+        self.app = DingTalkApp(name='vcan', cache=session_manager,
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET,
