@@ -6,7 +6,7 @@
 
 Python3
 
-Redis（或Memcached）
+Redis（或Memcached，或自定义会话管理对象）
 
 ## QuickStart
 
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 如果不需要使用钉钉回调消息，则可以不安装pycrypto，不影响其他功能的正常工作。
 
-Dingtalk-Python需要依赖缓存服务器对access token、jsticket进行过期时间管理，所以需要传入缓存服务器的客户端，这里可以选用Redis（推荐）或Memcached。
+Dingtalk-Python需要依赖缓存服务器对access token、jsticket进行会话过期时间管理，所以需要传入缓存服务器的客户端对象，这里可以选用Redis（推荐）或Memcached。
 
 需要特别注意的是，对于一个企业多个微应用，或一个企业多种环境：如生产环境、测试环境这种情况，务必保证缓存数据的一致，避免频繁调用钉钉jsticket的接口，导致不同缓存服务器的jsticket互相覆盖。
 
@@ -50,6 +50,50 @@ cache = redis.Redis(host='127.0.0.1', port='6379', db=0)
 from memcache import Client
 # memcached客户端
 cache = Client(['127.0.0.1:11211'])
+```
+
+### 自定义会话管理对象
+
+除了使用redis和memcached管理钉钉会话外，还支持自定义管理对象，实现对钉钉会话的管理。
+
+通过自定义会话管理对象的方式，可以将钉钉的access token、jsapi ticket存储到MySQL或其它数据库，不仅仅局限于只能使用redis或memcached。
+
+自定义缓存对象需要实现以下类的抽象方法，最后将这个对象实例化后赋值给DingTalkApp的cache属性。
+
+```python
+class SessionManager:
+    """
+    钉钉会话管理
+    除了支持redis和memcached以外
+    也可以通过实现此类的抽象方法支持mysql等数据库
+    """
+
+    def set(self, key, value, expires):
+        """
+        存储会话数据
+        :param key: 
+        :param value:
+        :param expires: 超时时间，单位秒
+        :return:
+        """
+        raise NotImplementedError
+
+    def get(self, key):
+        """
+        获取会话数据，获取时需要判断会话是否过期
+        如已经会话数据已经过期，需要返回None
+        :param key:
+        :return:
+        """
+        raise NotImplementedError
+
+    def delete(self, key):
+        """
+        删除会话数据
+        :param key:
+        :return:
+        """
+        raise NotImplementedError
 ```
 
 ### 实例化DingTalk App
