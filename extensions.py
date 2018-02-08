@@ -28,7 +28,7 @@ CALLBACK_URL = current_config.DING_CALLBACK
 class MySQLCache(Cache):
 
     """
-    使用MySQL实现缓存对象的简单例子
+    使用MySQL实现管理access token和jsapi ticket过期事件的例子
     未经过生产环境验证
 
     SET NAMES utf8mb4;
