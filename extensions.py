@@ -113,10 +113,10 @@ session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_
 #                     db=current_config.CACHE_REDIS_DB)
 
 # 这里选择从配置文件读取设定的缓存对象
-# cache = current_config.DINGTALK_CACHE
+# session_manager = current_config.DING_SESSION_MANAGER
 
 # 实例化一个钉钉的对象
 dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET, 'agent_id': AGENT_ID,
              'domain': DOMAIN, 'aes_key': AES_KEY, 'callback_url': CALLBACK_URL}
 # redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的__init__方法即可
-app = DingTalkApp(name='test', cache=session_manager, **dd_config)
+app = DingTalkApp(name='test', session_manager=session_manager, **dd_config)

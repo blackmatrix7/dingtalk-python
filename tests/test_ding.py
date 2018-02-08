@@ -22,7 +22,7 @@ __author__ = 'blackmatrix'
 class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = DingTalkApp(name='vcan', cache=session_manager,
+        self.app = DingTalkApp(name='vcan', session_manager=session_manager,
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET,

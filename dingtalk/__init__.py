@@ -77,13 +77,13 @@ class SessionManager:
 
 class DingTalkApp:
 
-    def __init__(self, name, cache, corp_id, corp_secret, agent_id=None,
+    def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
                  noncestr=None, domain=None, callback_url=None, aes_key=None,
                  token=None):
         """
 
         :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
-        :param cache: python3-memcached Client创建的对象，access token 和 jsticket的管理依赖与memcached
+        :param session_manager: 钉钉的会话管理对象
         :param corp_id: 钉钉的Corp Id，管理员可从后台获得
         :param corp_secret: 钉钉的Corp Secret，管理员可从后台获得
         :param agent_id: 钉钉的Agent Id，每个微应用有独立的agent_id，管理员可从后台获得
@@ -94,7 +94,7 @@ class DingTalkApp:
         :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
         """
         self.name = name
-        self.cache = cache
+        self.cache = session_manager
         self.corp_id = corp_id
         self.corp_secret = corp_secret
         self.agent_id = agent_id

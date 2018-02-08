@@ -39,13 +39,13 @@ class CommonConfig(BaseConfig):
     DING_SESSION_DB = 'DingTalkCache'
 
     @property
-    def dingtalk_cache(self):
+    def ding_session_manager(self):
         # memcached
         from memcache import Client
         cache = Client(self.CACHE_MEMCACHED_SERVERS)
         return cache
 
-    DINGTALK_CACHE = dingtalk_cache
+    DING_SESSION_MANAGER = ding_session_manager
 
 
 class DevConfig(CommonConfig):
