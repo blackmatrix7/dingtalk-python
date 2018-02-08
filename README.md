@@ -60,7 +60,7 @@ session_manager = Client(['127.0.0.1:11211'])
 
 通过自定义会话管理对象的方式，可以将钉钉的access token、jsapi ticket存储到MySQL或其它数据库，不仅仅局限于只能使用redis或memcached。
 
-自定义缓存对象需要实现以下类的抽象方法，最后将这个对象实例化后赋值给DingTalkApp的cache属性。
+自定义缓存对象需要实现以下类的抽象方法，最后将这个对象实例化后赋值给DingTalkApp的session_manager属性。
 
 ```python
 class SessionManager:
