@@ -24,8 +24,6 @@ from .callback import register_callback, get_callback_failed_result, update_call
 
 __author__ = 'blackmatrix'
 
-NO_VALUE = object()
-
 METHODS = {}
 
 
