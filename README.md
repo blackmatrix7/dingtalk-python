@@ -1,4 +1,4 @@
-# Dingtalk-Python SDK
+# DingTalk-Python SDK
 
 钉钉第三方SDK，Python版本，用于企业自研微应用。
 
