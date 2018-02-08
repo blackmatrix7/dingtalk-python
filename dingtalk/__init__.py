@@ -342,27 +342,57 @@ class DingTalkApp:
         return result
 
     def get_user_by_code(self, code: str):
+        """
+        通过jsapi传入的code，向钉钉服务器换取用户信息
+        :param code:
+        :return:
+        """
         data = get_user_by_code(self.access_token, code)
         return data
 
     def get_department_list(self, id_=None):
+        """
+        获取部门列表
+        :param id_:
+        :return:
+        """
         data = get_department_list(self.access_token, id_)
         depart_list = data['department']
         return depart_list
 
     def get_department(self, id_):
+        """
+        根据部门Id获取部门
+        :param id_:
+        :return:
+        """
         data = get_department(self.access_token, id_)
         return data
 
     def create_department(self, **dept_info):
+        """
+        创建部门
+        :param dept_info:
+        :return:
+        """
         data = create_department(self.access_token, **dept_info)
         return data['id']
 
     def update_department(self, **dept_info):
+        """
+        更新部门信息
+        :param dept_info:
+        :return:
+        """
         data = update_department(self.access_token, **dept_info)
         return data['id']
 
     def delete_department(self, id_):
+        """
+        根据部门id删除部门
+        :param id_:
+        :return:
+        """
         data = delete_department(self.access_token, id_)
         return data
 
@@ -534,6 +564,19 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
+        """
+        异步发送消息
+        接口文档：
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.C50a1Y&treeId=374&articleId=28915&docType=2
+        消息内容格式说明：
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.CToLEy&treeId=374&articleId=104972&docType=1
+        :param msgtype: 消息类型
+        :param msgcontent: 消息内容
+        :param userid_list: 发送的用户列表
+        :param dept_id_list: 发送的部门列表
+        :param to_all_user: 是否全员发送（全员发送有次数限制）
+        :return:
+        """
         resp = async_send_msg(access_token=self.access_token, agent_id=self.agent_id, msgtype=msgtype,
                               userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
                               msgcontent=msgcontent)
@@ -543,6 +586,14 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
+        """
+        获取消息发送结果
+        接口文档：
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.QvhuFr&treeId=374&articleId=28918&docType=2
+        :param task_id: 发送消息时返回的task_id
+        :param agent_id: 应用id
+        :return:
+        """
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_result(self.access_token, agent_id, task_id)
         return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['request_id'],
@@ -551,6 +602,14 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
     def get_msg_send_progress(self, task_id, agent_id=None):
+        """
+        获取企业发送消息进度
+        接口文档：
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.68Lh70&treeId=374&articleId=28917&docType=2
+        :param task_id: 发送消息时返回的task_id
+        :param agent_id: 应用id
+        :return:
+        """
         agent_id = agent_id or self.agent_id
         resp = get_msg_send_progress(self.access_token, agent_id, task_id)
         return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['request_id'],
