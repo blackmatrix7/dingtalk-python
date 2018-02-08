@@ -32,27 +32,29 @@ pip install -r requirements.txt
 
 如果不需要使用钉钉回调消息，则可以不安装pycrypto，不影响其他功能的正常工作。
 
+### 管理钉钉会话
+
 Dingtalk-Python需要依赖缓存服务器对access token、jsapi ticket进行会话过期时间管理，所以需要传入缓存服务器的客户端对象，这里可以选用Redis（推荐）或Memcached。
 
 需要特别注意的是，对于一个企业多个微应用，或一个企业多种环境：如生产环境、测试环境这种情况，务必保证缓存数据的一致，避免频繁调用钉钉jsapi ticket的接口，导致不同缓存服务器的jsticket互相覆盖。
 
-### 创建Redis对象
+#### 创建Redis对象
 
 ```python
 import redis
-# 缓存，Redis支持
-cache = redis.Redis(host='127.0.0.1', port='6379', db=0)
+# 使用redis管理钉钉会话
+session_manager = redis.Redis(host='127.0.0.1', port='6379', db=0)
 ```
 
-### 创建Memcached对象
+#### 创建Memcached对象
 
 ```python
 from memcache import Client
-# memcached客户端
-cache = Client(['127.0.0.1:11211'])
+# 使用memcached管理钉钉会话
+session_manager = Client(['127.0.0.1:11211'])
 ```
 
-### 自定义会话管理对象
+#### 自定义会话管理对象
 
 除了使用redis和memcached管理钉钉会话外，还支持自定义管理对象，实现对钉钉会话的管理。
 
@@ -101,11 +103,11 @@ class SessionManager:
 ```python
 from dingtalk import DingTalkApp
 # name传入企业名称
-# cache传入缓存服务器的客户端实例，可以是Redis或Memcached
+# session_manager传入钉钉会话管理对象，如果用缓存服务器进行管理，可以是redis或memcached
 # 用于加解密的aes_key，必须是43位字符串，由大小写字母和数字组成，不能有标点符号
 # 如果同个企业需要创建多个app实例时，请保持除agent_id外的参数完全一致
 # 以下实例化参数都是模拟数据
-app = DingTalkApp(name='test', cache=cache,
+app = DingTalkApp(name='test', session_manager=session_manager,
                   agent_id='152919534',
                   corp_id='ding19cdf2s221ef83f635c2e4523eb3418f',
                   corp_secret='3ab8Uk7Wef4ytgf7YZF2EziCAlx6AufdF3dFvfjtu3532FG3AUgWNEJys',
