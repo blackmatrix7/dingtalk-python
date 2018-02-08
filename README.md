@@ -137,7 +137,9 @@ data = app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
 data = app.get_label_groups(size=20, offset=0)
 ```
 
-这种方式仅限于钉钉本身提供了方法名，一些钉钉本身未提供方法名的情况下，不适用此方法。如果一定要使用run的形式调用，可以在`dingtalk/__init__.py`的实现中，以装饰器的形式，给对应的方法加上一个方法名。
+这种方式仅限于钉钉本身提供了方法名，一些钉钉本身未提供方法名的情况下，不适用此方法。
+
+如果一定要使用run的形式调用，可以在`dingtalk/__init__.py`的实现中，以装饰器的形式，给对应的方法加上一个方法名。
 
 ```python
 @dingtalk('dingtalk.corp.ext.list')
