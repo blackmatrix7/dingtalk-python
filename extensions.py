@@ -6,9 +6,9 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : extensions.py
 # @Software: PyCharm
-from dingtalk import Cache
 from dingtalk import DingTalkApp
 from config import current_config
+from dingtalk import SessionManager
 
 __author__ = 'blackmatrix'
 
@@ -23,9 +23,14 @@ AGENT_ID = current_config.DING_AGENT_ID
 DOMAIN = current_config.DING_DOMAIN
 AES_KEY = current_config.DING_AES_KEY
 CALLBACK_URL = current_config.DING_CALLBACK
+DING_SESSION_HOST = current_config.DING_SESSION_HOST
+DING_SESSION_PORT = current_config.DING_SESSION_PORT
+DING_SESSION_USER = current_config.DING_SESSION_USER
+DING_SESSION_PASS = current_config.DING_SESSION_PASS
+DING_SESSION_DB = current_config.DING_SESSION_DB
 
 
-class MySQLCache(Cache):
+class MySQLSessionManager(SessionManager):
 
     """
     使用MySQL实现管理access token和jsapi ticket过期时间的例子
@@ -49,14 +54,9 @@ class MySQLCache(Cache):
     SET FOREIGN_KEY_CHECKS = 1;
     """
 
-    def __init__(self):
+    def __init__(self, host, user, pass_, db, port=3306):
         import pymysql
-        host = current_config.CACHE_MYSQL_HOST
-        port = current_config.CACHE_MYSQL_PORT
-        user = current_config.CACHE_MYSQL_USER
-        pass_ = current_config.CACHE_MYSQL_PASS
-        db_name = current_config.CACHE_MYSQL_DB
-        self.connection = pymysql.connect(host=host, port=port, user=user, password=pass_, db=db_name)
+        self.connection = pymysql.connect(host=host, port=port, user=user, password=pass_, db=db)
         self.cursor = self.connection.cursor()
 
     def set(self, key, value, expires):
@@ -97,11 +97,13 @@ class MySQLCache(Cache):
         self.cursor.execute(del_sql)
         self.connection.commit()
 
-# cache = MySQLCache()
+cache = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
+                            user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
+                            db=DING_SESSION_DB)
 
 # 缓存，Memcached支持
-from memcache import Client
-cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
+# from memcache import Client
+# cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
 # 缓存，Redis支持
 # import redis

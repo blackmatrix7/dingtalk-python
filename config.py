@@ -31,12 +31,12 @@ class CommonConfig(BaseConfig):
     # 钉钉回调地址，必须返回含有success字符串的json格式
     DING_CALLBACK = None
 
-    # 缓存数据库
-    CACHE_MYSQL_HOST = '127.0.0.1'
-    CACHE_MYSQL_PORT = 3306
-    CACHE_MYSQL_USER = 'root'
-    CACHE_MYSQL_PASS = 'password'
-    CACHE_MYSQL_DB = 'DingTalkCache'
+    # 钉钉会话存储
+    DING_SESSION_HOST = '127.0.0.1'
+    DING_SESSION_PORT = 3306
+    DING_SESSION_USER = 'root'
+    DING_SESSION_PASS = 'password'
+    DING_SESSION_DB = 'DingTalkCache'
 
     @property
     def dingtalk_cache(self):

@@ -40,16 +40,16 @@ def dingtalk(method_name):
     return wrapper
 
 
-class Cache:
+class SessionManager:
     """
-    缓存方法支持
+    钉钉会话管理
     除了支持redis和memcached以外
     也可以通过实现此类的抽象方法支持mysql等数据库
     """
 
     def set(self, key, value, expires):
         """
-        存储缓存数据
+        存储会话数据
         :param key:
         :param value:
         :param expires: 超时时间，单位秒
@@ -59,8 +59,8 @@ class Cache:
 
     def get(self, key):
         """
-        获取缓存数据，获取时需要判断缓存是否过期
-        如已经缓存数据已经过期，需要返回None
+        获取会话数据，获取时需要判断会话是否过期
+        如已经会话数据已经过期，需要返回None
         :param key:
         :return:
         """
@@ -68,7 +68,7 @@ class Cache:
 
     def delete(self, key):
         """
-        删除缓存数据
+        删除会话数据
         :param key:
         :return:
         """
