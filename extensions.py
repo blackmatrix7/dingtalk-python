@@ -33,7 +33,6 @@ class MySQLCache(Cache):
 
     SET NAMES utf8mb4;
     SET FOREIGN_KEY_CHECKS = 0;
-
     -- ----------------------------
     -- Table structure for dingtalk_cache
     -- ----------------------------
@@ -98,12 +97,11 @@ class MySQLCache(Cache):
         self.cursor.execute(del_sql)
         self.connection.commit()
 
-cache = MySQLCache()
+# cache = MySQLCache()
 
 # 缓存，Memcached支持
-# from memcache import Client
-# cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
-
+from memcache import Client
+cache = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
 # 缓存，Redis支持
 # import redis
