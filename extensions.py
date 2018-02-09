@@ -57,14 +57,14 @@ class MySQLSessionManager(SessionManager):
     def __init__(self, host, user, pass_, db, port=3306):
         import pymysql
         self.connection = pymysql.connect(host=host, port=port, user=user, password=pass_, db=db)
-        self.cursor = self.connection.cursor()
 
     def set(self, key, value, expires):
+        cursor = self.connection.cursor()
         from datetime import datetime, timedelta
         create_time = datetime.now()
         expire_time = create_time + timedelta(seconds=expires)
         select_sql = 'SELECT `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
-        data = self.cursor.execute(select_sql)
+        data = cursor.execute(select_sql)
         if data < 1:
             sql = 'INSERT INTO dingtalk_cache(`key`,`value`,create_time,expire_time) VALUES("{}","{}","{}","{}")'.format(
                 key, value, create_time.strftime('%Y-%m-%d %H:%M:%S'), expire_time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -72,21 +72,25 @@ class MySQLSessionManager(SessionManager):
         else:
             sql = 'UPDATE dingtalk_cache SET `value`="{}", create_time="{}", expire_time="{}" WHERE `key`="{}"'.format(
                 value, create_time, expire_time, key)
-        self.cursor.execute(sql)
+        cursor.execute(sql)
+        cursor.close()
         self.connection.commit()
 
     def get(self, key):
         try:
+            cursor = self.connection.cursor()
             from datetime import datetime
             select_sql = 'SELECT `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
-            self.cursor.execute(select_sql)
-            row = self.cursor.fetchone()
+            cursor.execute(select_sql)
+            row = cursor.fetchone()
             key, value, expire_time = row
             now = datetime.now()
             if now >= expire_time:
                 return None
             else:
                 return value
+        except TypeError:
+            return None
         except Exception as ex:
             import logging
             logging.error(ex)
@@ -94,23 +98,25 @@ class MySQLSessionManager(SessionManager):
 
     def delete(self, key):
         del_sql = 'DELETE FROM dingtalk_cache WHERE `key`="{}"'.format(key)
-        self.cursor.execute(del_sql)
+        cursor = self.connection.cursor()
+        cursor.execute(del_sql)
+        cursor.close()
         self.connection.commit()
 
 # 钉钉会话管理，Mysql支持
-# session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
-#                                       user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
-#                                       db=DING_SESSION_DB)
+session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
+                                      user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
+                                      db=DING_SESSION_DB)
 
 # 钉钉会话管理，Memcached支持
 # from memcache import Client
 # session_manager = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
 # 钉钉会话管理，Redis支持
-import redis
-session_manager = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
-                              port=current_config.CACHE_REDIS_PORT,
-                              db=current_config.CACHE_REDIS_DB)
+# import redis
+# session_manager = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
+#                               port=current_config.CACHE_REDIS_PORT,
+#                               db=current_config.CACHE_REDIS_DB)
 
 # 这里选择从配置文件读取设定的缓存对象
 # session_manager = current_config.DING_SESSION_MANAGER
