@@ -8,12 +8,11 @@
 # @Software: PyCharm
 import json
 import unittest
-from time import sleep
-from extensions import session_manager
-from datetime import datetime
 from dingtalk.crypto import *
+from datetime import datetime
 from dingtalk import DingTalkApp
 from config import current_config
+from extensions import session_manager
 from dingtalk.exceptions import DingTalkException
 
 __author__ = 'blackmatrix'

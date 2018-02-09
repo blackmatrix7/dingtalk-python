@@ -57,13 +57,14 @@ class MySQLSessionManager(SessionManager):
     def __init__(self, host, user, pass_, db, port=3306):
         import pymysql
         self.connection = pymysql.connect(host=host, port=port, user=user, password=pass_, db=db)
+        self.connection.autocommit(True)
 
     def set(self, key, value, expires):
         cursor = self.connection.cursor()
         from datetime import datetime, timedelta
         create_time = datetime.now()
         expire_time = create_time + timedelta(seconds=expires)
-        select_sql = 'SELECT `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
+        select_sql = 'SELECT sql_no_cache `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
         data = cursor.execute(select_sql)
         if data < 1:
             sql = 'INSERT INTO dingtalk_cache(`key`,`value`,create_time,expire_time) VALUES("{}","{}","{}","{}")'.format(
@@ -74,13 +75,12 @@ class MySQLSessionManager(SessionManager):
                 value, create_time, expire_time, key)
         cursor.execute(sql)
         cursor.close()
-        self.connection.commit()
 
     def get(self, key):
         try:
             cursor = self.connection.cursor()
             from datetime import datetime
-            select_sql = 'SELECT `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
+            select_sql = 'SELECT sql_no_cache `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
             cursor.execute(select_sql)
             row = cursor.fetchone()
             key, value, expire_time = row
@@ -101,7 +101,6 @@ class MySQLSessionManager(SessionManager):
         cursor = self.connection.cursor()
         cursor.execute(del_sql)
         cursor.close()
-        self.connection.commit()
 
 # 钉钉会话管理，Mysql支持
 session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
