@@ -66,6 +66,8 @@ class MySQLSessionManager(SessionManager):
         expire_time = create_time + timedelta(seconds=expires)
         select_sql = 'SELECT sql_no_cache `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
         data = cursor.execute(select_sql)
+        # 因为数据库是varchar类型
+        value = str(value)
         if data < 1:
             sql = 'INSERT INTO dingtalk_cache(`key`,`value`,create_time,expire_time) VALUES("{}","{}","{}","{}")'.format(
                 key, value, create_time.strftime('%Y-%m-%d %H:%M:%S'), expire_time.strftime('%Y-%m-%d %H:%M:%S'))

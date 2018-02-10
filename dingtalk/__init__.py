@@ -177,7 +177,7 @@ class DingTalkApp:
                 time_out = 3600
                 # 获取jsapi ticket的锁
                 ticket_lock = self.cache.get(ticket_lock_key)
-                if ticket_lock and ticket_lock is True:
+                if ticket_lock and (ticket_lock is True or str(ticket_lock).lower() == 'true'):
                     logging.warning('jsapi ticket 存在锁，等待其他调用者请求新的 jsapi ticket')
                     sleep(0.5)
                     ticket = _get_jsapi_ticket()
