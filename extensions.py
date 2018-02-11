@@ -6,6 +6,7 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : extensions.py
 # @Software: PyCharm
+import logging
 from dingtalk import DingTalkApp
 from config import current_config
 from dingtalk import SessionManager
@@ -65,6 +66,7 @@ class MySQLSessionManager(SessionManager):
         create_time = datetime.now()
         expire_time = create_time + timedelta(seconds=expires)
         select_sql = 'SELECT sql_no_cache `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
+        self.check_connect()
         data = cursor.execute(select_sql)
         # 因为数据库是varchar类型
         value = str(value)
@@ -75,6 +77,7 @@ class MySQLSessionManager(SessionManager):
         else:
             sql = 'UPDATE dingtalk_cache SET `value`="{}", create_time="{}", expire_time="{}" WHERE `key`="{}"'.format(
                 value, create_time, expire_time, key)
+        self.check_connect()
         cursor.execute(sql)
         cursor.close()
 
@@ -83,6 +86,7 @@ class MySQLSessionManager(SessionManager):
             cursor = self.connection.cursor()
             from datetime import datetime
             select_sql = 'SELECT sql_no_cache `key`, `value`, expire_time FROM dingtalk_cache WHERE `key`="{}"'.format(key)
+            self.check_connect()
             cursor.execute(select_sql)
             row = cursor.fetchone()
             key, value, expire_time = row
@@ -94,15 +98,22 @@ class MySQLSessionManager(SessionManager):
         except TypeError:
             return None
         except Exception as ex:
-            import logging
             logging.error(ex)
             return None
 
     def delete(self, key):
         del_sql = 'DELETE FROM dingtalk_cache WHERE `key`="{}"'.format(key)
         cursor = self.connection.cursor()
+        self.check_connect()
         cursor.execute(del_sql)
         cursor.close()
+
+    def check_connect(self):
+        try:
+            self.connection.ping()
+        except BaseException as ex:
+            logging.error(ex)
+            self.connection()
 
 # 钉钉会话管理，Mysql支持
 session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
