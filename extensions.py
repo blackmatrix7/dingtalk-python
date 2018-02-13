@@ -34,8 +34,7 @@ DING_SESSION_DB = current_config.DING_SESSION_DB
 class MySQLSessionManager(SessionManager):
 
     """
-    使用MySQL实现管理access token和jsapi ticket过期时间的例子
-    未经过生产环境验证
+    一个简单实现的使用MySQL实现管理access token和jsapi ticket过期时间的例子
 
     SET NAMES utf8mb4;
     SET FOREIGN_KEY_CHECKS = 0;
@@ -136,5 +135,5 @@ session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_
 # 实例化一个钉钉的对象
 dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET, 'agent_id': AGENT_ID,
              'domain': DOMAIN, 'aes_key': AES_KEY, 'callback_url': CALLBACK_URL}
-# redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的__init__方法即可
+# redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的session_manager属性即可
 app = DingTalkApp(name='test', session_manager=session_manager, **dd_config)
