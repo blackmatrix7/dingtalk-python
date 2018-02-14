@@ -104,6 +104,7 @@ class SessionManager:
 from dingtalk import DingTalkApp
 # name传入企业名称
 # session_manager传入钉钉会话管理对象，如果用缓存服务器进行管理，可以是redis或memcached
+# 也可以自行实现一个会话管理的对象
 # 用于加解密的aes_key，必须是43位字符串，由大小写字母和数字组成，不能有标点符号
 # 如果同个企业需要创建多个app实例时，请保持除agent_id外的参数完全一致
 # 以下实例化参数都是模拟数据
