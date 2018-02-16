@@ -22,6 +22,7 @@ class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = DingTalkApp(name='vcan', session_manager=session_manager,
+                               domain=current_config.DING_DOMAIN,
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET,
@@ -500,5 +501,9 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         data = self.app.get_all_users()
+        assert data
+
+    def test_get_custom_space(self):
+        data = self.app.get_custom_space()
         assert data
 
