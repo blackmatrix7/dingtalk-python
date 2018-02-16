@@ -491,6 +491,7 @@ class DingTalkApp:
         获取外部联系人
         :return:
         """
+        # TODO 增加外部联系人时，钉钉一直返回"系统错误"四个字，原因不明
         resp = add_corp_ext(self.access_token, contact)
         return resp
 
