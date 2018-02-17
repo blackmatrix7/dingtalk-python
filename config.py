@@ -23,7 +23,7 @@ class CommonConfig(BaseConfig):
     CACHE_REDIS_DB = 0
 
     # DingTalk
-    DING_DOMAIN = 'test_domain'
+    DING_DOMAIN = 'testdomain'
     DING_CORP_ID = None
     DING_CORP_SECRET = None
     DING_AGENT_ID = None
