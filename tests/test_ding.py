@@ -450,6 +450,7 @@ class DingTalkTestCase(unittest.TestCase):
         assert result
 
     def test_get_role_simple_list(self):
+        # 获取角色组
         role_group_list = self.app.get_all_corp_role_list()
         role_id_list = [v for role_group in role_group_list for role in role_group['roles'] for k, v in role.items() if k == 'id']
         user_id_list = []
@@ -504,6 +505,12 @@ class DingTalkTestCase(unittest.TestCase):
         assert data
 
     def test_get_custom_space(self):
+        """
+        获取企业下的自定义空间
+        :return:
+        """
         data = self.app.get_custom_space()
         assert data
+        space_id = self.app.space_id
+        assert space_id
 
