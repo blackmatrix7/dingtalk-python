@@ -619,6 +619,13 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.corp.role.list')
     def get_corp_role_list(self, size=20, offset=0):
+        """
+        获取企业角色列表（分页）
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.85WR2K&treeId=385&articleId=29205&docType=2
+        :param size:
+        :param offset:
+        :return:
+        """
         resp = get_corp_role_list(self.access_token, size=size, offset=offset)
         data = resp['dingtalk_corp_role_list_response']['result']['list']
         if data.get('role_groups') is None:
@@ -630,7 +637,13 @@ class DingTalkApp:
                 role_group['roles'] = role_group.pop('roles').pop('roles')
             return role_groups
 
+    @dingtalk('dingtalk.corp.role.all')
     def get_all_corp_role_list(self):
+        """
+        获取全部企业角色列表
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.85WR2K&treeId=385&articleId=29205&docType=2
+        :return:
+        """
         size = 100
         offset = 0
         dd_role_list = []
@@ -645,6 +658,14 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.corp.role.simplelist')
     def get_role_simple_list(self, role_id, size=20, offset=0):
+        """
+        获取角色的员工列表
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.qatKNZ&treeId=385&articleId=29204&docType=2
+        :param role_id:
+        :param size:
+        :param offset:
+        :return:
+        """
         data = get_role_simple_list(self.access_token, role_id=role_id, size=size, offset=offset)
         # 返回的数据格式，嵌套这么多层，不累吗？
         user_list = data['dingtalk_corp_role_simplelist_response']['result']['list']
@@ -653,6 +674,14 @@ class DingTalkApp:
 
     @dingtalk('dingtalk.corp.role.getrolegroup')
     def get_role_group(self, group_id):
+        """
+        该接口通过group_id参数可以获取该角色组详细信息以及下面所有关联的角色的信息
+        目前没有找到可以获取角色组id，即group_id的地方，如果获取角色组的话，可以使用dingtalk.corp.role.list获取
+        但是只能获取到组名，没有角色组id，所以暂时不知道这个接口有什么用
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.VqsINY&treeId=385&articleId=29978&docType=2
+        :param group_id:
+        :return:
+        """
         data = get_role_group(self.access_token, group_id=group_id)
         return data
 
