@@ -451,10 +451,12 @@ class DingTalkTestCase(unittest.TestCase):
 
     def test_get_role_simple_list(self):
         # 获取角色组
-        role_group_list = self.app.get_all_corp_role_list()
-        role_id_list = [v for role_group in role_group_list for role in role_group['roles'] for k, v in role.items() if k == 'id']
+        role_group_all = self.app.get_all_corp_role_list()
+        # 获取角色id
+        role_id_list = [v for role_group in role_group_all for role in role_group['roles'] for k, v in role.items() if k == 'id']
         user_id_list = []
-        for role_id in role_id_list:
+        # 根据角色Id获取员工
+        for role_id in role_id_list[:5]:
             user = self.app.get_role_simple_list(role_id=role_id) or []
             user_id_list.extend(user)
         assert user_id_list
