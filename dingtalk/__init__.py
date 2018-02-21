@@ -686,11 +686,21 @@ class DingTalkApp:
         return data
 
     def get_custom_space(self):
+        """
+        获取企业下的自定义空间
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.Fh7w2d&treeId=373&articleId=104970&docType=1#s2
+        :return:
+        """
         data = get_custom_space(self.access_token, self.domain, self.agent_id)
         return {'space_id': data['spaceid'], 'success': True}
 
     @property
     def space_id(self):
+        """
+        获取space id
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.Fh7w2d&treeId=373&articleId=104970&docType=1#s2
+        :return:
+        """
         data = self.get_custom_space()
         return data['space_id']
 
