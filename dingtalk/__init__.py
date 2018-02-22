@@ -706,7 +706,7 @@ class DingTalkApp:
 
     def register_callback(self, callback_tag):
         """
-        向钉钉注册回调接口。
+        向钉钉注册回调接口，只能注册一次，后续需要修改，请调用更新回调接口
         注册回调前需要在初始化DingTalk App时传入aes_key和callback_url
         其中callback_url必须返回经过加密的字符串“success”的json数据
         可以使用return_success()方法直接返回一个符合要求的json格式。
@@ -719,6 +719,12 @@ class DingTalkApp:
         return data
 
     def update_callback(self, callback_tag):
+        """
+        向钉钉更新回调接口
+        只能在注册回调接口后使用
+        :param callback_tag:
+        :return:
+        """
         if self.aes_key is None or self.callback_url is None:
             raise RuntimeError('更新回调前需要在初始化DingTalk App时传入aes_key和callback_url')
         data = update_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
