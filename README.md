@@ -32,6 +32,12 @@ pip install -r requirements.txt
 
 如果不需要使用钉钉回调消息，则可以不安装pycrypto，不影响其他功能的正常工作。
 
+### 复制模块
+
+将项目的dingtalk模块复制到需要使用的项目根目录下。
+
+暂不考虑将其打包成python的包，主要原因是目前只实现钉钉接口文档的部分功能，如果打包成python包不便于在使用时新增或调整功能。
+
 ### 管理钉钉会话
 
 Dingtalk-Python需要依赖缓存服务器对access token、jsapi ticket进行会话过期时间管理，所以需要传入缓存服务器的客户端对象，这里可以选用Redis（推荐）或Memcached。
