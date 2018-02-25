@@ -4,7 +4,7 @@
 # @Author : Matrix
 # @Github : https://github.com/blackmatrix7/
 # @Blog : http://www.cnblogs.com/blackmatrix/
-# @File : __init__.py.py
+# @File : __init__.py
 # @Software: PyCharm
 
 __author__ = 'blackmatrix'
