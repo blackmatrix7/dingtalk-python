@@ -18,6 +18,7 @@ __author__ = 'blackmatrix'
 类似current_config.DING_CORP_ID的操作，本质上是从配置文件中读取配置项的值。
 实际的项目运用中，可以通过其他方式获取配置参数。
 """
+
 CORP_ID = current_config.DING_CORP_ID
 CORP_SECRET = current_config.DING_CORP_SECRET
 AGENT_ID = current_config.DING_AGENT_ID
