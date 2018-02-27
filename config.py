@@ -13,46 +13,36 @@ __author__ = 'blackmatrix'
 
 class CommonConfig(BaseConfig):
 
+    # 日期格式配置
     DATE_FMT = '%Y-%m-%d'
     DATETIME_FMT = '%Y-%m-%d %H:%M:%S'
 
-    # Cache
+    # 钉钉会话存储，memcached、redis、mysql任选其一即可
+    # memcached
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
+    # redis
     CACHE_REDIS_SERVERS = '127.0.0.1'
     CACHE_REDIS_PORT = '6379'
     CACHE_REDIS_DB = 0
-
-    # DingTalk
-    DING_DOMAIN = 'testdomain'
-    DING_CORP_ID = None
-    DING_CORP_SECRET = None
-    DING_AGENT_ID = None
-    DING_AES_KEY = None
-    # 钉钉回调地址，必须返回含有success字符串的json格式
-    DING_CALLBACK = None
-
-    # 钉钉会话存储
+    # mysql
     DING_SESSION_HOST = '127.0.0.1'
     DING_SESSION_PORT = 3306
     DING_SESSION_USER = 'root'
     DING_SESSION_PASS = 'password'
     DING_SESSION_DB = 'DingTalkCache'
 
-    @property
-    def ding_session_manager(self):
-        # memcached
-        from memcache import Client
-        cache = Client(self.CACHE_MEMCACHED_SERVERS)
-        return cache
-
-    DING_SESSION_MANAGER = ding_session_manager
-
-    # 以下为dingtalk-python管理界面admin使用，如不使用管理界面，无需配置以下项目
+    # DingTalk的信息配置
+    DING_DOMAIN = 'testdomain'
+    DING_CORP_ID = None
+    DING_CORP_SECRET = None
+    DING_AGENT_ID = None
+    DING_AES_KEY = None
+    DING_CALLBACK = None  # 钉钉回调地址，必须返回含有success字符串的json格式
 
 
 class DevConfig(CommonConfig):
 
-    # Cache
+    # 钉钉会话存储
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
 
 
