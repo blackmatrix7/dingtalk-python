@@ -50,6 +50,8 @@ DING_REGISTER_CALL_BACK = 'https://oapi.dingtalk.com/call_back/register_call_bac
 DING_UPDATE_CALL_BACK = 'https://oapi.dingtalk.com/call_back/update_call_back?access_token={access_token}'
 # 获取回调失败结果
 DING_GET_CALL_BACK_FAILED_RESULT = 'https://oapi.dingtalk.com/call_back/get_call_back_failed_result?access_token={access_token}'
+# 获取考勤打卡记录
+DING_ATTENDANCE_RECORD_LIST = 'https://oapi.dingtalk.com/attendance/listRecord?access_token={access_token}'
 
 
 if __name__ == '__main__':

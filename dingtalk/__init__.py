@@ -16,12 +16,12 @@ from datetime import datetime
 from operator import methodcaller
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
-from .smartwork import get_schedule_list, get_simple_groups
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 from .callback import register_callback, get_callback_failed_result, update_callback
+from .smartwork import get_schedule_list, get_simple_groups, get_attendance_record_list
 
 __author__ = 'blackmatrix'
 
@@ -738,6 +738,19 @@ class DingTalkApp:
         data = {'request_id': result['dingtalk_smartwork_attends_getsimplegroups_response']['request_id'],
                 'has_more': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['has_more'],
                 'groups': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['groups']['at_group_for_top_vo']}
+        return data
+
+    def get_attendance_record_list(self, user_ids, check_data_from, check_data_to):
+        """
+        获取考勤打卡记录
+        :param user_ids: 企业内的员工id列表，最多不能超过50个
+        :param check_data_from: 查询考勤打卡记录的起始工作日
+        :param check_data_to: 查询考勤打卡记录的结束工作日。注意，起始与结束工作日最多相隔7天
+        :return:
+        """
+        result = get_attendance_record_list(self.access_token, user_ids, check_data_from, check_data_to)
+        # 钉钉接口返回的数据没有request_id 2018.02.28
+        data = {'record_result': result['record_result']}
         return data
 
     def register_callback(self, callback_tag):

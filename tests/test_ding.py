@@ -8,11 +8,12 @@
 # @Software: PyCharm
 import json
 import unittest
+from time import sleep
 from dingtalk.crypto import *
-from datetime import datetime
 from dingtalk import DingTalkApp
 from config import current_config
 from extensions import session_manager
+from datetime import datetime, timedelta
 from dingtalk.exceptions import DingTalkException
 
 __author__ = 'blackmatrix'
@@ -27,6 +28,13 @@ class DingTalkTestCase(unittest.TestCase):
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET,
                                aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
+
+        self.dept_list = self.app.get_department_list()
+        self.dept_ids = [dept['id'] for dept in self.dept_list]
+        # 获取用户
+        self.user_list = self.app.get_user_list(self.dept_ids[1])
+        # 用户id
+        self.user_ids = [user['userid'] for user in self.user_list]
 
     # 获取 access token
     def test_get_access_token(self):
@@ -49,8 +57,7 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 获取用户
     def test_get_user_list(self):
-        dept_list = self.app.get_department_list()
-        dept_id = dept_list[0]['id']
+        dept_id = self.dept_list[0]['id']
         user_list = self.app.get_user_list(dept_id)
         return user_list
 
@@ -67,16 +74,13 @@ class DingTalkTestCase(unittest.TestCase):
     # 新增外部联系人
     def test_add_contact(self):
         # 获取标签
-        label_groups = self.app.get_label_groups()
-        label_ids = [str(v) for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
-        # label_ids = '[{}]'.format(','.join(label_ids[4: 7]))
-        label_ids = label_ids[4: 7]
+        # label_groups = self.app.get_label_groups()
+        # label_ids = [str(v) for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
+        # label_ids = label_ids[4: 7]
         # 获取部门
-        dept_list = self.app.get_department_list()
-        dept_ids = [dept['id'] for dept in dept_list]
+        dept_ids = [dept['id'] for dept in self.dept_list]
         # 获取用户
-        user_list = self.app.get_user_list(dept_ids[1])
-        user_ids = [user['userid'] for user in user_list]
+        user_ids = [user['userid'] for user in self.user_list]
         contact = {
             # 'title': 'master',
             # 'share_deptids': dept_ids[2:4],
@@ -104,11 +108,8 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         assert self.app.access_token
-        # 获取部门
-        dept_list = self.app.get_department_list()
-        dept_ids = [dept['id'] for dept in dept_list]
         # 测试部门
-        originator_dept_id = dept_ids[1]
+        originator_dept_id = self.dept_ids[1]
         # 获取用户
         originator_user_list = self.app.get_user_list(originator_dept_id)
         originator_user_id = [user['userid'] for user in originator_user_list][0]
@@ -125,7 +126,7 @@ class DingTalkTestCase(unittest.TestCase):
             assert resp
         except BaseException as ex:
             assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
-        dev_dept_id = dept_ids[1]
+        dev_dept_id = self.dept_ids[1]
         dev_user_list = self.app.get_user_list(dev_dept_id)
         approvers = [user['userid'] for user in dev_user_list]
         args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
@@ -238,64 +239,58 @@ class DingTalkTestCase(unittest.TestCase):
         methods = self.app.methods
         assert methods
 
-    # # 异步发送消息
-    # def test_async_send_msg(self):
-    #     """
-    #     测试异步发送消息
-    #     :return:
-    #     """
-    #     assert self.app.access_token
-    #     # 获取部门
-    #     dept_list = self.app.get_department_list()
-    #     dept_ids = [dept['id'] for dept in dept_list]
-    #     # 获取用户
-    #     user_list = self.app.get_user_list(dept_ids[1])
-    #     user_ids = [user['userid'] for user in user_list]
-    #     # 测试错误的情况，错误的msgtype
-    #     try:
-    #         data = self.app.async_send_msg(msgtype='text2', userid_list=user_ids,
-    #                                        msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
-    #         assert data
-    #     except BaseException as ex:
-    #         assert '不合法的消息类型' in str(ex)
-    #     # 测试正确的情况，避免频繁发送消息，通常不运行此测试
-    #     data = self.app.async_send_msg(msgtype='text', userid_list=user_ids,
-    #                                    msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
-    #     assert data
-    #     task_id = data['task_id']
-    #     # 获取发送进度
-    #     result = self.app.get_msg_send_progress(task_id)
-    #     assert result
-    #     sleep(5)
-    #     result = self.app.get_msg_send_result(task_id=task_id)
-    #     assert result
-    #     # 测试link消息
-    #     data = self.app.async_send_msg(msgtype='link', userid_list=user_ids,
-    #                                    msgcontent={
-    #                                        "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
-    #                                        "picUrl": "@lALOACZwe2Rk",
-    #                                        "title": "测试",
-    #                                        "text": "测试"
-    #                                    })
-    #     assert data
-    #     # 测试发送ActionCard
-    #     data = self.app.async_send_msg(msgtype='action_card', userid_list=user_ids,
-    #                                    msgcontent={
-    #                                        "title": "是透出到会话列表和通知的文案",
-    #                                        "markdown": "支持markdown格式的正文内容",
-    #                                        "btn_orientation": "1",
-    #                                        "btn_json_list": [
-    #                                            {
-    #                                                "title": "一个按钮",
-    #                                                "action_url": "https://www.taobao.com"
-    #                                            },
-    #                                            {
-    #                                                "title": "两个按钮",
-    #                                                "action_url": "https://www.tmall.com"
-    #                                            }
-    #                                        ]
-    #                                    })
-    #     assert data
+    # 异步发送消息
+    def test_async_send_msg(self):
+        """
+        测试异步发送消息
+        :return:
+        """
+        assert self.app.access_token
+        # 测试错误的情况，错误的msgtype
+        try:
+            data = self.app.async_send_msg(msgtype='text2', userid_list=self.user_ids,
+                                           msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+            assert data
+        except BaseException as ex:
+            assert '不合法的消息类型' in str(ex)
+        # 测试正确的情况，避免频繁发送消息，通常不运行此测试
+        data = self.app.async_send_msg(msgtype='text', userid_list=self.user_ids,
+                                       msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+        assert data
+        task_id = data['task_id']
+        # 获取发送进度
+        result = self.app.get_msg_send_progress(task_id)
+        assert result
+        sleep(5)
+        result = self.app.get_msg_send_result(task_id=task_id)
+        assert result
+        # 测试link消息
+        data = self.app.async_send_msg(msgtype='link', userid_list=self.user_ids,
+                                       msgcontent={
+                                           "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+                                           "picUrl": "@lALOACZwe2Rk",
+                                           "title": "测试",
+                                           "text": "测试"
+                                       })
+        assert data
+        # 测试发送ActionCard
+        data = self.app.async_send_msg(msgtype='action_card', userid_list=self.user_ids,
+                                       msgcontent={
+                                           "title": "是透出到会话列表和通知的文案",
+                                           "markdown": "支持markdown格式的正文内容",
+                                           "btn_orientation": "1",
+                                           "btn_json_list": [
+                                               {
+                                                   "title": "一个按钮",
+                                                   "action_url": "https://www.taobao.com"
+                                               },
+                                               {
+                                                   "title": "两个按钮",
+                                                   "action_url": "https://www.tmall.com"
+                                               }
+                                           ]
+                                       })
+        assert data
 
     # 测试获取用户信息
     def test_get_user_info(self):
@@ -363,8 +358,7 @@ class DingTalkTestCase(unittest.TestCase):
     # 部门操作相关测试
     def test_dept_operator(self):
         # 获取部门详情
-        dept_list = self.app.get_department_list()
-        dept_id = dept_list[1]['id']
+        dept_id = self.dept_list[1]['id']
         resp = self.app.get_department(dept_id)
         assert resp
         # 测试错误的部门id
@@ -523,6 +517,13 @@ class DingTalkTestCase(unittest.TestCase):
 
     def test_get_simple_groups(self):
         data = self.app.get_simple_groups()
+        assert data
+
+    def test_get_attendance_record_list(self):
+        check_data_to = datetime.now()
+        delta = timedelta(days=4)
+        check_data_from = check_data_to - delta
+        data = self.app.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
         assert data
 
 
