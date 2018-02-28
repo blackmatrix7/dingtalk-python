@@ -750,8 +750,7 @@ class DingTalkApp:
         """
         result = get_attendance_record_list(self.access_token, user_ids, check_data_from, check_data_to)
         # 钉钉接口返回的数据没有request_id 2018.02.28
-        data = {'record_result': result['record_result']}
-        return data
+        return result
 
     def register_callback(self, callback_tag):
         """
