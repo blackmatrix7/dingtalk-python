@@ -63,7 +63,7 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 获取部门
     def test_get_dempartment_list(self):
-        dept_list = self.app.get_department_list()
+        dept_list = self.app.contact.get_department_list()
         return dept_list
 
     # 获取外部联系人

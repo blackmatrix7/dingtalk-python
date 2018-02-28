@@ -10,16 +10,15 @@ import json
 import logging
 from functools import wraps
 from operator import methodcaller
-from time import sleep
-from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
+from .auth import Auth
+from .file import File
 from .callback import register_callback, get_callback_failed_result, update_callback
 from .contact import Contact
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
-from .smartwork import SmartWork
 from .message import Message
-from .space import *
+from .smartwork import SmartWork
 
 __author__ = 'blackmatrix'
 
@@ -102,9 +101,12 @@ class DingTalkApp:
         self.domain = domain or 'A2UOM1pZOxQ'
         self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
         # 钉钉接口模块
+        # 鉴权模块需要先创建，否则后续其他模块的实例化会出现异常
+        self.auth = Auth(name=self.name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret)
         self.smartwork = SmartWork(self.access_token, self.agent_id)
         self.contact = Contact(self.access_token)
         self.message = Message(self.access_token, self.agent_id)
+        self.file = File(self.access_token, self.domain, self.agent_id)
 
     @property
     def methods(self):
@@ -142,15 +144,7 @@ class DingTalkApp:
         刷新access_token
         :return:
         """
-        access_token_key = '{}_access_token'.format(self.name)
-        self.cache.delete(access_token_key)
-        logging.info('已清理access token相关缓存'.format(access_token_key))
-        resp = get_access_token(self.corp_id, self.corp_secret)
-        access_token = resp['access_token']
-        logging.info('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
-        self.cache.set(access_token_key, access_token, time_out)
-        logging.info('将{0}: {1} 写入缓存，过期时间{2}秒'.format(access_token_key, access_token, time_out))
-        return access_token
+        return self.auth.refresh_access_token(time_out=time_out)
 
     @property
     def access_token(self):
@@ -162,35 +156,7 @@ class DingTalkApp:
         如果没有命中缓存，则强制刷新jsticket
         :return:
         """
-        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
-        ticket_lock_key = '{}_ticket_lock'.format(self.name)
-
-        def _get_jsapi_ticket():
-            if self.cache.get(jsapi_ticket_key) is not None:
-                ticket = self.cache.get(jsapi_ticket_key)
-                # 兼容redis
-                try:
-                    ticket = ticket.decode()
-                except AttributeError:
-                    pass
-                logging.info('命中缓存{}，直接返回缓存数据：{}'.format(jsapi_ticket_key, ticket))
-            else:
-                logging.warning('没有命中缓存{}，准备重新向钉钉请求 jsapi ticket'.format(jsapi_ticket_key))
-                # jsapi ticket 过期时间，单位秒
-                time_out = 3600
-                # 获取jsapi ticket的锁
-                ticket_lock = self.cache.get(ticket_lock_key)
-                if ticket_lock and (ticket_lock is True or str(ticket_lock).lower() == 'true'):
-                    logging.warning('jsapi ticket 存在锁，等待其他调用者请求新的 jsapi ticket')
-                    sleep(0.5)
-                    ticket = _get_jsapi_ticket()
-                else:
-                    logging.info('jsapi ticket 未加锁，可以请求新的 jsapi ticket')
-                    ticket = self.refresh_jsapi_ticket(time_out)
-            return ticket
-
-        jsapi_ticket = _get_jsapi_ticket()
-        return jsapi_ticket
+        return self.auth.get_jsapi_ticket()
 
     def refresh_jsapi_ticket(self, time_out=3600):
         """
@@ -198,40 +164,13 @@ class DingTalkApp:
         :param time_out:
         :return:
         """
-        jsapi_ticket_key = '{}_jsapi_ticket'.format(self.name)
-        ticket_lock_key = '{}_ticket_lock'.format(self.name)
-        ticket = None
-        try:
-            # 为jsapi ticket加锁
-            self.cache.set(ticket_lock_key, True, 60)
-            logging.info('已为jsapi ticket加锁，防止重复请求新的 jsapi ticket')
-            # 主动清理之前的jsapi ticket缓存
-            self.cache.delete(jsapi_ticket_key)
-            # 检查是否清理成功
-            assert self.cache.get(jsapi_ticket_key) is None
-            # 请求新的jsapi ticket
-            resp = get_jsapi_ticket(self.access_token)
-            ticket = resp['ticket']
-            logging.info('已向钉钉请求新的jsapi ticket：{}'.format(ticket))
-            # 将新的jsapi ticket写入缓存
-            self.cache.set(jsapi_ticket_key, ticket, time_out)
-            logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
-        except Exception as ex:
-            # 出现异常时，清理全部jsapi ticket的相关缓存数据
-            self.cache.delete(jsapi_ticket_key)
-            logging.error('强制刷新jsapi ticket出现异常，清理jsapi ticket缓存。异常信息：{}'.format(str(ex)))
-        finally:
-            # 解除jsticket的锁
-            logging.info('解除jsapi ticket的锁{}，其他调用者可以请求新的jsapi ticket'.format(ticket_lock_key))
-            self.cache.delete(ticket_lock_key)
-            return ticket
+        return self.auth.refresh_jsapi_ticket(time_out=time_out)
 
     @property
     def jsapi_ticket(self):
         return self.get_jsapi_ticket()
 
-    @staticmethod
-    def jsapi_signature(jsapi_ticket, noncestr, timestamp, url):
+    def jsapi_signature(self, jsapi_ticket, noncestr, timestamp, url):
         """
         计算签名信息
         :param jsapi_ticket:
@@ -240,13 +179,7 @@ class DingTalkApp:
         :param url:
         :return:
         """
-        logging.info('jsapi_ticket:{}'.format(jsapi_ticket))
-        logging.info('noncestr:{}'.format(noncestr))
-        logging.info('timestamp:{}'.format(timestamp))
-        logging.info('url:{}'.format(url))
-        sign = generate_jsapi_signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
-        logging.info('sign:{}'.format(sign))
-        return sign
+        return self.auth.jsapi_signature(jsapi_ticket, noncestr, timestamp, url)
 
     @property
     def timestamp(self):
@@ -271,24 +204,6 @@ class DingTalkApp:
             raise AttributeError('没有找到对应的方法，可能是方法名有误，或dingtalk-python暂未实现此方法。')
         f = methodcaller(func_name, *args, **kwargs)
         return f(self)
-
-    def get_request_url(self, method, format_='json', v='2.0', simplify='false', partner_id=None):
-        """
-        获取请求url，会自动加入公共参数
-        :param method:
-        :param format_:
-        :param v:
-        :param simplify:
-        :param partner_id:
-        :return:
-        """
-        url = 'https://eco.taobao.com/router/rest?method={0}&session={1}&timestamp={2}&format={3}&v={4}'.format(
-            method, self.access_token, self.timestamp, format_, v)
-        if format_ == 'json':
-            url = '{0}&simplify={1}'.format(url, simplify)
-        if partner_id:
-            url = '{0}&partner_id={1}'.format(url, partner_id)
-        return url
 
     def get_user_list(self, department_id):
         """
@@ -474,13 +389,13 @@ class DingTalkApp:
         return dd_customer_list
 
     @dingtalk('dingtalk.corp.ext.add')
-    def add_corp_ext(self, contact):
+    def add_corp_ext(self, contact_info):
         """
         获取外部联系人
         :return:
         """
         # TODO 增加外部联系人时，钉钉一直返回"系统错误"四个字，原因不明
-        resp = add_corp_ext(self.access_token, contact)
+        resp = add_corp_ext(self.access_token, contact_info)
         return resp
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
@@ -615,8 +530,7 @@ class DingTalkApp:
         https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.Fh7w2d&treeId=373&articleId=104970&docType=1#s2
         :return:
         """
-        data = get_custom_space(self.access_token, self.domain, self.agent_id)
-        return {'space_id': data['spaceid']}
+        return self.file.get_custom_space()
 
     @property
     def space_id(self):

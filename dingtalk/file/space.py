@@ -7,10 +7,12 @@
 # @File : space.py
 # @Software: PyCharm
 import requests
-from .configs import *
-from .foundation import dingtalk_resp
+from dingtalk.configs import *
+from dingtalk.foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'
+
+__all__ = ['get_custom_space']
 
 
 @dingtalk_resp
