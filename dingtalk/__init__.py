@@ -14,9 +14,9 @@ from .contacts import *
 from functools import wraps
 from datetime import datetime
 from operator import methodcaller
-from .smartwork import get_schedule_list
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
+from .smartwork import get_schedule_list, get_simple_groups
 from .workflow import create_bpms_instance, get_bpms_instance_list
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
@@ -693,7 +693,7 @@ class DingTalkApp:
         :return:
         """
         data = get_custom_space(self.access_token, self.domain, self.agent_id)
-        return {'space_id': data['spaceid'], 'success': True}
+        return {'space_id': data['spaceid']}
 
     @property
     def space_id(self):
@@ -720,11 +720,24 @@ class DingTalkApp:
             pass
         result = get_schedule_list(self.access_token, work_date, offset, size)
         data = {
-            'success': result['dingtalk_smartwork_attends_listschedule_response']['result']['success'],
             'request_id': result['dingtalk_smartwork_attends_listschedule_response']['request_id'],
             'schedules': result['dingtalk_smartwork_attends_listschedule_response']['result']['result']['schedules']['at_schedule_for_top_vo'],
             'has_more': result['dingtalk_smartwork_attends_listschedule_response']['result']['result']['has_more']
         }
+        return data
+
+    def get_simple_groups(self, offset=0, size=10):
+        """
+        获取考勤组列表详情
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.OIXvT4&treeId=385&articleId=29083&docType=2
+        :param offset:
+        :param size:
+        :return:
+        """
+        result = get_simple_groups(self.access_token, offset, size)
+        data = {'request_id': result['dingtalk_smartwork_attends_getsimplegroups_response']['request_id'],
+                'has_more': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['has_more'],
+                'groups': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['groups']['at_group_for_top_vo']}
         return data
 
     def register_callback(self, callback_tag):

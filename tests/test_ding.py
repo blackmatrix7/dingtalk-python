@@ -521,3 +521,8 @@ class DingTalkTestCase(unittest.TestCase):
         data = self.app.get_schedule_list(now)
         assert data
 
+    def test_get_simple_groups(self):
+        data = self.app.get_simple_groups()
+        assert data
+
+

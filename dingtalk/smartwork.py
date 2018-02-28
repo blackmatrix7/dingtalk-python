@@ -24,5 +24,18 @@ def get_schedule_list(access_token, work_date, offset=0, size=200):
                                 'GET', work_date=work_date, offset=offset, size=size)
 
 
+@dingtalk_resp
+def get_simple_groups(access_token, offset=0, size=10):
+    """
+    获取考勤组列表详情
+    :param access_token:
+    :param offset: 偏移位置
+    :param size: 分页大小，最大10
+    :return:
+    """
+    return call_dingtalk_webapi(access_token, 'dingtalk.smartwork.attends.getsimplegroups',
+                                'GET', offset=offset, size=size)
+
+
 if __name__ == '__main__':
     pass
