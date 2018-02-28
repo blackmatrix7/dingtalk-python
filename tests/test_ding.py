@@ -32,7 +32,7 @@ class DingTalkTestCase(unittest.TestCase):
         self.dept_list = self.app.get_department_list()
         self.dept_ids = [dept['id'] for dept in self.dept_list]
         # 获取用户
-        self.user_list = self.app.get_user_list(self.dept_ids[1])
+        self.user_list = self.app.contact.get_user_list(self.dept_ids[1])
         # 用户id
         self.user_ids = [user['userid'] for user in self.user_list]
 
@@ -58,7 +58,7 @@ class DingTalkTestCase(unittest.TestCase):
     # 获取用户
     def test_get_user_list(self):
         dept_id = self.dept_list[0]['id']
-        user_list = self.app.get_user_list(dept_id)
+        user_list = self.app.contact.get_user_list(dept_id)
         return user_list
 
     # 获取部门
@@ -111,7 +111,7 @@ class DingTalkTestCase(unittest.TestCase):
         # 测试部门
         originator_dept_id = self.dept_ids[1]
         # 获取用户
-        originator_user_list = self.app.get_user_list(originator_dept_id)
+        originator_user_list = self.app.contact.get_user_list(originator_dept_id)
         originator_user_id = [user['userid'] for user in originator_user_list][0]
         args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                 'originator_user_id': originator_user_id,
@@ -127,7 +127,7 @@ class DingTalkTestCase(unittest.TestCase):
         except BaseException as ex:
             assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
         dev_dept_id = self.dept_ids[1]
-        dev_user_list = self.app.get_user_list(dev_dept_id)
+        dev_user_list = self.app.contact.get_user_list(dev_dept_id)
         approvers = [user['userid'] for user in dev_user_list]
         args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                 'originator_user_id': originator_user_id,
@@ -298,9 +298,9 @@ class DingTalkTestCase(unittest.TestCase):
         dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
-        user_list = self.app.get_user_list(dept_ids[1])
+        user_list = self.app.contact.get_user_list(dept_ids[1])
         user_id = [user['userid'] for user in user_list][0]
-        data = self.app.get_user_info(user_id=user_id)
+        data = self.app.contact.get_user(user_id=user_id)
         assert data
 
     # 测试用户操作
@@ -423,9 +423,9 @@ class DingTalkTestCase(unittest.TestCase):
         dept_list = self.app.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
-        user_list = self.app.get_user_list(dept_ids[1])
+        user_list = self.app.contact.get_user_list(dept_ids[1])
         user_id = [user['userid'] for user in user_list][1]
-        depts = self.app.get_user_departments(user_id)
+        depts = self.app.contact.get_user_departments(user_id)
         assert depts
 
     # 获取企业员工数

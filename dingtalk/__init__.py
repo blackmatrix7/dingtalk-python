@@ -8,22 +8,18 @@
 # @Software: PyCharm
 import json
 import logging
-from datetime import datetime
 from functools import wraps
 from operator import methodcaller
 from time import sleep
-
-from dingtalk.smartwork.attends import get_schedule_list, get_simple_groups, get_attendance_record_list
-from dingtalk.smartwork.workflow import create_bpms_instance, get_bpms_instance_list
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .callback import register_callback, get_callback_failed_result, update_callback
-from .contacts import *
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
-from .space import *
 from .smartwork import SmartWork
+from .contact import Contact
+from .space import *
 
 __author__ = 'blackmatrix'
 
@@ -106,7 +102,8 @@ class DingTalkApp:
         self.domain = domain or 'A2UOM1pZOxQ'
         self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
         # 钉钉接口模块
-        self.smartwork = SmartWork(self.access_token)
+        self.smartwork = SmartWork(self.access_token, self.agent_id)
+        self.contact = Contact(self.access_token)
 
     @property
     def methods(self):
@@ -315,9 +312,8 @@ class DingTalkApp:
             dept['employees'] = self.get_user_list(dept['id'])
         return dept_list
 
-    def get_user_info(self, user_id):
-        user_info = get_user(self.access_token, user_id)
-        return user_info
+    def get_user(self, user_id):
+        return self.contact.get_user(user_id)
 
     def create_user(self, **user_info):
         """
@@ -325,8 +321,7 @@ class DingTalkApp:
         :param user_info:
         :return:
         """
-        result = create_user(self.access_token, **user_info)
-        return result
+        return self.contact.create_user(**user_info)
 
     def update_user(self, **user_info):
         """
@@ -334,8 +329,7 @@ class DingTalkApp:
         :param user_info:
         :return:
         """
-        result = update_user(self.access_token, **user_info)
-        return result
+        return self.contact.update_user(**user_info)
 
     def delete_user(self, userid):
         """
@@ -343,8 +337,7 @@ class DingTalkApp:
         :param userid:
         :return:
         """
-        result = delete_user(self.access_token, userid)
-        return result
+        return self.contact.delete_user(userid=userid)
 
     def get_user_by_code(self, code: str):
         """
@@ -361,9 +354,7 @@ class DingTalkApp:
         :param id_:
         :return:
         """
-        data = get_department_list(self.access_token, id_)
-        depart_list = data['department']
-        return depart_list
+        return self.contact.get_department_list(id_)
 
     def get_department(self, id_):
         """
@@ -371,8 +362,7 @@ class DingTalkApp:
         :param id_:
         :return:
         """
-        data = get_department(self.access_token, id_)
-        return data
+        return self.contact.get_department(id_)
 
     def create_department(self, **dept_info):
         """
@@ -380,8 +370,7 @@ class DingTalkApp:
         :param dept_info:
         :return:
         """
-        data = create_department(self.access_token, **dept_info)
-        return data['id']
+        return self.contact.create_department(**dept_info)
 
     def update_department(self, **dept_info):
         """
@@ -389,8 +378,7 @@ class DingTalkApp:
         :param dept_info:
         :return:
         """
-        data = update_department(self.access_token, **dept_info)
-        return data['id']
+        return self.contact.update_department(**dept_info)
 
     def delete_department(self, id_):
         """
@@ -398,8 +386,7 @@ class DingTalkApp:
         :param id_:
         :return:
         """
-        data = delete_department(self.access_token, id_)
-        return data
+        return self.contact.delete_department(id_)
 
     def get_user_departments(self, userid):
         """
@@ -409,8 +396,7 @@ class DingTalkApp:
         :param userid:
         :return:
         """
-        data = get_user_departments(self.access_token, userid)
-        return data
+        return self.contact.get_user_departments(userid=userid)
 
     def get_org_user_count(self, only_active):
         """
@@ -418,8 +404,7 @@ class DingTalkApp:
         :param only_active: 0:非激活人员数量，1:已经激活人员数量
         :return:
         """
-        data = get_org_user_count(self.access_token, only_active)
-        return data['count']
+        return self.contact.get_org_user_count(only_active)
 
     @dingtalk('dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):
@@ -515,13 +500,8 @@ class DingTalkApp:
         :param cc_position:
         :return:
         """
-        agent_id = agent_id or self.agent_id
-        data = create_bpms_instance(self.access_token, process_code, originator_user_id,
-                                    dept_id, approvers, form_component_values,
-                                    agent_id, cc_list, cc_position)
-        return {'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id'],
-                'success': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['is_success'],
-                'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id']}
+        return self.smartwork.create_bpms_instance(process_code, originator_user_id, dept_id, approvers,
+                                                   form_component_values, agent_id, cc_list, cc_position)
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
@@ -609,16 +589,7 @@ class DingTalkApp:
         :param offset:
         :return:
         """
-        resp = get_corp_role_list(self.access_token, size=size, offset=offset)
-        data = resp['dingtalk_corp_role_list_response']['result']['list']
-        if data.get('role_groups') is None:
-            return None
-        else:
-            role_groups = data.get('role_groups')
-            for role_group in role_groups:
-                # 钉钉返回的格式嵌套了两层roles，对格式做下处理
-                role_group['roles'] = role_group.pop('roles').pop('roles')
-            return role_groups
+        return self.contact.get_corp_role_list(size=size, offset=offset)
 
     @dingtalk('dingtalk.corp.role.all')
     def get_all_corp_role_list(self):
@@ -627,17 +598,7 @@ class DingTalkApp:
         https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.85WR2K&treeId=385&articleId=29205&docType=2
         :return:
         """
-        size = 100
-        offset = 0
-        dd_role_list = []
-        while True:
-            dd_roles = self.get_corp_role_list(size=size, offset=offset)
-            if dd_roles is None or len(dd_roles) <= 0:
-                break
-            else:
-                dd_role_list.extend(dd_roles)
-                offset += size
-        return dd_role_list
+        return self.contact.get_all_corp_role_list()
 
     @dingtalk('dingtalk.corp.role.simplelist')
     def get_role_simple_list(self, role_id, size=20, offset=0):
@@ -649,11 +610,7 @@ class DingTalkApp:
         :param offset:
         :return:
         """
-        data = get_role_simple_list(self.access_token, role_id=role_id, size=size, offset=offset)
-        # 返回的数据格式，嵌套这么多层，不累吗？
-        user_list = data['dingtalk_corp_role_simplelist_response']['result']['list']
-        if user_list and 'emp_simple_list' in user_list:
-            return user_list['emp_simple_list']
+        return self.contact.get_role_simple_list(role_id=role_id, size=size, offset=offset)
 
     @dingtalk('dingtalk.corp.role.getrolegroup')
     def get_role_group(self, group_id):
@@ -665,8 +622,7 @@ class DingTalkApp:
         :param group_id:
         :return:
         """
-        data = get_role_group(self.access_token, group_id=group_id)
-        return data
+        return self.contact.get_role_group(group_id=group_id)
 
     def get_custom_space(self):
         """
@@ -696,17 +652,7 @@ class DingTalkApp:
         :param size:
         :return:
         """
-        try:
-            work_date = work_date.strftime('%Y-%m-%d %H:%M:%S')
-        except AttributeError:
-            pass
-        result = get_schedule_list(self.access_token, work_date, offset, size)
-        data = {
-            'request_id': result['dingtalk_smartwork_attends_listschedule_response']['request_id'],
-            'schedules': result['dingtalk_smartwork_attends_listschedule_response']['result']['result']['schedules']['at_schedule_for_top_vo'],
-            'has_more': result['dingtalk_smartwork_attends_listschedule_response']['result']['result']['has_more']
-        }
-        return data
+        return self.smartwork.get_schedule_list(work_date=work_date, offset=offset, size=size)
 
     def get_simple_groups(self, offset=0, size=10):
         """
@@ -716,11 +662,7 @@ class DingTalkApp:
         :param size:
         :return:
         """
-        result = get_simple_groups(self.access_token, offset, size)
-        data = {'request_id': result['dingtalk_smartwork_attends_getsimplegroups_response']['request_id'],
-                'has_more': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['has_more'],
-                'groups': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['groups']['at_group_for_top_vo']}
-        return data
+        return self.smartwork.get_simple_groups(offset=offset, size=size)
 
     def get_attendance_record_list(self, user_ids, check_data_from, check_data_to):
         """
@@ -730,9 +672,9 @@ class DingTalkApp:
         :param check_data_to: 查询考勤打卡记录的结束工作日。注意，起始与结束工作日最多相隔7天
         :return:
         """
-        result = get_attendance_record_list(self.access_token, user_ids, check_data_from, check_data_to)
-        # 钉钉接口返回的数据没有request_id 2018.02.28
-        return result
+        return self.smartwork.get_attendance_record_list(user_ids=user_ids,
+                                                         check_data_from=check_data_from,
+                                                         check_data_to=check_data_to)
 
     def register_callback(self, callback_tag):
         """

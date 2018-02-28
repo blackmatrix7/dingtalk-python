@@ -5,9 +5,9 @@
 # @Site: https://github.com/blackmatrix7
 # @File: __init__.py
 # @Software: PyCharm
+from .workflow import *
 from datetime import datetime
 from ..exceptions import DingTalkExceptions
-from .workflow import get_bpms_instance_list
 from .attends import get_attendance_record_list, get_simple_groups, get_schedule_list
 
 __author__ = 'blackmatrix'
@@ -15,8 +15,9 @@ __author__ = 'blackmatrix'
 
 class SmartWork:
 
-    def __init__(self, access_token):
+    def __init__(self, access_token, agent_id=None):
         self.access_token = access_token
+        self.agent_id = agent_id
 
     def get_schedule_list(self, work_date, offset=0, size=200):
         """
@@ -108,6 +109,28 @@ class SmartWork:
             else:
                 break
         return {'request_id': request_id, 'bpms_instance_list': bpms_instance_list}
+
+    def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers,
+                             form_component_values, agent_id=None, cc_list=None, cc_position='FINISH'):
+        """
+        发起审批实例
+        :param process_code:
+        :param originator_user_id:
+        :param dept_id:
+        :param approvers:
+        :param form_component_values:
+        :param agent_id:
+        :param cc_list:
+        :param cc_position:
+        :return:
+        """
+        agent_id = agent_id or self.agent_id
+        data = create_bpms_instance(self.access_token, process_code, originator_user_id,
+                                    dept_id, approvers, form_component_values,
+                                    agent_id, cc_list, cc_position)
+        return {'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id'],
+                'success': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['is_success'],
+                'process_instance_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['result']['process_instance_id']}
 
 if __name__ == '__main__':
     pass
