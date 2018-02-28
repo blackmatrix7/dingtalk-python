@@ -295,9 +295,7 @@ class DingTalkApp:
         :param department_id:
         :return:
         """
-        data = get_user_list(self.access_token, department_id)
-        user_list = data['userlist']
-        return user_list
+        return self.contact.get_user_list(department_id)
 
     def get_all_users(self):
         """

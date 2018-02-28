@@ -325,7 +325,7 @@ class DingTalkTestCase(unittest.TestCase):
             'orderInDepts': {dept_id: 8},
             'department': 1234567890,
             'position': '马云，你不认识？？！！',
-            'mobile': '13058888882'
+            'mobile': '16658888882'
         }
         try:
             result = self.app.create_user(**err_user_info)
@@ -337,7 +337,7 @@ class DingTalkTestCase(unittest.TestCase):
             'orderInDepts': {dept_id: 8},
             'department': [dept_id],
             'position': '马云，你不认识？？！！',
-            'mobile': '13058888882'
+            'mobile': '16658888882'
         }
         result = self.app.create_user(**user_info)
         assert result
@@ -348,7 +348,7 @@ class DingTalkTestCase(unittest.TestCase):
             'orderInDepts': {dept_id: 8},
             'department': [dept_id],
             'position': '我就是马小云！！！',
-            'mobile': '13058888882'
+            'mobile': '16658888882'
         }
         result = self.app.update_user(**new_user_info)
         assert result
