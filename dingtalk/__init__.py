@@ -14,6 +14,7 @@ from .contacts import *
 from functools import wraps
 from datetime import datetime
 from operator import methodcaller
+from .smartwork import get_schedule_list
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
 from .workflow import create_bpms_instance, get_bpms_instance_list
@@ -703,6 +704,28 @@ class DingTalkApp:
         """
         data = self.get_custom_space()
         return data['space_id']
+
+    def get_schedule_list(self, work_date, offset=0, size=200):
+        """
+        考勤排班信息按天全量查询接口
+        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.ZoLh71&treeId=385&articleId=29082&docType=2
+        :param work_date:
+        :param offset:
+        :param size:
+        :return:
+        """
+        try:
+            work_date = work_date.strftime('%Y-%m-%d %H:%M:%S')
+        except AttributeError:
+            pass
+        result = get_schedule_list(self.access_token, work_date, offset, size)
+        data = {
+            'success': result['dingtalk_smartwork_attends_listschedule_response']['result']['success'],
+            'request_id': result['dingtalk_smartwork_attends_listschedule_response']['request_id'],
+            'schedules': result['dingtalk_smartwork_attends_listschedule_response']['result']['result']['schedules']['at_schedule_for_top_vo'],
+            'has_more': result['dingtalk_smartwork_attends_listschedule_response']['result']['result']['has_more']
+        }
+        return data
 
     def register_callback(self, callback_tag):
         """

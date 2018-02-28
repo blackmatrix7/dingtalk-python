@@ -80,15 +80,15 @@ class DingTalkTestCase(unittest.TestCase):
         contact = {
             # 'title': 'master',
             # 'share_deptids': dept_ids[2:4],
-            'label_ids': [265253444, 264113195],
+            'label_ids': ['265253444', '264113195'],
             # 'remark': 'nonting',
             # 'address': 'KungFuPanda',
             'name': 'shifu',
-            'follower_userid': '2741125726502831',
-            'state_code': '86',
+            'follower_userid': 2741125726502831,
+            'state_code': 86,
             # 'company_name': 'KungFuPanda',
             # 'share_userids': user_ids[2:6],
-            'mobile': '18605203032'
+            'mobile': 18605203032
         }
         try:
             result = self.app.add_corp_ext(contact)
@@ -515,4 +515,9 @@ class DingTalkTestCase(unittest.TestCase):
         assert data
         space_id = self.app.space_id
         assert space_id
+
+    def test_get_schedule_list(self):
+        now = datetime.now()
+        data = self.app.get_schedule_list(now)
+        assert data
 
