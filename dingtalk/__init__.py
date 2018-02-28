@@ -4,9 +4,8 @@
 # @Author : Matrix
 # @Github : https://github.com/blackmatrix7/
 # @Blog : http://www.cnblogs.com/blackmatrix/
-# @File : __init__.py.py
+# @File : __init__.py
 # @Software: PyCharm
-import logging
 from .auth import Auth
 from .file import File
 from functools import wraps
@@ -70,7 +69,11 @@ class SessionManager:
         raise NotImplementedError
 
 
-class DingTalkApp:
+class BaseDingTalkApp:
+
+    """
+    钉钉超类，鉴权模块在此处进行实例化
+    """
 
     def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
                  noncestr=None, domain=None, callback_url=None, aes_key=None,
@@ -102,11 +105,6 @@ class DingTalkApp:
         # 钉钉接口模块
         # 鉴权模块需要先创建，否则后续其他模块的实例化会出现异常
         self.auth = Auth(name=self.name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret)
-        self.smartwork = SmartWork(self.access_token, self.agent_id)
-        self.contact = Contact(self.access_token)
-        self.message = Message(self.access_token, self.agent_id)
-        self.file = File(self.access_token, self.domain, self.agent_id)
-        self.customer = Customer(self.access_token)
 
     @property
     def methods(self):
@@ -117,27 +115,7 @@ class DingTalkApp:
         在缓存中设置access token 7000秒过期，每次过期会自动重新获取 access token
         :return:
         """
-        access_token = None
-        access_token_key = '{}_access_token'.format(self.name)
-        try:
-            if self.cache.get(access_token_key) is not None:
-                access_token = self.cache.get(access_token_key)
-                # 兼容redis
-                try:
-                    access_token = access_token.decode()
-                except AttributeError:
-                    pass
-                logging.info('命中缓存{0}，直接返回缓存数据：{1}'.format(access_token_key, access_token))
-            else:
-                logging.warning('没有命中缓存{0}，准备重新向钉钉请求access token'.format(access_token_key))
-                logging.info('先行清理缓存中的jsapi ticket数据')
-                self.cache.delete('{}_jsapi_ticket'.format(self.name))
-                time_out = 7000
-                access_token = self.refresh_access_token(time_out)
-        except BaseException as ex:
-            logging.error('获取access token异常：{}'.format(ex))
-        finally:
-            return access_token
+        self.auth.get_access_token()
 
     def refresh_access_token(self, time_out=7000):
         """
@@ -205,317 +183,363 @@ class DingTalkApp:
         f = methodcaller(func_name, *args, **kwargs)
         return f(self)
 
-    def get_user_list(self, department_id):
-        """
-        根据部门id获取用户列表
-        :param department_id:
-        :return:
-        """
-        return self.contact.get_user_list(department_id)
 
-    def get_all_users(self):
-        """
-        获取整个组织架构下的所有员工
-        根据部门Id遍历获取
-        :return:
-        """
-        dept_list = self.get_department_list()
-        for dept in dept_list:
-            del dept['autoAddUser']
-            del dept['createDeptGroup']
-            dept['employees'] = self.get_user_list(dept['id'])
-        return dept_list
+class HistoryMehtodsMixin:
 
-    def get_user(self, user_id):
-        return self.contact.get_user(user_id)
+    """
+    混入类，主要用于兼容未拆分子模块之前的方法
+    """
 
-    def create_user(self, **user_info):
-        """
-        创建用户
-        :param user_info:
-        :return:
-        """
-        return self.contact.create_user(**user_info)
+    pass
 
-    def update_user(self, **user_info):
-        """
-        更新用户
-        :param user_info:
-        :return:
-        """
-        return self.contact.update_user(**user_info)
 
-    def delete_user(self, userid):
-        """
-        删除用户
-        :param userid:
-        :return:
-        """
-        return self.contact.delete_user(userid=userid)
+class DingTalkApp(BaseDingTalkApp):
 
-    def get_user_by_code(self, code: str):
+    def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
+                 noncestr=None, domain=None, callback_url=None, aes_key=None,
+                 token=None):
         """
-        通过jsapi传入的code，向钉钉服务器换取用户信息
-        :param code:
-        :return:
+        实例化钉钉对象
+        :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
+        :param session_manager: 钉钉的会话管理对象
+        :param corp_id: 钉钉的Corp Id，管理员可从后台获得
+        :param corp_secret: 钉钉的Corp Secret，管理员可从后台获得
+        :param agent_id: 钉钉的Agent Id，每个微应用有独立的agent_id，管理员可从后台获得
+        :param noncestr: 随机字符串
+        :param domain: 域名，可传入随机字符串
+        :param callback_url: 回调函数地址，回调函数必须符合check_url方法的要求
+        :param aes_key: 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
+        :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
         """
-        return self.contact.get_user_by_code(code)
+        self.name = name
+        self.cache = session_manager
+        self.corp_id = corp_id
+        self.corp_secret = corp_secret
+        self.agent_id = agent_id
+        self.callback_url = callback_url
+        # AES_KEY
+        self.aes_key = aes_key or 'gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI'
+        self.token = token or 'LnPxMAp7doy'
+        self.domain = domain or 'A2UOM1pZOxQ'
+        self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
+        # 调用超类的初始化方法，主要用于实现钉钉鉴权
+        # 鉴权模块需要先创建，否则后续其他模块的实例化会出现异常
+        super().__init__(name=name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret,
+                         agent_id=agent_id, noncestr=noncestr, domain=domain, callback_url=callback_url,
+                         aes_key=aes_key, token=token)
+        # 钉钉接口模块
+        self.smartwork = SmartWork(self.access_token, self.agent_id)
+        self.contact = Contact(self.access_token)
+        self.message = Message(self.access_token, self.agent_id)
+        self.file = File(self.access_token, self.domain, self.agent_id)
+        self.customer = Customer(self.access_token)
 
-    def get_department_list(self, id_=None):
-        """
-        获取部门列表
-        :param id_:
-        :return:
-        """
-        return self.contact.get_department_list(id_)
+    # def get_user_list(self, department_id):
+    #     """
+    #     根据部门id获取用户列表
+    #     :param department_id:
+    #     :return:
+    #     """
+    #     return self.contact.get_user_list(department_id)
+    #
+    # def get_all_users(self):
+    #     """
+    #     获取整个组织架构下的所有员工
+    #     根据部门Id遍历获取
+    #     :return:
+    #     """
+    #     return self.contact.get_all_users()
+    #
+    # def get_user(self, user_id):
+    #     return self.contact.get_user(user_id)
+    #
+    # def create_user(self, **user_info):
+    #     """
+    #     创建用户
+    #     :param user_info:
+    #     :return:
+    #     """
+    #     return self.contact.create_user(**user_info)
+    #
+    # def update_user(self, **user_info):
+    #     """
+    #     更新用户
+    #     :param user_info:
+    #     :return:
+    #     """
+    #     return self.contact.update_user(**user_info)
+    #
+    # def delete_user(self, userid):
+    #     """
+    #     删除用户
+    #     :param userid:
+    #     :return:
+    #     """
+    #     return self.contact.delete_user(userid=userid)
+    #
+    # def get_user_by_code(self, code: str):
+    #     """
+    #     通过jsapi传入的code，向钉钉服务器换取用户信息
+    #     :param code:
+    #     :return:
+    #     """
+    #     return self.contact.get_user_by_code(code)
+    #
+    # def get_department_list(self, id_=None):
+    #     """
+    #     获取部门列表
+    #     :param id_:
+    #     :return:
+    #     """
+    #     return self.contact.get_department_list(id_)
+    #
+    # def get_department(self, id_):
+    #     """
+    #     根据部门Id获取部门
+    #     :param id_:
+    #     :return:
+    #     """
+    #     return self.contact.get_department(id_)
+    #
+    # def create_department(self, **dept_info):
+    #     """
+    #     创建部门
+    #     :param dept_info:
+    #     :return:
+    #     """
+    #     return self.contact.create_department(**dept_info)
+    #
+    # def update_department(self, **dept_info):
+    #     """
+    #     更新部门信息
+    #     :param dept_info:
+    #     :return:
+    #     """
+    #     return self.contact.update_department(**dept_info)
+    #
+    # def delete_department(self, id_):
+    #     """
+    #     根据部门id删除部门
+    #     :param id_:
+    #     :return:
+    #     """
+    #     return self.contact.delete_department(id_)
+    #
+    # def get_user_departments(self, userid):
+    #     """
+    #     查询指定用户的所有上级父部门路径
+    #     查询主管理员时，会返回无此用户，原因不明。
+    #     可能是钉钉有意设置。
+    #     :param userid:
+    #     :return:
+    #     """
+    #     return self.contact.get_user_departments(userid=userid)
+    #
+    # def get_org_user_count(self, only_active):
+    #     """
+    #     获取企业员工人数
+    #     :param only_active: 0:非激活人员数量，1:已经激活人员数量
+    #     :return:
+    #     """
+    #     return self.contact.get_org_user_count(only_active)
+    #
+    # @dingtalk('dingtalk.corp.ext.listlabelgroups')
+    # def get_label_groups(self, size=20, offset=0):
+    #     """
+    #     获取系统标签
+    #     :param size:
+    #     :param offset:
+    #     :return:
+    #     """
+    #     return self.customer.get_label_groups(size=size, offset=offset)
+    #
+    # def get_all_label_groups(self):
+    #     """
+    #     获取全部的外部联系人标签
+    #     :return:
+    #     """
+    #     size = 100
+    #     offset = 0
+    #     label_groups = []
+    #     while True:
+    #         # 钉钉接口存在Bug，偏移量已经超出数据数量时，仍会返回数据
+    #         # 对此需要做特殊处理，今后如此Bug被修复，可以简化代码实现
+    #         # 返回的数据是否重复
+    #         valid_data = False
+    #         # 获取钉钉的接口数据
+    #         dd_label_groups = self.get_label_groups(size, offset)
+    #         # 对数据进行循环，整理
+    #         for dd_label_group in dd_label_groups:
+    #             for label in dd_label_group['labels']:
+    #                 label_group = {'color': dd_label_group['color'],
+    #                                'group': dd_label_group['name'],
+    #                                'name': label['name'],
+    #                                'id': label['id']}
+    #                 if label_group not in label_groups:
+    #                     label_groups.append(label_group)
+    #                     valid_data = True
+    #         # 当已经查询不到有效的新数据时，停止请求接口
+    #         if valid_data is False:
+    #             break
+    #     return label_groups
+    #
+    # @dingtalk('dingtalk.corp.ext.list')
+    # def get_ext_list(self, size=20, offset=0):
+    #     """
+    #     获取外部联系人
+    #     :return:
+    #     """
+    #     return self.customer.get_ext_list(size=size, offset=offset)
+    #
+    # @dingtalk('dingtalk.corp.ext.all')
+    # def get_all_ext_list(self):
+    #     """
+    #     获取全部的外部联系人
+    #     :return:
+    #     """
+    #     return self.customer.get_all_ext_list()
+    #
+    # @dingtalk('dingtalk.corp.ext.add')
+    # def add_corp_ext(self, contact_info):
+    #     """
+    #     获取外部联系人
+    #     :return:
+    #     """
+    #     return self.customer.add_corp_ext(contact_info=contact_info)
 
-    def get_department(self, id_):
-        """
-        根据部门Id获取部门
-        :param id_:
-        :return:
-        """
-        return self.contact.get_department(id_)
-
-    def create_department(self, **dept_info):
-        """
-        创建部门
-        :param dept_info:
-        :return:
-        """
-        return self.contact.create_department(**dept_info)
-
-    def update_department(self, **dept_info):
-        """
-        更新部门信息
-        :param dept_info:
-        :return:
-        """
-        return self.contact.update_department(**dept_info)
-
-    def delete_department(self, id_):
-        """
-        根据部门id删除部门
-        :param id_:
-        :return:
-        """
-        return self.contact.delete_department(id_)
-
-    def get_user_departments(self, userid):
-        """
-        查询指定用户的所有上级父部门路径
-        查询主管理员时，会返回无此用户，原因不明。
-        可能是钉钉有意设置。
-        :param userid:
-        :return:
-        """
-        return self.contact.get_user_departments(userid=userid)
-
-    def get_org_user_count(self, only_active):
-        """
-        获取企业员工人数
-        :param only_active: 0:非激活人员数量，1:已经激活人员数量
-        :return:
-        """
-        return self.contact.get_org_user_count(only_active)
-
-    @dingtalk('dingtalk.corp.ext.listlabelgroups')
-    def get_label_groups(self, size=20, offset=0):
-        """
-        获取系统标签
-        :param size:
-        :param offset:
-        :return:
-        """
-        return self.customer.get_label_groups(size=size, offset=offset)
-
-    def get_all_label_groups(self):
-        """
-        获取全部的外部联系人标签
-        :return:
-        """
-        size = 100
-        offset = 0
-        label_groups = []
-        while True:
-            # 钉钉接口存在Bug，偏移量已经超出数据数量时，仍会返回数据
-            # 对此需要做特殊处理，今后如此Bug被修复，可以简化代码实现
-            # 返回的数据是否重复
-            valid_data = False
-            # 获取钉钉的接口数据
-            dd_label_groups = self.get_label_groups(size, offset)
-            # 对数据进行循环，整理
-            for dd_label_group in dd_label_groups:
-                for label in dd_label_group['labels']:
-                    label_group = {'color': dd_label_group['color'],
-                                   'group': dd_label_group['name'],
-                                   'name': label['name'],
-                                   'id': label['id']}
-                    if label_group not in label_groups:
-                        label_groups.append(label_group)
-                        valid_data = True
-            # 当已经查询不到有效的新数据时，停止请求接口
-            if valid_data is False:
-                break
-        return label_groups
-
-    @dingtalk('dingtalk.corp.ext.list')
-    def get_ext_list(self, size=20, offset=0):
-        """
-        获取外部联系人
-        :return:
-        """
-        return self.customer.get_ext_list(size=size, offset=offset)
-
-    @dingtalk('dingtalk.corp.ext.all')
-    def get_all_ext_list(self):
-        """
-        获取全部的外部联系人
-        :return:
-        """
-        return self.customer.get_all_ext_list()
-
-    @dingtalk('dingtalk.corp.ext.add')
-    def add_corp_ext(self, contact_info):
-        """
-        获取外部联系人
-        :return:
-        """
-        return self.customer.add_corp_ext(contact_info=contact_info)
-
-    @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
-    def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers,
-                             form_component_values, agent_id=None, cc_list=None, cc_position='FINISH'):
-        """
-        发起审批实例
-        :param process_code:
-        :param originator_user_id:
-        :param dept_id:
-        :param approvers:
-        :param form_component_values:
-        :param agent_id:
-        :param cc_list:
-        :param cc_position:
-        :return:
-        """
-        return self.smartwork.create_bpms_instance(process_code, originator_user_id, dept_id, approvers,
-                                                   form_component_values, agent_id, cc_list, cc_position)
-
-    @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
-    def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
-        """
-        获取审批实例
-        :param process_code:
-        :param start_time:
-        :param end_time:
-        :param size: 每次获取的记录条数，最大只能是10
-        :param cursor:
-        :return:
-        """
-        return self.smartwork.get_bpms_instance_list(process_code, start_time, end_time, size, cursor)
-
-    def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
-        """
-        获取"全部"审批实例
-        :param process_code:
-        :param start_time: 起始时间，如果不传，默认当前时间往前推6个月
-        :param end_time: 结束时间，如果不传，默认当前时间
-        :return:
-        """
-        return self.smartwork.get_all_bpms_instance_list(process_code, start_time, end_time)
-
-    @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
-    def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
-        """
-        异步发送消息
-        接口文档：
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.C50a1Y&treeId=374&articleId=28915&docType=2
-        消息内容格式说明：
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.CToLEy&treeId=374&articleId=104972&docType=1
-        :param msgtype: 消息类型
-        :param msgcontent: 消息内容
-        :param userid_list: 发送的用户列表
-        :param dept_id_list: 发送的部门列表
-        :param to_all_user: 是否全员发送（全员发送有次数限制）
-        :return:
-        """
-        return self.message.async_send_msg(msgtype, msgcontent, userid_list, dept_id_list, to_all_user)
-
-    @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
-    def get_msg_send_result(self, task_id, agent_id=None):
-        """
-        获取消息发送结果
-        接口文档：
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.QvhuFr&treeId=374&articleId=28918&docType=2
-        :param task_id: 发送消息时返回的task_id
-        :param agent_id: 应用id
-        :return:
-        """
-        return self.message.get_msg_send_result(task_id, agent_id)
-
-    @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
-    def get_msg_send_progress(self, task_id, agent_id=None):
-        """
-        获取企业发送消息进度
-        接口文档：
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.68Lh70&treeId=374&articleId=28917&docType=2
-        :param task_id: 发送消息时返回的task_id
-        :param agent_id: 应用id
-        :return:
-        """
-        return self.message.get_msg_send_progress(task_id, agent_id)
-
-    @dingtalk('dingtalk.corp.role.list')
-    def get_corp_role_list(self, size=20, offset=0):
-        """
-        获取企业角色列表（分页）
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.85WR2K&treeId=385&articleId=29205&docType=2
-        :param size:
-        :param offset:
-        :return:
-        """
-        return self.contact.get_corp_role_list(size=size, offset=offset)
-
-    @dingtalk('dingtalk.corp.role.all')
-    def get_all_corp_role_list(self):
-        """
-        获取全部企业角色列表
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.85WR2K&treeId=385&articleId=29205&docType=2
-        :return:
-        """
-        return self.contact.get_all_corp_role_list()
-
-    @dingtalk('dingtalk.corp.role.simplelist')
-    def get_role_simple_list(self, role_id, size=20, offset=0):
-        """
-        获取角色的员工列表
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.qatKNZ&treeId=385&articleId=29204&docType=2
-        :param role_id:
-        :param size:
-        :param offset:
-        :return:
-        """
-        return self.contact.get_role_simple_list(role_id=role_id, size=size, offset=offset)
-
-    @dingtalk('dingtalk.corp.role.getrolegroup')
-    def get_role_group(self, group_id):
-        """
-        该接口通过group_id参数可以获取该角色组详细信息以及下面所有关联的角色的信息
-        目前没有找到可以获取角色组id，即group_id的地方，如果获取角色组的话，可以使用dingtalk.corp.role.list获取
-        但是只能获取到组名，没有角色组id，所以暂时不知道这个接口有什么用
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.VqsINY&treeId=385&articleId=29978&docType=2
-        :param group_id:
-        :return:
-        """
-        return self.contact.get_role_group(group_id=group_id)
-
-    def get_custom_space(self):
-        """
-        获取企业下的自定义空间
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.Fh7w2d&treeId=373&articleId=104970&docType=1#s2
-        :return:
-        """
-        return self.file.get_custom_space()
+    # @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
+    # def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers,
+    #                          form_component_values, agent_id=None, cc_list=None, cc_position='FINISH'):
+    #     """
+    #     发起审批实例
+    #     :param process_code:
+    #     :param originator_user_id:
+    #     :param dept_id:
+    #     :param approvers:
+    #     :param form_component_values:
+    #     :param agent_id:
+    #     :param cc_list:
+    #     :param cc_position:
+    #     :return:
+    #     """
+    #     return self.smartwork.create_bpms_instance(process_code, originator_user_id, dept_id, approvers,
+    #                                                form_component_values, agent_id, cc_list, cc_position)
+    #
+    # @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
+    # def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
+    #     """
+    #     获取审批实例
+    #     :param process_code:
+    #     :param start_time:
+    #     :param end_time:
+    #     :param size: 每次获取的记录条数，最大只能是10
+    #     :param cursor:
+    #     :return:
+    #     """
+    #     return self.smartwork.get_bpms_instance_list(process_code, start_time, end_time, size, cursor)
+    #
+    # def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
+    #     """
+    #     获取"全部"审批实例
+    #     :param process_code:
+    #     :param start_time: 起始时间，如果不传，默认当前时间往前推6个月
+    #     :param end_time: 结束时间，如果不传，默认当前时间
+    #     :return:
+    #     """
+    #     return self.smartwork.get_all_bpms_instance_list(process_code, start_time, end_time)
+    #
+    # @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
+    # def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
+    #     """
+    #     异步发送消息
+    #     接口文档：
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.C50a1Y&treeId=374&articleId=28915&docType=2
+    #     消息内容格式说明：
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.CToLEy&treeId=374&articleId=104972&docType=1
+    #     :param msgtype: 消息类型
+    #     :param msgcontent: 消息内容
+    #     :param userid_list: 发送的用户列表
+    #     :param dept_id_list: 发送的部门列表
+    #     :param to_all_user: 是否全员发送（全员发送有次数限制）
+    #     :return:
+    #     """
+    #     return self.message.async_send_msg(msgtype, msgcontent, userid_list, dept_id_list, to_all_user)
+    #
+    # @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
+    # def get_msg_send_result(self, task_id, agent_id=None):
+    #     """
+    #     获取消息发送结果
+    #     接口文档：
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.QvhuFr&treeId=374&articleId=28918&docType=2
+    #     :param task_id: 发送消息时返回的task_id
+    #     :param agent_id: 应用id
+    #     :return:
+    #     """
+    #     return self.message.get_msg_send_result(task_id, agent_id)
+    #
+    # @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
+    # def get_msg_send_progress(self, task_id, agent_id=None):
+    #     """
+    #     获取企业发送消息进度
+    #     接口文档：
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.68Lh70&treeId=374&articleId=28917&docType=2
+    #     :param task_id: 发送消息时返回的task_id
+    #     :param agent_id: 应用id
+    #     :return:
+    #     """
+    #     return self.message.get_msg_send_progress(task_id, agent_id)
+    #
+    # @dingtalk('dingtalk.corp.role.list')
+    # def get_corp_role_list(self, size=20, offset=0):
+    #     """
+    #     获取企业角色列表（分页）
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.85WR2K&treeId=385&articleId=29205&docType=2
+    #     :param size:
+    #     :param offset:
+    #     :return:
+    #     """
+    #     return self.contact.get_corp_role_list(size=size, offset=offset)
+    #
+    # @dingtalk('dingtalk.corp.role.all')
+    # def get_all_corp_role_list(self):
+    #     """
+    #     获取全部企业角色列表
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.85WR2K&treeId=385&articleId=29205&docType=2
+    #     :return:
+    #     """
+    #     return self.contact.get_all_corp_role_list()
+    #
+    # @dingtalk('dingtalk.corp.role.simplelist')
+    # def get_role_simple_list(self, role_id, size=20, offset=0):
+    #     """
+    #     获取角色的员工列表
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.qatKNZ&treeId=385&articleId=29204&docType=2
+    #     :param role_id:
+    #     :param size:
+    #     :param offset:
+    #     :return:
+    #     """
+    #     return self.contact.get_role_simple_list(role_id=role_id, size=size, offset=offset)
+    #
+    # @dingtalk('dingtalk.corp.role.getrolegroup')
+    # def get_role_group(self, group_id):
+    #     """
+    #     该接口通过group_id参数可以获取该角色组详细信息以及下面所有关联的角色的信息
+    #     目前没有找到可以获取角色组id，即group_id的地方，如果获取角色组的话，可以使用dingtalk.corp.role.list获取
+    #     但是只能获取到组名，没有角色组id，所以暂时不知道这个接口有什么用
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.VqsINY&treeId=385&articleId=29978&docType=2
+    #     :param group_id:
+    #     :return:
+    #     """
+    #     return self.contact.get_role_group(group_id=group_id)
+    #
+    # def get_custom_space(self):
+    #     """
+    #     获取企业下的自定义空间
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.Fh7w2d&treeId=373&articleId=104970&docType=1#s2
+    #     :return:
+    #     """
+    #     return self.file.get_custom_space()
 
     @property
     def space_id(self):
@@ -524,41 +548,41 @@ class DingTalkApp:
         https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.Fh7w2d&treeId=373&articleId=104970&docType=1#s2
         :return:
         """
-        data = self.get_custom_space()
+        data = self.file.get_custom_space()
         return data['space_id']
 
-    def get_schedule_list(self, work_date, offset=0, size=200):
-        """
-        考勤排班信息按天全量查询接口
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.ZoLh71&treeId=385&articleId=29082&docType=2
-        :param work_date:
-        :param offset:
-        :param size:
-        :return:
-        """
-        return self.smartwork.get_schedule_list(work_date=work_date, offset=offset, size=size)
-
-    def get_simple_groups(self, offset=0, size=10):
-        """
-        获取考勤组列表详情
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.OIXvT4&treeId=385&articleId=29083&docType=2
-        :param offset:
-        :param size:
-        :return:
-        """
-        return self.smartwork.get_simple_groups(offset=offset, size=size)
-
-    def get_attendance_record_list(self, user_ids, check_data_from, check_data_to):
-        """
-        获取考勤打卡记录
-        :param user_ids: 企业内的员工id列表，最多不能超过50个
-        :param check_data_from: 查询考勤打卡记录的起始工作日
-        :param check_data_to: 查询考勤打卡记录的结束工作日。注意，起始与结束工作日最多相隔7天
-        :return:
-        """
-        return self.smartwork.get_attendance_record_list(user_ids=user_ids,
-                                                         check_data_from=check_data_from,
-                                                         check_data_to=check_data_to)
+    # def get_schedule_list(self, work_date, offset=0, size=200):
+    #     """
+    #     考勤排班信息按天全量查询接口
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.ZoLh71&treeId=385&articleId=29082&docType=2
+    #     :param work_date:
+    #     :param offset:
+    #     :param size:
+    #     :return:
+    #     """
+    #     return self.smartwork.get_schedule_list(work_date=work_date, offset=offset, size=size)
+    #
+    # def get_simple_groups(self, offset=0, size=10):
+    #     """
+    #     获取考勤组列表详情
+    #     https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.OIXvT4&treeId=385&articleId=29083&docType=2
+    #     :param offset:
+    #     :param size:
+    #     :return:
+    #     """
+    #     return self.smartwork.get_simple_groups(offset=offset, size=size)
+    #
+    # def get_attendance_record_list(self, user_ids, check_data_from, check_data_to):
+    #     """
+    #     获取考勤打卡记录
+    #     :param user_ids: 企业内的员工id列表，最多不能超过50个
+    #     :param check_data_from: 查询考勤打卡记录的起始工作日
+    #     :param check_data_to: 查询考勤打卡记录的结束工作日。注意，起始与结束工作日最多相隔7天
+    #     :return:
+    #     """
+    #     return self.smartwork.get_attendance_record_list(user_ids=user_ids,
+    #                                                      check_data_from=check_data_from,
+    #                                                      check_data_to=check_data_to)
 
     def register_callback(self, callback_tag):
         """

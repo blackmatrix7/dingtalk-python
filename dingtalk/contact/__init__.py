@@ -33,6 +33,19 @@ class Contact:
         user_list = data['userlist']
         return user_list
 
+    def get_all_users(self):
+        """
+        获取整个组织架构下的所有员工
+        根据部门Id遍历获取
+        :return:
+        """
+        dept_list = self.get_department_list()
+        for _dept in dept_list:
+            del _dept['autoAddUser']
+            del _dept['createDeptGroup']
+            _dept['employees'] = self.get_user_list(_dept['id'])
+        return dept_list
+
     def create_user(self, **user_info):
         """
         创建用户
