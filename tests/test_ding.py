@@ -35,6 +35,11 @@ class DingTalkTestCase(unittest.TestCase):
         self.user_list = self.app.contact.get_user_list(self.dept_ids[1])
         # 用户id
         self.user_ids = [user['userid'] for user in self.user_list]
+        # 部分测试用例开关
+        self.async_send_msg = False  # 发送消息开关
+        self.create_bpms = False  # 流程创建开关
+        self.user_operator = False  # 用户操作开关
+        self.dept_operator = False  # 部门操作开关
 
     # 获取 access token
     def test_get_access_token(self):
@@ -107,37 +112,37 @@ class DingTalkTestCase(unittest.TestCase):
         为了避免频繁发起审批流程，默认不执行此测试用例
         :return:
         """
-        assert self.app.access_token
-        # 测试部门
-        originator_dept_id = self.dept_ids[1]
-        # 获取用户
-        originator_user_list = self.user_list
-        originator_user_id = [user['userid'] for user in originator_user_list][0]
-        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                'originator_user_id': originator_user_id,
-                'dept_id': originator_dept_id,
-                'approvers': ['05273640343597xc66032', '11232227383990829d4', '11232227561147d773'],
-                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
-                                          {'value': '哈哈哈哈', 'name': '部门'},
-                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        try:
-            # 测试错误情况
+        if self.create_bpms:
+            # 测试部门
+            originator_dept_id = self.dept_ids[1]
+            # 获取用户
+            originator_user_list = self.user_list
+            originator_user_id = [user['userid'] for user in originator_user_list][0]
+            args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                    'originator_user_id': originator_user_id,
+                    'dept_id': originator_dept_id,
+                    'approvers': ['05273640343597xc66032', '11232227383990829d4', '11232227561147d773'],
+                    'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+                                              {'value': '哈哈哈哈', 'name': '部门'},
+                                              {'value': '哈哈哈哈', 'name': '加班事由'}]}
+            try:
+                # 测试错误情况
+                resp = self.app.smartwork.create_bpms_instance(**args)
+                assert resp
+            except BaseException as ex:
+                assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
+            dev_dept_id = self.dept_ids[1]
+            dev_user_list = self.app.contact.get_user_list(dev_dept_id)
+            approvers = [user['userid'] for user in dev_user_list]
+            args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                    'originator_user_id': originator_user_id,
+                    'dept_id': originator_dept_id,
+                    'approvers': approvers,
+                    'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
+                                              {'value': '哈哈哈哈', 'name': '部门'},
+                                              {'value': '哈哈哈哈', 'name': '加班事由'}]}
             resp = self.app.smartwork.create_bpms_instance(**args)
             assert resp
-        except BaseException as ex:
-            assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
-        dev_dept_id = self.dept_ids[1]
-        dev_user_list = self.app.contact.get_user_list(dev_dept_id)
-        approvers = [user['userid'] for user in dev_user_list]
-        args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                'originator_user_id': originator_user_id,
-                'dept_id': originator_dept_id,
-                'approvers': approvers,
-                'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
-                                          {'value': '哈哈哈哈', 'name': '部门'},
-                                          {'value': '哈哈哈哈', 'name': '加班事由'}]}
-        resp = self.app.smartwork.create_bpms_instance(**args)
-        assert resp
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -245,58 +250,58 @@ class DingTalkTestCase(unittest.TestCase):
         测试异步发送消息
         :return:
         """
-        assert self.app.access_token
-        # 测试错误的情况，错误的msgtype
-        try:
-            data = self.app.message.async_send_msg(msgtype='text2', userid_list=self.user_ids,
+        if self.async_send_msg:
+            # 测试错误的情况，错误的msgtype
+            try:
+                data = self.app.message.async_send_msg(msgtype='text2', userid_list=self.user_ids,
+                                                       msgcontent={
+                                                           'content': '现在为您报时，北京时间 {}'.format(
+                                                               datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                                       })
+                assert data
+            except BaseException as ex:
+                assert '不合法的消息类型' in str(ex)
+            # 测试正确的情况，避免频繁发送消息，通常不运行此测试
+            data = self.app.message.async_send_msg(msgtype='text', userid_list=self.user_ids,
                                                    msgcontent={
                                                        'content': '现在为您报时，北京时间 {}'.format(
                                                            datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                                                    })
             assert data
-        except BaseException as ex:
-            assert '不合法的消息类型' in str(ex)
-        # 测试正确的情况，避免频繁发送消息，通常不运行此测试
-        data = self.app.message.async_send_msg(msgtype='text', userid_list=self.user_ids,
-                                               msgcontent={
-                                                   'content': '现在为您报时，北京时间 {}'.format(
-                                                       datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                                               })
-        assert data
-        task_id = data['task_id']
-        # 获取发送进度
-        result = self.app.message.get_msg_send_progress(task_id)
-        assert result
-        sleep(5)
-        result = self.app.message.get_msg_send_result(task_id=task_id)
-        assert result
-        # 测试link消息
-        data = self.app.message.async_send_msg(msgtype='link', userid_list=self.user_ids,
-                                               msgcontent={
-                                                   "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
-                                                   "picUrl": "@lALOACZwe2Rk",
-                                                   "title": "现在为您报时",
-                                                   "text": "北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                                               })
-        assert data
-        # 测试发送ActionCard
-        data = self.app.message.async_send_msg(msgtype='action_card', userid_list=self.user_ids,
-                                               msgcontent={
-                                                   "title": "现在为您报时，北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
-                                                   "markdown": "支持markdown格式的正文内容",
-                                                   "btn_orientation": "1",
-                                                   "btn_json_list": [
-                                                       {
-                                                           "title": "一个按钮",
-                                                           "action_url": "https://www.taobao.com"
-                                                       },
-                                                       {
-                                                           "title": "两个按钮",
-                                                           "action_url": "https://www.tmall.com"
-                                                       }
-                                                   ]
-                                               })
-        assert data
+            task_id = data['task_id']
+            # 获取发送进度
+            result = self.app.message.get_msg_send_progress(task_id)
+            assert result
+            sleep(5)
+            result = self.app.message.get_msg_send_result(task_id=task_id)
+            assert result
+            # 测试link消息
+            data = self.app.message.async_send_msg(msgtype='link', userid_list=self.user_ids,
+                                                   msgcontent={
+                                                       "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+                                                       "picUrl": "@lALOACZwe2Rk",
+                                                       "title": "现在为您报时",
+                                                       "text": "北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                                   })
+            assert data
+            # 测试发送ActionCard
+            data = self.app.message.async_send_msg(msgtype='action_card', userid_list=self.user_ids,
+                                                   msgcontent={
+                                                       "title": "现在为您报时，北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
+                                                       "markdown": "支持markdown格式的正文内容",
+                                                       "btn_orientation": "1",
+                                                       "btn_json_list": [
+                                                           {
+                                                               "title": "一个按钮",
+                                                               "action_url": "https://www.taobao.com"
+                                                           },
+                                                           {
+                                                               "title": "两个按钮",
+                                                               "action_url": "https://www.tmall.com"
+                                                           }
+                                                       ]
+                                                   })
+            assert data
 
     # 测试获取用户信息
     def test_get_user_info(self):
@@ -316,112 +321,113 @@ class DingTalkTestCase(unittest.TestCase):
         为避免在群里频繁出现欢迎信息，通常不测试此方法
         :return:
         """
-        assert self.app.access_token
-        dept_list = self.app.contact.get_department_list()
-        dept_id = None
-        for dept in dept_list:
-            if dept['name'] == '信息部':
-                dept_id = dept['id']
-                break
-        if dept_id is None:
-            dept_id = dept_list[1]['id']
-        # 测试创建用户错误
-        err_user_info = {
-            'name': '马小云',
-            'orderInDepts': {dept_id: 8},
-            'department': 1234567890,
-            'position': '马云，你不认识？？！！',
-            'mobile': '16658888882'
-        }
-        try:
-            result = self.app.contact.create_user(**err_user_info)
+        if self.user_operator:
+            dept_list = self.app.contact.get_department_list()
+            dept_id = None
+            for dept in dept_list:
+                if dept['name'] == '信息部':
+                    dept_id = dept['id']
+                    break
+            if dept_id is None:
+                dept_id = dept_list[1]['id']
+            # 测试创建用户错误
+            err_user_info = {
+                'name': '马小云',
+                'orderInDepts': {dept_id: 8},
+                'department': 1234567890,
+                'position': '马云，你不认识？？！！',
+                'mobile': '16658888882'
+            }
+            try:
+                result = self.app.contact.create_user(**err_user_info)
+                assert result
+            except BaseException as ex:
+                assert '无效的部门JSONArray对象,合法格式需要用中括号括起来,且如果属于多部门,部门id需要用逗号分隔' in str(ex)
+            user_info = {
+                'name': '马小云',
+                'orderInDepts': {dept_id: 8},
+                'department': [dept_id],
+                'position': '马云，你不认识？？！！',
+                'mobile': '16658888882'
+            }
+            result = self.app.contact.create_user(**user_info)
             assert result
-        except BaseException as ex:
-            assert '无效的部门JSONArray对象,合法格式需要用中括号括起来,且如果属于多部门,部门id需要用逗号分隔' in str(ex)
-        user_info = {
-            'name': '马小云',
-            'orderInDepts': {dept_id: 8},
-            'department': [dept_id],
-            'position': '马云，你不认识？？！！',
-            'mobile': '16658888882'
-        }
-        result = self.app.contact.create_user(**user_info)
-        assert result
-        user_id = result['userid']
-        new_user_info = {
-            'userid': user_id,
-            'name': '马小云',
-            'orderInDepts': {dept_id: 8},
-            'department': [dept_id],
-            'position': '我就是马小云！！！',
-            'mobile': '16658888882'
-        }
-        result = self.app.contact.update_user(**new_user_info)
-        assert result
-        result = self.app.contact.delete_user(userid=user_id)
-        assert result
+            user_id = result['userid']
+            new_user_info = {
+                'userid': user_id,
+                'name': '马小云',
+                'orderInDepts': {dept_id: 8},
+                'department': [dept_id],
+                'position': '我就是马小云！！！',
+                'mobile': '16658888882'
+            }
+            result = self.app.contact.update_user(**new_user_info)
+            assert result
+            result = self.app.contact.delete_user(userid=user_id)
+            assert result
 
     # 部门操作相关测试
     def test_dept_operator(self):
-        # 获取部门详情
-        dept_id = self.dept_list[1]['id']
-        resp = self.app.contact.get_department(dept_id)
-        assert resp
-        # 测试错误的部门id
-        try:
-            resp = self.app.contact.get_department(123456789)
+        if self.dept_operator:
+            # 获取部门详情
+            dept_id = self.dept_list[1]['id']
+            resp = self.app.contact.get_department(dept_id)
             assert resp
-        except BaseException as ex:
-            assert '部门不存在' in str(ex)
-        # 测试删除部门
-        dept_list = self.app.contact.get_department_list()
-        assert dept_list
-        for dept in dept_list:
-            if '霍格沃茨魔法学校' in dept['name']:
-                dept_id = dept['id']
-                result = self.app.contact.delete_department(dept_id)
-                assert result
-        dept_info = {
-            'name': '霍格沃茨魔法学校',
-            'parentid': 1
-        }
-        dept_id = self.app.contact.create_department(**dept_info)
-        assert dept_id
-        # 测试创建部门错误，key错误
-        err_dept_info = {
-            'dept_name': '霍格沃茨魔法学校',
-            'parentid': 1
-        }
-        try:
-            dept_id = self.app.contact.create_department(**err_dept_info)
-        except BaseException as ex:
-            assert '不合法的部门名称' in str(ex)
-        new_dept_info = {
-            'id': dept_id,
-            'name': '霍格沃茨魔法学校：格兰芬多',
-            'parentid': 1
-        }
-        dept = self.app.contact.update_department(**new_dept_info)
-        assert dept
-        # 测试更新部门错误
-        err_new_dept_info = {
-            'id': 1234567890,
-            'name': '霍格沃茨魔法学校：格兰芬多',
-            'parentid': 1
-        }
-        try:
-            dept = self.app.contact.update_department(**err_new_dept_info)
+            # 测试错误的部门id
+            try:
+                resp = self.app.contact.get_department(123456789)
+                assert resp
+            except BaseException as ex:
+                assert '部门不存在' in str(ex)
+            # 测试删除部门
+            dept_list = self.app.contact.get_department_list()
+            assert dept_list
+            for dept in dept_list:
+                if '霍格沃茨魔法学校' in dept['name']:
+                    dept_id = dept['id']
+                    result = self.app.contact.delete_department(dept_id)
+                    assert result
+            dept_info = {
+                'name': '霍格沃茨魔法学校',
+                'parentid': 1
+            }
+            dept_id = self.app.contact.create_department(**dept_info)
+            assert dept_id
+            # 测试创建部门错误，key错误
+            err_dept_info = {
+                'dept_name': '霍格沃茨魔法学校',
+                'parentid': 1
+            }
+            try:
+                dept_id = self.app.contact.create_department(**err_dept_info)
+            except BaseException as ex:
+                assert '不合法的部门名称' in str(ex)
+            new_dept_info = {
+                'id': dept_id,
+                'name': '霍格沃茨魔法学校：格兰芬多',
+                'parentid': 1
+            }
+            dept = self.app.contact.update_department(**new_dept_info)
             assert dept
-        except BaseException as ex:
-            assert '部门不存在' in str(ex)
-        # 测试删除部门
-        dept_list = self.app.contact.get_department_list()
-        assert dept_list
-        for dept in dept_list:
-            if '霍格沃茨魔法学校' in dept['name']:
-                dept_id = dept['id']
-                result = self.app.contact.delete_department(dept_id)
-                assert result
+            # 测试更新部门错误
+            err_new_dept_info = {
+                'id': 1234567890,
+                'name': '霍格沃茨魔法学校：格兰芬多',
+                'parentid': 1
+            }
+            try:
+                dept = self.app.contact.update_department(**err_new_dept_info)
+                assert dept
+            except BaseException as ex:
+                assert '部门不存在' in str(ex)
+            # 测试删除部门
+            dept_list = self.app.contact.get_department_list()
+            assert dept_list
+            for dept in dept_list:
+                if '霍格沃茨魔法学校' in dept['name']:
+                    dept_id = dept['id']
+                    result = self.app.contact.delete_department(dept_id)
+                    assert result
 
     # 获取用户部门
     def test_get_user_depts(self):
