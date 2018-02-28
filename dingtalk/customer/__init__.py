@@ -28,6 +28,36 @@ class Customer:
         data = json.loads(resp['dingtalk_corp_ext_listlabelgroups_response']['result'])
         return data
 
+    def get_all_label_groups(self):
+        """
+        获取全部的外部联系人标签
+        :return:
+        """
+        size = 100
+        offset = 0
+        label_groups = []
+        while True:
+            # 钉钉接口存在Bug，偏移量已经超出数据数量时，仍会返回数据
+            # 对此需要做特殊处理，今后如此Bug被修复，可以简化代码实现
+            # 返回的数据是否重复
+            valid_data = False
+            # 获取钉钉的接口数据
+            dd_label_groups = self.get_label_groups(size, offset)
+            # 对数据进行循环，整理
+            for dd_label_group in dd_label_groups:
+                for label in dd_label_group['labels']:
+                    label_group = {'color': dd_label_group['color'],
+                                   'group': dd_label_group['name'],
+                                   'name': label['name'],
+                                   'id': label['id']}
+                    if label_group not in label_groups:
+                        label_groups.append(label_group)
+                        valid_data = True
+            # 当已经查询不到有效的新数据时，停止请求接口
+            if valid_data is False:
+                break
+        return label_groups
+
     def get_ext_list(self, size=20, offset=0):
         """
         获取外部联系人

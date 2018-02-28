@@ -511,7 +511,7 @@ class DingTalkTestCase(unittest.TestCase):
         获取企业下的自定义空间
         :return:
         """
-        data = self.app.smartwork.get_custom_space()
+        data = self.app.file.get_custom_space()
         assert data
         space_id = self.app.space_id
         assert space_id
