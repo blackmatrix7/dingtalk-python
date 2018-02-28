@@ -115,7 +115,7 @@ class BaseDingTalkApp:
         在缓存中设置access token 7000秒过期，每次过期会自动重新获取 access token
         :return:
         """
-        self.auth.get_access_token()
+        return self.auth.get_access_token()
 
     def refresh_access_token(self, time_out=7000):
         """
