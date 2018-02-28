@@ -7,21 +7,11 @@
 # @File : customers.py
 # @Software: PyCharm
 import json
-from .foundation import call_dingtalk_webapi, dingtalk_resp
+from dingtalk.foundation import call_dingtalk_webapi, dingtalk_resp
 
 __author__ = 'blackmatrix'
 
-
-@dingtalk_resp
-def get_label_groups(access_token, size=20, offset=0):
-    """
-    获取标签列表
-    :param access_token:
-    :param size:
-    :param offset:
-    :return:
-    """
-    return call_dingtalk_webapi(access_token, 'dingtalk.corp.ext.listlabelgroups', 'GET', size=size, offset=offset)
+__all__ = ['get_corp_ext_list', 'add_corp_ext']
 
 
 @dingtalk_resp

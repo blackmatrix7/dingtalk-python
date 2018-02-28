@@ -6,19 +6,18 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : __init__.py.py
 # @Software: PyCharm
-import json
 import logging
-from functools import wraps
-from operator import methodcaller
 from .auth import Auth
 from .file import File
-from .callback import register_callback, get_callback_failed_result, update_callback
+from functools import wraps
 from .contact import Contact
-from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
+from .message import Message
+from .customer import Customer
+from .smartwork import SmartWork
+from operator import methodcaller
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
-from .message import Message
-from .smartwork import SmartWork
+from .callback import register_callback, get_callback_failed_result, update_callback
 
 __author__ = 'blackmatrix'
 
@@ -107,6 +106,7 @@ class DingTalkApp:
         self.contact = Contact(self.access_token)
         self.message = Message(self.access_token, self.agent_id)
         self.file = File(self.access_token, self.domain, self.agent_id)
+        self.customer = Customer(self.access_token)
 
     @property
     def methods(self):
@@ -327,9 +327,7 @@ class DingTalkApp:
         :param offset:
         :return:
         """
-        resp = get_label_groups(access_token=self.access_token, size=size, offset=offset)
-        data = json.loads(resp['dingtalk_corp_ext_listlabelgroups_response']['result'])
-        return data
+        return self.customer.get_label_groups(size=size, offset=offset)
 
     def get_all_label_groups(self):
         """
@@ -367,26 +365,15 @@ class DingTalkApp:
         获取外部联系人
         :return:
         """
-        resp = get_corp_ext_list(self.access_token, size=size, offset=offset)
-        result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
-        return result
+        return self.customer.get_ext_list(size=size, offset=offset)
 
+    @dingtalk('dingtalk.corp.ext.all')
     def get_all_ext_list(self):
         """
         获取全部的外部联系人
         :return:
         """
-        size = 100
-        offset = 0
-        dd_customer_list = []
-        while True:
-            dd_customers = self.get_ext_list(size=size, offset=offset)
-            if len(dd_customers) <= 0:
-                break
-            else:
-                dd_customer_list.extend(dd_customers)
-                offset += size
-        return dd_customer_list
+        return self.customer.get_all_ext_list()
 
     @dingtalk('dingtalk.corp.ext.add')
     def add_corp_ext(self, contact_info):
@@ -394,9 +381,7 @@ class DingTalkApp:
         获取外部联系人
         :return:
         """
-        # TODO 增加外部联系人时，钉钉一直返回"系统错误"四个字，原因不明
-        resp = add_corp_ext(self.access_token, contact_info)
-        return resp
+        return self.customer.add_corp_ext(contact_info=contact_info)
 
     @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
     def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers,
