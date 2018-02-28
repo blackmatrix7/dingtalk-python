@@ -248,48 +248,54 @@ class DingTalkTestCase(unittest.TestCase):
         assert self.app.access_token
         # 测试错误的情况，错误的msgtype
         try:
-            data = self.app.async_send_msg(msgtype='text2', userid_list=self.user_ids,
-                                           msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+            data = self.app.message.async_send_msg(msgtype='text2', userid_list=self.user_ids,
+                                                   msgcontent={
+                                                       'content': '现在为您报时，北京时间 {}'.format(
+                                                           datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                                   })
             assert data
         except BaseException as ex:
             assert '不合法的消息类型' in str(ex)
         # 测试正确的情况，避免频繁发送消息，通常不运行此测试
-        data = self.app.async_send_msg(msgtype='text', userid_list=self.user_ids,
-                                       msgcontent={'content': '现在为您报时，北京时间 {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))})
+        data = self.app.message.async_send_msg(msgtype='text', userid_list=self.user_ids,
+                                               msgcontent={
+                                                   'content': '现在为您报时，北京时间 {}'.format(
+                                                       datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                               })
         assert data
         task_id = data['task_id']
         # 获取发送进度
-        result = self.app.get_msg_send_progress(task_id)
+        result = self.app.message.get_msg_send_progress(task_id)
         assert result
         sleep(5)
         result = self.app.get_msg_send_result(task_id=task_id)
         assert result
         # 测试link消息
-        data = self.app.async_send_msg(msgtype='link', userid_list=self.user_ids,
-                                       msgcontent={
-                                           "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
-                                           "picUrl": "@lALOACZwe2Rk",
-                                           "title": "测试",
-                                           "text": "测试"
-                                       })
+        data = self.app.message.async_send_msg(msgtype='link', userid_list=self.user_ids,
+                                               msgcontent={
+                                                   "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+                                                   "picUrl": "@lALOACZwe2Rk",
+                                                   "title": "现在为您报时",
+                                                   "text": "北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                               })
         assert data
         # 测试发送ActionCard
-        data = self.app.async_send_msg(msgtype='action_card', userid_list=self.user_ids,
-                                       msgcontent={
-                                           "title": "是透出到会话列表和通知的文案",
-                                           "markdown": "支持markdown格式的正文内容",
-                                           "btn_orientation": "1",
-                                           "btn_json_list": [
-                                               {
-                                                   "title": "一个按钮",
-                                                   "action_url": "https://www.taobao.com"
-                                               },
-                                               {
-                                                   "title": "两个按钮",
-                                                   "action_url": "https://www.tmall.com"
-                                               }
-                                           ]
-                                       })
+        data = self.app.message.async_send_msg(msgtype='action_card', userid_list=self.user_ids,
+                                               msgcontent={
+                                                   "title": "现在为您报时，北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
+                                                   "markdown": "支持markdown格式的正文内容",
+                                                   "btn_orientation": "1",
+                                                   "btn_json_list": [
+                                                       {
+                                                           "title": "一个按钮",
+                                                           "action_url": "https://www.taobao.com"
+                                                       },
+                                                       {
+                                                           "title": "两个按钮",
+                                                           "action_url": "https://www.tmall.com"
+                                                       }
+                                                   ]
+                                               })
         assert data
 
     # 测试获取用户信息

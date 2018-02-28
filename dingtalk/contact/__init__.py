@@ -80,6 +80,15 @@ class Contact:
         data = get_user_departments(self.access_token, userid)
         return data
 
+    def get_user_by_code(self, code: str):
+        """
+        通过jsapi传入的code，向钉钉服务器换取用户信息
+        :param code:
+        :return:
+        """
+        data = get_user_by_code(self.access_token, code)
+        return data
+
     # ------------------- 部门管理部分 -------------------
 
     def get_department_list(self, id_=None):

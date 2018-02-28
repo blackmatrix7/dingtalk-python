@@ -7,10 +7,12 @@
 # @File : messages.py
 # @Software: PyCharm
 import json
-from .foundation import *
+from dingtalk.foundation import *
 from json import JSONDecodeError
 
 __author__ = 'blackmatrix'
+
+__all__ = ['async_send_msg', 'get_msg_send_result', 'get_msg_send_progress']
 
 
 @dingtalk_resp

@@ -13,12 +13,12 @@ from operator import methodcaller
 from time import sleep
 from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .callback import register_callback, get_callback_failed_result, update_callback
+from .contact import Contact
 from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
-from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
 from .smartwork import SmartWork
-from .contact import Contact
+from .message import Message
 from .space import *
 
 __author__ = 'blackmatrix'
@@ -104,6 +104,7 @@ class DingTalkApp:
         # 钉钉接口模块
         self.smartwork = SmartWork(self.access_token, self.agent_id)
         self.contact = Contact(self.access_token)
+        self.message = Message(self.access_token, self.agent_id)
 
     @property
     def methods(self):
@@ -343,8 +344,7 @@ class DingTalkApp:
         :param code:
         :return:
         """
-        data = get_user_by_code(self.access_token, code)
-        return data
+        return self.contact.get_user_by_code(code)
 
     def get_department_list(self, id_=None):
         """
@@ -539,12 +539,7 @@ class DingTalkApp:
         :param to_all_user: 是否全员发送（全员发送有次数限制）
         :return:
         """
-        resp = async_send_msg(access_token=self.access_token, agent_id=self.agent_id, msgtype=msgtype,
-                              userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
-                              msgcontent=msgcontent)
-        return {'request_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['request_id'],
-                'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id'],
-                'success': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['success']}
+        return self.message.async_send_msg(msgtype, msgcontent, userid_list, dept_id_list, to_all_user)
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
@@ -556,11 +551,7 @@ class DingTalkApp:
         :param agent_id: 应用id
         :return:
         """
-        agent_id = agent_id or self.agent_id
-        resp = get_msg_send_result(self.access_token, agent_id, task_id)
-        return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['request_id'],
-                'send_result': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['send_result'],
-                'success': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['success']}
+        return self.message.get_msg_send_result(task_id, agent_id)
 
     @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
     def get_msg_send_progress(self, task_id, agent_id=None):
@@ -572,11 +563,7 @@ class DingTalkApp:
         :param agent_id: 应用id
         :return:
         """
-        agent_id = agent_id or self.agent_id
-        resp = get_msg_send_progress(self.access_token, agent_id, task_id)
-        return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['request_id'],
-                'progress': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['progress'],
-                'success': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['success']}
+        return self.message.get_msg_send_progress(task_id, agent_id)
 
     @dingtalk('dingtalk.corp.role.list')
     def get_corp_role_list(self, size=20, offset=0):
