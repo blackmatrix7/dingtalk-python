@@ -219,19 +219,19 @@ class DingTalkTestCase(unittest.TestCase):
         """
         assert self.app.access_token
         start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
-        data = self.app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                                               start_time=start_time)
+        data = self.app.smartwork.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                                                         start_time=start_time)
         assert data
         # 测试错误情况，传入一个不存在的process_code
-        data = self.app.get_bpms_instance_list(process_code='PROC-XXXXXXXX-XXXXXXXX-XXXXXXX-X',
-                                               start_time=start_time)
+        data = self.app.smartwork.get_bpms_instance_list(process_code='PROC-XXXXXXXX-XXXXXXXX-XXXXXXX-X',
+                                                         start_time=start_time)
         assert len(data['instance_list']) == 0
 
     # 获取全部工作流实例
     def test_all_bpms_list(self):
         start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
-        data = self.app.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
-                                                   start_time=start_time)
+        data = self.app.smartwork.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
+                                                             start_time=start_time)
         assert data is not None
 
     # 测试钉钉实例绑定的方法
@@ -525,5 +525,13 @@ class DingTalkTestCase(unittest.TestCase):
         check_data_from = check_data_to - delta
         data = self.app.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
         assert data
+        # 测试时间超过7天，抛出异常
+        delta = timedelta(days=8)
+        check_data_from = check_data_to - delta
+        try:
+            data = self.app.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
+            assert data
+        except DingTalkException as ex:
+            assert '时间跨度不能超过7天' in str(ex)
 
 

@@ -8,20 +8,22 @@
 # @Software: PyCharm
 import json
 import logging
-from .space import *
-from time import sleep
-from .contacts import *
-from functools import wraps
 from datetime import datetime
+from functools import wraps
 from operator import methodcaller
+from time import sleep
+
+from dingtalk.smartwork.attends import get_schedule_list, get_simple_groups, get_attendance_record_list
+from dingtalk.smartwork.workflow import create_bpms_instance, get_bpms_instance_list
+from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
+from .callback import register_callback, get_callback_failed_result, update_callback
+from .contacts import *
+from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
 from .exceptions import DingTalkExceptions
 from .foundation import get_timestamp, retry
-from .workflow import create_bpms_instance, get_bpms_instance_list
-from .customers import get_corp_ext_list, add_corp_ext, get_label_groups
-from .auth import get_access_token, get_jsapi_ticket, generate_jsapi_signature
 from .messages import async_send_msg, get_msg_send_result, get_msg_send_progress
-from .callback import register_callback, get_callback_failed_result, update_callback
-from .smartwork import get_schedule_list, get_simple_groups, get_attendance_record_list
+from .space import *
+from .smartwork import SmartWork
 
 __author__ = 'blackmatrix'
 
@@ -80,7 +82,7 @@ class DingTalkApp:
                  noncestr=None, domain=None, callback_url=None, aes_key=None,
                  token=None):
         """
-
+        实例化钉钉对象
         :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
         :param session_manager: 钉钉的会话管理对象
         :param corp_id: 钉钉的Corp Id，管理员可从后台获得
@@ -103,6 +105,8 @@ class DingTalkApp:
         self.token = token or 'LnPxMAp7doy'
         self.domain = domain or 'A2UOM1pZOxQ'
         self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
+        # 钉钉接口模块
+        self.smartwork = SmartWork(self.access_token)
 
     @property
     def methods(self):
@@ -522,7 +526,7 @@ class DingTalkApp:
     @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
         """
-
+        获取审批实例
         :param process_code:
         :param start_time:
         :param end_time:
@@ -530,13 +534,7 @@ class DingTalkApp:
         :param cursor:
         :return:
         """
-        data = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
-        instance_list = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result']['list'].get('process_instance_top_vo', [])
-        next_cursor = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result'].get('next_cursor', 0)
-        return {'request_id': data['dingtalk_smartwork_bpms_processinstance_list_response']['request_id'],
-                'success': data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['success'],
-                'instance_list': instance_list,
-                'next_cursor': next_cursor}
+        return self.smartwork.get_bpms_instance_list(process_code, start_time, end_time, size, cursor)
 
     def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
         """
@@ -546,23 +544,7 @@ class DingTalkApp:
         :param end_time: 结束时间，如果不传，默认当前时间
         :return:
         """
-        now = datetime.now()
-        end_time = end_time or now
-        if start_time > now or start_time > end_time:
-            raise DingTalkExceptions.timestamp_err('起始时间不能晚于当前时间或结束时间')
-        size = 10
-        cursor = 0
-        bpms_instance_list = []
-        request_id = {}
-        while True:
-            result = self.get_bpms_instance_list(process_code, start_time, end_time=end_time, size=size, cursor=cursor)
-            request_id.update({result['request_id']: {'success': result['success']}})
-            bpms_instance_list.extend(result['instance_list'])
-            if result['next_cursor'] > 0:
-                cursor = result['next_cursor']
-            else:
-                break
-        return {'request_id': request_id, 'bpms_instance_list': bpms_instance_list}
+        return self.smartwork.get_all_bpms_instance_list(process_code, start_time, end_time)
 
     @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):

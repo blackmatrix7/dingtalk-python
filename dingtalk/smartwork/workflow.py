@@ -7,7 +7,7 @@
 # @File : workflow.py
 # @Software: PyCharm
 import json
-from .foundation import *
+from dingtalk.foundation import *
 from datetime import datetime
 from json import JSONDecodeError
 
@@ -23,7 +23,7 @@ def create_bpms_instance(access_token, process_code, originator_user_id,
     """
     发起审批实例
     :param access_token:
-    :param process_code: 
+    :param process_code:
     :param originator_user_id: 流程发起人id
     :param dept_id: 流程发起人所在部门id，如果流程发起人不属于此部门，会出现异常
     :param approvers: 审批人，传入一个列表，会依次审批
