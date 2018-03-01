@@ -8,15 +8,31 @@
 import json
 from .ext import *
 from .label import *
+from functools import wraps
 
 __author__ = 'blackmatrix'
+
+METHODS = {}
+
+
+def dingtalk(method_name):
+    def wrapper(func):
+        METHODS.update({method_name: func.__name__})
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
 
 
 class Customer:
 
     def __init__(self, access_token):
         self.access_token = access_token
+        self.methods = METHODS
 
+    @dingtalk('dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):
         """
         获取系统标签

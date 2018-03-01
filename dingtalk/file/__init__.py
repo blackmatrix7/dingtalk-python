@@ -6,8 +6,22 @@
 # @File: __init__.py
 # @Software: PyCharm
 from .space import *
+from functools import wraps
 
 __author__ = 'blackmatrix'
+
+METHODS = {}
+
+
+def dingtalk(method_name):
+    def wrapper(func):
+        METHODS.update({method_name: func.__name__})
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
 
 
 class File:
@@ -16,6 +30,7 @@ class File:
         self.access_token = access_token
         self.domain = domain
         self.agent_id = agent_id
+        self.methods = METHODS
 
     def get_custom_space(self):
         """

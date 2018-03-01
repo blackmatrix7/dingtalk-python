@@ -20,12 +20,10 @@ from .callback import register_callback, get_callback_failed_result, update_call
 
 __author__ = 'blackmatrix'
 
-METHODS = {}
-
 
 def dingtalk(method_name):
     def wrapper(func):
-        METHODS.update({method_name: func.__name__})
+        # METHODS.update({method_name: func.__name__})
 
         @wraps(func)
         def _wrapper(*args, **kwargs):
@@ -91,6 +89,7 @@ class BaseDingTalkApp:
         :param aes_key: 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
         :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
         """
+        # 钉钉配置
         self.name = name
         self.cache = session_manager
         self.corp_id = corp_id
@@ -105,10 +104,15 @@ class BaseDingTalkApp:
         # 钉钉接口模块
         # 鉴权模块需要先创建，否则后续其他模块的实例化会出现异常
         self.auth = Auth(name=self.name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret)
+        # 注册接口方法，为通过run方式调用提供支持
+        self.register_methods(auth=self.auth)
+        # 其他参数
+        self.methods = {}
 
-    @property
-    def methods(self):
-        return METHODS
+    def register_methods(self, **modules):
+        for module_name, module_obj in modules.items():
+            for method_name, func_name in module_obj.methods.items():
+                self.methods.update({method_name: {'module': module_name, 'func': func_name}})
 
     def get_access_token(self):
         """
@@ -177,11 +181,15 @@ class BaseDingTalkApp:
         :param kwargs:
         :return:
         """
-        func_name = METHODS.get(method_name)
-        if func_name is None:
+        try:
+            method_cfg = self.methods.get(method_name)
+            module_name = method_cfg.get('module')
+            func_name = method_cfg.get('func')
+            module_ = getattr(self, module_name)
+            f = methodcaller(func_name, *args, **kwargs)
+            return f(module_)
+        except AttributeError:
             raise AttributeError('没有找到对应的方法，可能是方法名有误，或dingtalk-python暂未实现此方法。')
-        f = methodcaller(func_name, *args, **kwargs)
-        return f(self)
 
 
 class HistoryMehtodsMixin:
@@ -508,7 +516,7 @@ class HistoryMehtodsMixin:
                                                          check_data_to=check_data_to)
 
 
-class DingTalkApp(BaseDingTalkApp, HistoryMehtodsMixin):
+class DingTalkApp(BaseDingTalkApp):
 
     def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
                  noncestr=None, domain=None, callback_url=None, aes_key=None,
@@ -548,6 +556,9 @@ class DingTalkApp(BaseDingTalkApp, HistoryMehtodsMixin):
         self.message = Message(self.access_token, self.agent_id)
         self.file = File(self.access_token, self.domain, self.agent_id)
         self.customer = Customer(self.access_token)
+        # 注册接口方法，为通过run方式调用提供支持
+        self.register_methods(smartwork=self.smartwork, contact=self.contact, message=self.message,
+                              file=self.file, customer=self.customer)
 
     @property
     def space_id(self):

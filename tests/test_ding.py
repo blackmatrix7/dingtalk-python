@@ -40,6 +40,7 @@ class DingTalkTestCase(unittest.TestCase):
         self.create_bpms = False  # 流程创建开关
         self.user_operator = False  # 用户操作开关
         self.dept_operator = False  # 部门操作开关
+        self.get_call_back_result = False  # 获取回调结果
 
     # 获取 access token
     def test_get_access_token(self):
@@ -55,8 +56,8 @@ class DingTalkTestCase(unittest.TestCase):
     def test_get_label_groups(self):
         label_groups = self.app.customer.get_label_groups()
         assert label_groups
-        # label_groups = self.app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
-        # assert label_groups
+        label_groups = self.app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
+        assert label_groups
         all_label_groups = self.app.customer.get_all_label_groups()
         assert all_label_groups
 
@@ -495,8 +496,8 @@ class DingTalkTestCase(unittest.TestCase):
         所以默认情况下不执行此单元测试
         :return:
         """
-        assert self.app.access_token
-        # self.app.get_call_back_failed_result()
+        if self.get_call_back_result:
+            self.app.get_call_back_failed_result()
 
     def test_app_decrypt_encrypt(self):
         plaintext = json.dumps('success')
@@ -504,7 +505,7 @@ class DingTalkTestCase(unittest.TestCase):
         new_plaintext, new_key, new_buf = self.app.decrypt(ciphertext)
         assert plaintext == new_plaintext
 
-    def test_get_all_user_list(self):
+    def test_get_all_users(self):
         """
         测试获取全公司员工
         :return:

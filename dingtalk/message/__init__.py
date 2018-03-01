@@ -6,8 +6,22 @@
 # @File: __init__.py
 # @Software: PyCharm
 from .conversation import *
+from functools import wraps
 
 __author__ = 'blackmatrix'
+
+METHODS = {}
+
+
+def dingtalk(method_name):
+    def wrapper(func):
+        METHODS.update({method_name: func.__name__})
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
 
 
 class Message:
@@ -15,6 +29,7 @@ class Message:
     def __init__(self, access_token, agent_id):
         self.access_token = access_token
         self.agent_id = agent_id
+        self.methods = METHODS
 
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
         """

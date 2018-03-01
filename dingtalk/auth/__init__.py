@@ -9,8 +9,22 @@ import logging
 from .token import *
 from .ticket import *
 from time import sleep
+from functools import wraps
 
 __author__ = 'blackmatrix'
+
+METHODS = {}
+
+
+def dingtalk(method_name):
+    def wrapper(func):
+        METHODS.update({method_name: func.__name__})
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
 
 
 class Auth:
@@ -20,6 +34,7 @@ class Auth:
         self.corp_id = corp_id
         self.corp_secret = corp_secret
         self.session_manager = session_manager
+        self.methods = METHODS
 
     def get_access_token(self):
         """

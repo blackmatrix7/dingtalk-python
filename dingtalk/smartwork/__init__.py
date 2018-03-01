@@ -6,6 +6,7 @@
 # @File: __init__.py
 # @Software: PyCharm
 from .workflow import *
+from functools import wraps
 from datetime import datetime
 from ..exceptions import DingTalkExceptions
 from .attends import get_attendance_record_list, get_simple_groups, get_schedule_list
@@ -13,11 +14,26 @@ from .attends import get_attendance_record_list, get_simple_groups, get_schedule
 __author__ = 'blackmatrix'
 
 
+METHODS = {}
+
+
+def dingtalk(method_name):
+    def wrapper(func):
+        METHODS.update({method_name: func.__name__})
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
+
+
 class SmartWork:
 
     def __init__(self, access_token, agent_id=None):
         self.access_token = access_token
         self.agent_id = agent_id
+        self.methods = METHODS
 
     def get_schedule_list(self, work_date, offset=0, size=200):
         """

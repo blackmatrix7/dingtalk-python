@@ -8,17 +8,38 @@
 from .user import *
 from .dept import *
 from .role import *
+from functools import wraps
 
 __author__ = 'blackmatrix'
+
+
+METHODS = {}
+
+
+def dingtalk(method_name):
+    def wrapper(func):
+        METHODS.update({method_name: func.__name__})
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
 
 
 class Contact:
 
     def __init__(self, access_token):
         self.access_token = access_token
+        self.methods = METHODS
+
+    def register_methods(self, obj):
+        for method, func in self.methods.items():
+            self.methods.update({method: '{}.{}'.format(obj, func.__name__)})
 
     # ------------------- 员工管理部分 -------------------
 
+    @dingtalk('test_func')
     def get_user(self, user_id):
         user_info = get_user(self.access_token, user_id)
         return user_info
