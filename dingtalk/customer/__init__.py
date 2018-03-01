@@ -74,6 +74,7 @@ class Customer:
                 break
         return label_groups
 
+    @dingtalk('dingtalk.corp.ext.list')
     def get_ext_list(self, size=20, offset=0):
         """
         获取外部联系人
@@ -83,6 +84,7 @@ class Customer:
         result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
         return result
 
+    @dingtalk('dingtalk.corp.ext.all')
     def get_all_ext_list(self):
         """
         获取全部的外部联系人

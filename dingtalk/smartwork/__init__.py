@@ -82,6 +82,7 @@ class SmartWork:
         # 钉钉接口返回的数据没有request_id 2018.02.28
         return result
 
+    @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
         """
 
@@ -100,6 +101,7 @@ class SmartWork:
                 'instance_list': instance_list,
                 'next_cursor': next_cursor}
 
+    @dingtalk('dingtalk.smartwork.bpms.processinstance.all')
     def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
         """
         获取"全部"审批实例
@@ -126,6 +128,7 @@ class SmartWork:
                 break
         return {'request_id': request_id, 'bpms_instance_list': bpms_instance_list}
 
+    @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
     def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers,
                              form_component_values, agent_id=None, cc_list=None, cc_position='FINISH'):
         """

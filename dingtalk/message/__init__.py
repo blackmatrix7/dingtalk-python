@@ -31,6 +31,7 @@ class Message:
         self.agent_id = agent_id
         self.methods = METHODS
 
+    @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
         """
         异步发送消息
@@ -52,6 +53,7 @@ class Message:
                 'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id'],
                 'success': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['success']}
 
+    @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
         """
         获取消息发送结果
@@ -67,6 +69,7 @@ class Message:
                 'send_result': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['send_result'],
                 'success': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['success']}
 
+    @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
     def get_msg_send_progress(self, task_id, agent_id=None):
         """
         获取企业发送消息进度

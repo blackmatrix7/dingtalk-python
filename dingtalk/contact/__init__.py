@@ -173,6 +173,7 @@ class Contact:
 
     # ------------------- 角色管理部分 -------------------
 
+    @dingtalk('dingtalk.corp.role.list')
     def get_corp_role_list(self, size=20, offset=0):
         """
         获取企业角色列表（分页）
@@ -192,6 +193,7 @@ class Contact:
                 role_group['roles'] = role_group.pop('roles').pop('roles')
             return role_groups
 
+    @dingtalk('dingtalk.corp.role.all')
     def get_all_corp_role_list(self):
         """
         获取全部企业角色列表
@@ -210,6 +212,7 @@ class Contact:
                 offset += size
         return dd_role_list
 
+    @dingtalk('dingtalk.corp.role.simplelist')
     def get_role_simple_list(self, role_id, size=20, offset=0):
         """
         获取角色的员工列表
@@ -225,6 +228,7 @@ class Contact:
         if user_list and 'emp_simple_list' in user_list:
             return user_list['emp_simple_list']
 
+    @dingtalk('dingtalk.corp.role.getrolegroup')
     def get_role_group(self, group_id):
         """
         该接口通过group_id参数可以获取该角色组详细信息以及下面所有关联的角色的信息
