@@ -8,23 +8,15 @@
 from .user import *
 from .dept import *
 from .role import *
-from functools import wraps
+from functools import partial
+from ..foundation import dingtalk_method
 
 __author__ = 'blackmatrix'
 
 
 METHODS = {}
 
-
-def dingtalk(method_name):
-    def wrapper(func):
-        METHODS.update({method_name: func.__name__})
-
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return _wrapper
-    return wrapper
+method = partial(dingtalk_method, methods=METHODS)
 
 
 class Contact:
@@ -33,13 +25,8 @@ class Contact:
         self.access_token = access_token
         self.methods = METHODS
 
-    def register_methods(self, obj):
-        for method, func in self.methods.items():
-            self.methods.update({method: '{}.{}'.format(obj, func.__name__)})
-
     # ------------------- 员工管理部分 -------------------
 
-    @dingtalk('test_func')
     def get_user(self, user_id):
         user_info = get_user(self.access_token, user_id)
         return user_info
@@ -173,7 +160,7 @@ class Contact:
 
     # ------------------- 角色管理部分 -------------------
 
-    @dingtalk('dingtalk.corp.role.list')
+    @method('dingtalk.corp.role.list')
     def get_corp_role_list(self, size=20, offset=0):
         """
         获取企业角色列表（分页）
@@ -193,7 +180,7 @@ class Contact:
                 role_group['roles'] = role_group.pop('roles').pop('roles')
             return role_groups
 
-    @dingtalk('dingtalk.corp.role.all')
+    @method('dingtalk.corp.role.all')
     def get_all_corp_role_list(self):
         """
         获取全部企业角色列表
@@ -212,7 +199,7 @@ class Contact:
                 offset += size
         return dd_role_list
 
-    @dingtalk('dingtalk.corp.role.simplelist')
+    @method('dingtalk.corp.role.simplelist')
     def get_role_simple_list(self, role_id, size=20, offset=0):
         """
         获取角色的员工列表
@@ -228,7 +215,7 @@ class Contact:
         if user_list and 'emp_simple_list' in user_list:
             return user_list['emp_simple_list']
 
-    @dingtalk('dingtalk.corp.role.getrolegroup')
+    @method('dingtalk.corp.role.getrolegroup')
     def get_role_group(self, group_id):
         """
         该接口通过group_id参数可以获取该角色组详细信息以及下面所有关联的角色的信息
@@ -240,4 +227,3 @@ class Contact:
         """
         data = get_role_group(self.access_token, group_id=group_id)
         return data
-

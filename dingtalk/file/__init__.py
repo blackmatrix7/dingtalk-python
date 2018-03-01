@@ -6,22 +6,14 @@
 # @File: __init__.py
 # @Software: PyCharm
 from .space import *
-from functools import wraps
+from functools import partial
+from ..foundation import dingtalk_method
 
 __author__ = 'blackmatrix'
 
 METHODS = {}
 
-
-def dingtalk(method_name):
-    def wrapper(func):
-        METHODS.update({method_name: func.__name__})
-
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return _wrapper
-    return wrapper
+method = partial(dingtalk_method, methods=METHODS)
 
 
 class File:

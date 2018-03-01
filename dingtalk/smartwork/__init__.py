@@ -6,8 +6,9 @@
 # @File: __init__.py
 # @Software: PyCharm
 from .workflow import *
-from functools import wraps
+from functools import partial
 from datetime import datetime
+from ..foundation import dingtalk_method
 from ..exceptions import DingTalkExceptions
 from .attends import get_attendance_record_list, get_simple_groups, get_schedule_list
 
@@ -16,16 +17,7 @@ __author__ = 'blackmatrix'
 
 METHODS = {}
 
-
-def dingtalk(method_name):
-    def wrapper(func):
-        METHODS.update({method_name: func.__name__})
-
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return _wrapper
-    return wrapper
+method = partial(dingtalk_method, methods=METHODS)
 
 
 class SmartWork:
@@ -82,7 +74,7 @@ class SmartWork:
         # 钉钉接口返回的数据没有request_id 2018.02.28
         return result
 
-    @dingtalk('dingtalk.smartwork.bpms.processinstance.list')
+    @method('dingtalk.smartwork.bpms.processinstance.list')
     def get_bpms_instance_list(self, process_code, start_time, end_time=None, size=10, cursor=0):
         """
 
@@ -101,7 +93,7 @@ class SmartWork:
                 'instance_list': instance_list,
                 'next_cursor': next_cursor}
 
-    @dingtalk('dingtalk.smartwork.bpms.processinstance.all')
+    @method('dingtalk.smartwork.bpms.processinstance.all')
     def get_all_bpms_instance_list(self, process_code, start_time, end_time=None):
         """
         获取"全部"审批实例
@@ -128,7 +120,7 @@ class SmartWork:
                 break
         return {'request_id': request_id, 'bpms_instance_list': bpms_instance_list}
 
-    @dingtalk('dingtalk.smartwork.bpms.processinstance.create')
+    @method('dingtalk.smartwork.bpms.processinstance.create')
     def create_bpms_instance(self, process_code, originator_user_id, dept_id, approvers,
                              form_component_values, agent_id=None, cc_list=None, cc_position='FINISH'):
         """
