@@ -18,6 +18,8 @@ requests==2.18.4
 redis==2.10.6
 # 或
 python3-memcached==1.51
+# 或
+pymysql==0.8.0
 ```
 
 在python的环境中执行：
@@ -123,16 +125,37 @@ app = DingTalkApp(name='test', session_manager=session_manager,
 
 ### 调用接口示例
 
-直接在app实例中，调用对应的方法即可，不需要传入公共参数部分，公共参数部分会自动补充。
+不同的功能分布在app实例不同的子模块中，目前支持以下子模块的部分接口：
+
+| 模块名       | 说明                     |
+| --------- | ---------------------- |
+| auth      | 钉钉鉴权模块，所有子模块的基础        |
+| smartwork | 智能办公模块，含有考勤和流程等接口      |
+| contact   | 企业内部通讯录子模块             |
+| message   | 企业通知及消息子模块             |
+| file      | 文件相关子模块，目前主要用于钉盘       |
+| customer  | 外部联系人子模块               |
+| callback  | 回调接口子模块，另外还含有加密解密部分的功能 |
+
+直接在app实例中，通过不同的子模块，调用对应的方法即可，不需要传入公共参数部分，公共参数部分会自动补充。
 
 ```python
 # 获取钉钉后台定义的外部联系人标签
-label_groups = app.get_label_groups()
+label_groups = app.customer.get_label_groups()
 # 获取审批实例
 start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
 # 以下皆是模拟数据
-data = app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IFWS3', 
+data = app.smartwork.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IFWS3', 
                                   start_time=start_time)
+```
+
+比较特别是鉴权子模块，既可以通过子模块调用，也可以通过app实例直接调用。
+
+```Python
+# 获取access token
+app.auth.get_access_token()
+# 以下的方法也是等价的
+app.get_access_token()
 ```
 
 同时，提供可以通过钉钉的接口方法名直接调用方法的途径，便于和钉钉的接口文档对应。
@@ -141,22 +164,35 @@ data = app.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1M
 # 通过run()方法，传入钉钉的接口方法名，及业务参数(不含公共参数部分)
 data = app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
 # 上面的方法等同于
-data = app.get_label_groups(size=20, offset=0)
+data = app.customer.get_label_groups(size=20, offset=0)
 ```
 
 这种方式仅限于钉钉本身提供了方法名，一些钉钉本身未提供方法名的情况下，不适用此方法。
 
-如果一定要使用run的形式调用，可以在`dingtalk/__init__.py`的实现中，以装饰器的形式，给对应的方法加上一个方法名。
+如果一定要使用run的形式调用，可以在每个模块的类对象中，以装饰器的形式，给对应的方法加上一个方法名。
 
 ```python
-@dingtalk('dingtalk.corp.ext.list')
-def get_ext_list(self, size=20, offset=0):
+@method('dingtalk.corp.ext.all')
+def get_all_ext_list(self):
     """
-    获取外部联系人
-    :return:
-    """
-    resp = get_corp_ext_list(self.access_token, size=size, offset=offset)
-    result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
-    return result
+        获取全部的外部联系人
+        :return:
+        """
+    size = 100
+    offset = 0
+    dd_customer_list = []
+    while True:
+        dd_customers = self.get_ext_list(size=size, offset=offset)
+        if len(dd_customers) <= 0:
+            break
+            else:
+                dd_customer_list.extend(dd_customers)
+                offset += size
+                return dd_customer_list
 ```
 
+例如上面的“dingtalk.corp.ext.all”方法，钉钉本身是没有这个方法名的，通过method装饰器，给函数加上一个方法名后，就可以通过`app.run('dingtalk.corp.ext.all')`的方式调用。
+
+## 已实现的接口
+
+等待有空来整理
