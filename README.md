@@ -176,7 +176,6 @@ data = app.customer.get_label_groups(size=20, offset=0)
 def get_all_ext_list(self):
     """
     获取全部的外部联系人，方法实现省略
-    :return:
     """
     pass
 ```
