@@ -8,13 +8,14 @@
 # @Software: PyCharm
 import json
 import unittest
-from time import sleep
-from dingtalk.crypto import *
-from dingtalk import DingTalkApp
-from config import current_config
-from extensions import session_manager
 from datetime import datetime, timedelta
+from time import sleep
+
+from config import current_config
+from dingtalk import DingTalkApp
+from dingtalk.callback.crypto import *
 from dingtalk.exceptions import DingTalkException
+from extensions import session_manager
 
 __author__ = 'blackmatrix'
 
@@ -497,12 +498,12 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         if self.get_call_back_result:
-            self.app.get_call_back_failed_result()
+            self.app.callback.get_call_back_failed_result()
 
     def test_app_decrypt_encrypt(self):
         plaintext = json.dumps('success')
-        ciphertext = self.app.encrypt(plaintext)
-        new_plaintext, new_key, new_buf = self.app.decrypt(ciphertext)
+        ciphertext = self.app.callback.encrypt(plaintext)
+        new_plaintext, new_key, new_buf = self.app.callback.decrypt(ciphertext)
         assert plaintext == new_plaintext
 
     def test_get_all_users(self):
@@ -546,4 +547,3 @@ class DingTalkTestCase(unittest.TestCase):
             assert data
         except DingTalkException as ex:
             assert '时间跨度不能超过7天' in str(ex)
-

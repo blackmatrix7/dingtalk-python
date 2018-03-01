@@ -6,16 +6,18 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : __init__.py
 # @Software: PyCharm
-from .auth import Auth
-from .file import File
-from .contact import Contact
-from .message import Message
-from .customer import Customer
-from .smartwork import SmartWork
 from operator import methodcaller
-from .exceptions import DingTalkExceptions
-from .foundation import get_timestamp, retry
+
+from .auth import Auth
 from .callback import register_callback, get_callback_failed_result, update_callback
+from .contact import Contact
+from .customer import Customer
+from .exceptions import DingTalkExceptions
+from .file import File
+from .callback import CallBack
+from .foundation import get_timestamp, retry
+from .message import Message
+from .smartwork import SmartWork
 
 __author__ = 'blackmatrix'
 
@@ -183,8 +185,9 @@ class BaseDingTalkApp:
 class DingTalkApp(BaseDingTalkApp):
 
     def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
-                 noncestr=None, domain=None, callback_url=None, aes_key=None,
-                 token=None):
+                 noncestr='VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy', domain='A2UOM1pZOxQ',
+                 callback_url=None, aes_key='gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI',
+                 token='LnPxMAp7doy'):
         """
         实例化钉钉对象
         :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
@@ -205,10 +208,10 @@ class DingTalkApp(BaseDingTalkApp):
         self.agent_id = agent_id
         self.callback_url = callback_url
         # AES_KEY
-        self.aes_key = aes_key or 'gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI'
-        self.token = token or 'LnPxMAp7doy'
-        self.domain = domain or 'A2UOM1pZOxQ'
-        self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
+        self.aes_key = aes_key
+        self.token = token
+        self.domain = domain
+        self.noncestr = noncestr
         # 调用超类的初始化方法，主要用于实现钉钉鉴权
         # 鉴权模块需要先创建，否则后续其他模块的实例化会出现异常
         super().__init__(name=name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret,
@@ -220,6 +223,8 @@ class DingTalkApp(BaseDingTalkApp):
         self.message = Message(self.access_token, self.agent_id)
         self.file = File(self.access_token, self.domain, self.agent_id)
         self.customer = Customer(self.access_token)
+        self.callback = CallBack(self.access_token, self.aes_key, self.token,
+                                 self.callback_url, self.corp_id, self.noncestr)
         # 注册接口方法，为通过run方式调用提供支持
         self.register_methods(smartwork=self.smartwork, contact=self.contact, message=self.message,
                               file=self.file, customer=self.customer)
@@ -233,152 +238,3 @@ class DingTalkApp(BaseDingTalkApp):
         """
         data = self.file.get_custom_space()
         return data['space_id']
-
-    def register_callback(self, callback_tag):
-        """
-        向钉钉注册回调接口，只能注册一次，后续需要修改，请调用更新回调接口
-        注册回调前需要在初始化DingTalk App时传入aes_key和callback_url
-        其中callback_url必须返回经过加密的字符串“success”的json数据
-        可以使用return_success()方法直接返回一个符合要求的json格式。
-        :param callback_tag:
-        :return:
-        """
-        if self.aes_key is None or self.callback_url is None:
-            raise RuntimeError('注册回调前需要在初始化DingTalk App时传入aes_key和callback_url')
-        data = register_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
-        return data
-
-    def update_callback(self, callback_tag):
-        """
-        向钉钉更新回调接口
-        只能在注册回调接口后使用
-        :param callback_tag:
-        :return:
-        """
-        if self.aes_key is None or self.callback_url is None:
-            raise RuntimeError('更新回调前需要在初始化DingTalk App时传入aes_key和callback_url')
-        data = update_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
-        return data
-
-    def encrypt(self, plaintext, buf=None):
-        """
-        钉钉加密数据
-        :param plaintext: 明文
-        :param buf:
-        :return:
-        """
-        if self.aes_key is None:
-            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from .crypto import encrypt
-        ciphertext = encrypt(aes_key=self.aes_key, plaintext=plaintext, key=self.corp_id, buf=buf)
-        return ciphertext
-
-    def encrypt_text(self, plaintext: str):
-        """
-        对纯文本进行加密
-        :param plaintext: 明文
-        :return:
-        """
-        if self.aes_key is None:
-            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from .crypto import encrypt_text
-        ciphertext = encrypt_text(aes_key=self.aes_key, plaintext=plaintext)
-        return ciphertext
-
-    def decrypt(self, ciphertext: str):
-        """
-        钉钉解密数据
-        :param ciphertext: 密文
-        :return:
-        """
-        if self.aes_key is None:
-            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from .crypto import decrypt
-        msg, key, buf = decrypt(self.aes_key, ciphertext)
-        return msg, key, buf
-
-    def decrypt_text(self, ciphertext: str):
-        """
-        对纯文本进行解密
-        :param ciphertext: 密文
-        :return:
-        """
-        if self.aes_key is None:
-            raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from .crypto import decrypt_text
-        temp = decrypt_text(self.aes_key, ciphertext)
-        return temp
-
-    def generate_callback_signature(self, data, timestamp, nonce):
-        """
-        创建回调函数的签名，可以用于验证钉钉回调时，传入的签名是否合法
-        :param data:
-        :param timestamp:
-        :param nonce:
-        :return:
-        """
-        from .crypto import generate_callback_signature
-        sign = generate_callback_signature(self.token, data, timestamp, nonce)
-        return sign
-
-    def check_callback_signature(self, signature, ciphertext, timestamp, nonce):
-        """
-        验证钉钉回调接口的签名
-        算法请访问
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7386797.0.0.EkauZY&source=search&treeId=366&articleId=107524&docType=1
-        :param signature: 需要验证的签名
-        :param ciphertext: 加密后的数据
-        :param timestamp: 时间戳
-        :param nonce: 随机字符串
-        :return:
-        """
-        from .crypto import check_callback_signature
-        return check_callback_signature(self.token, ciphertext, signature, timestamp, nonce)
-
-    def get_call_back_failed_result(self):
-        """
-        获取处理失败的钉钉回调
-        :return:
-        """
-        data = get_callback_failed_result(self.access_token)
-        return data['failed_list']
-
-    def return_success(self):
-        """
-        钉钉回调需要返回含有success的json，提供一个方法，快速返回一个符合钉钉要求的success json
-        :return:
-        """
-        # 加密success数据
-        encrypt = self.encrypt('success').decode()
-        # 创建时间戳
-        timestamp = str(self.timestamp)
-        # 获取随机字符串
-        nonce = self.noncestr
-        # 创建签名
-        signature = self.generate_callback_signature(encrypt, timestamp, nonce)
-        # 返回结果
-        return {'msg_signature': signature, 'timeStamp': timestamp, 'nonce': nonce, 'encrypt': encrypt}
-
-    def check_url(self, ding_nonce, ding_sign, ding_timestamp, ding_encrypt):
-        """
-        一个钉钉注册回调的check_url方法
-        文档：
-        https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.x75fVY&treeId=385&articleId=104975&docType=1#s12
-        :param ding_nonce: 钉钉返回的随机字符串
-        :param ding_sign: 钉钉返回的签名
-        :param ding_timestamp: 钉钉返回的时间戳
-        :param ding_encrypt: 钉钉返回的加密后数据
-        :return: 返回带success的json
-        """
-        # 验证签名
-        if self.check_callback_signature(ding_sign, ding_encrypt, ding_timestamp, ding_nonce) is False:
-            raise DingTalkExceptions.sign_err
-        # 签名验证成功后，解密数据
-        ding_data, corp_id, buf = self.decrypt(ding_encrypt)
-        assert ding_data and corp_id and buf
-        # 返回结果
-        result = self.return_success()
-        return result
-
-if __name__ == '__main__':
-    pass

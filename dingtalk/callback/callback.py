@@ -6,12 +6,13 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : callback.py
 # @Software: PyCharm
-import base64
 import requests
-from .configs import *
-from .foundation import dingtalk_resp
+from dingtalk.configs import *
+from dingtalk.foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'
+
+__all__ = ['register_callback', 'update_callback', 'get_callback_failed_result']
 
 
 @dingtalk_resp
