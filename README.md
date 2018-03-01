@@ -175,9 +175,9 @@ data = app.customer.get_label_groups(size=20, offset=0)
 @method('dingtalk.corp.ext.all')
 def get_all_ext_list(self):
     """
-        获取全部的外部联系人
-        :return:
-        """
+    获取全部的外部联系人
+    :return:
+    """
     size = 100
     offset = 0
     dd_customer_list = []
