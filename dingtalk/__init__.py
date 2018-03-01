@@ -6,18 +6,16 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : __init__.py
 # @Software: PyCharm
-from operator import methodcaller
 
 from .auth import Auth
-from .callback import register_callback, get_callback_failed_result, update_callback
-from .contact import Contact
-from .customer import Customer
-from .exceptions import DingTalkExceptions
 from .file import File
-from .callback import CallBack
-from .foundation import get_timestamp, retry
+from .contact import Contact
 from .message import Message
+from .customer import Customer
+from .callback import CallBack
 from .smartwork import SmartWork
+from operator import methodcaller
+from .exceptions import DingTalkExceptions
 
 __author__ = 'blackmatrix'
 
