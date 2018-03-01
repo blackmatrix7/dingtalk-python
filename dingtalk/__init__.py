@@ -57,15 +57,12 @@ class SessionManager:
         raise NotImplementedError
 
 
-class BaseDingTalkApp:
-
-    """
-    钉钉超类，鉴权模块在此处进行实例化
-    """
+class DingTalkApp:
 
     def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
-                 noncestr=None, domain=None, callback_url=None, aes_key=None,
-                 token=None):
+                 noncestr='VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy', domain='A2UOM1pZOxQ',
+                 callback_url=None, aes_key='gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI',
+                 token='LnPxMAp7doy'):
         """
         实例化钉钉对象
         :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
@@ -79,7 +76,6 @@ class BaseDingTalkApp:
         :param aes_key: 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
         :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
         """
-        # 钉钉配置
         self.name = name
         self.cache = session_manager
         self.corp_id = corp_id
@@ -87,22 +83,64 @@ class BaseDingTalkApp:
         self.agent_id = agent_id
         self.callback_url = callback_url
         # AES_KEY
-        self.aes_key = aes_key or 'gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI'
-        self.token = token or 'LnPxMAp7doy'
-        self.domain = domain or 'A2UOM1pZOxQ'
-        self.noncestr = noncestr or 'VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy'
+        self.aes_key = aes_key
+        self.token = token
+        self.domain = domain
+        self.noncestr = noncestr
+        # 其他参数
+        self.methods = {}
         # 钉钉接口模块
-        # 鉴权模块需要先创建，否则后续其他模块的实例化会出现异常
+        # 鉴权模块需要先实例化，否则后续其他模块的实例化会出现异常
         self.auth = Auth(name=self.name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret)
         # 注册接口方法，为通过run方式调用提供支持
         self.register_methods(auth=self.auth)
-        # 其他参数
-        self.methods = {}
+        # 其他模块
+        self.smartwork = SmartWork(self.access_token, self.agent_id)
+        self.contact = Contact(self.access_token)
+        self.message = Message(self.access_token, self.agent_id)
+        self.file = File(self.access_token, self.domain, self.agent_id)
+        self.customer = Customer(self.access_token)
+        self.callback = CallBack(self.access_token, self.aes_key, self.token,
+                                 self.callback_url, self.corp_id, self.noncestr)
+        self.register_methods(smartwork=self.smartwork, contact=self.contact, message=self.message,
+                              file=self.file, customer=self.customer)
+
+    # ------------------- 基础方法 --------------------
+
+    @property
+    def timestamp(self):
+        return get_timestamp()
+
+    def run(self, method_name, *args, **kwargs):
+        """
+        传入方法名和参数，直接调用指定的钉钉接口，参数只需要传入钉钉的请求参数部分；
+        不需要传入钉钉的公共参数部分，公共参数会自动补完。
+        例如，需要调用"获取外部联系人标签"的接口，伪代码：
+        # 实例化一个DingTalk App
+        app = DingTalkApp(.....)
+        # 传入需要调用的接口方法名及参数，返回接口调用结果
+        data = app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
+        :param method_name:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        try:
+            method_cfg = self.methods.get(method_name)
+            module_name = method_cfg.get('module')
+            func_name = method_cfg.get('func')
+            module_ = getattr(self, module_name)
+            f = methodcaller(func_name, *args, **kwargs)
+            return f(module_)
+        except AttributeError:
+            raise AttributeError('没有找到对应的方法，可能是方法名有误，或dingtalk-python暂未实现此方法。')
 
     def register_methods(self, **modules):
         for module_name, module_obj in modules.items():
             for method_name, func_name in module_obj.methods.items():
                 self.methods.update({method_name: {'module': module_name, 'func': func_name}})
+
+    # ------------------- 鉴权部分允许通过子模块访问 --------------------
 
     def get_access_token(self):
         """
@@ -111,16 +149,16 @@ class BaseDingTalkApp:
         """
         return self.auth.get_access_token()
 
+    @property
+    def access_token(self):
+        return self.auth.get_access_token()
+
     def refresh_access_token(self, time_out=7000):
         """
         刷新access_token
         :return:
         """
         return self.auth.refresh_access_token(time_out=time_out)
-
-    @property
-    def access_token(self):
-        return self.auth.get_access_token()
 
     def get_jsapi_ticket(self):
         """
@@ -153,81 +191,7 @@ class BaseDingTalkApp:
         """
         return self.auth.jsapi_signature(jsapi_ticket, noncestr, timestamp, url)
 
-    @property
-    def timestamp(self):
-        return get_timestamp()
-
-    def run(self, method_name, *args, **kwargs):
-        """
-        传入方法名和参数，直接调用指定的钉钉接口，参数只需要传入钉钉的请求参数部分；
-        不需要传入钉钉的公共参数部分，公共参数会自动补完。
-        例如，需要调用"获取外部联系人标签"的接口，伪代码：
-        # 实例化一个DingTalk App
-        app = DingTalkApp(.....)
-        # 传入需要调用的接口方法名及参数，返回接口调用结果
-        data = app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
-        :param method_name:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        try:
-            method_cfg = self.methods.get(method_name)
-            module_name = method_cfg.get('module')
-            func_name = method_cfg.get('func')
-            module_ = getattr(self, module_name)
-            f = methodcaller(func_name, *args, **kwargs)
-            return f(module_)
-        except AttributeError:
-            raise AttributeError('没有找到对应的方法，可能是方法名有误，或dingtalk-python暂未实现此方法。')
-
-
-class DingTalkApp(BaseDingTalkApp):
-
-    def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
-                 noncestr='VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy', domain='A2UOM1pZOxQ',
-                 callback_url=None, aes_key='gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI',
-                 token='LnPxMAp7doy'):
-        """
-        实例化钉钉对象
-        :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
-        :param session_manager: 钉钉的会话管理对象
-        :param corp_id: 钉钉的Corp Id，管理员可从后台获得
-        :param corp_secret: 钉钉的Corp Secret，管理员可从后台获得
-        :param agent_id: 钉钉的Agent Id，每个微应用有独立的agent_id，管理员可从后台获得
-        :param noncestr: 随机字符串
-        :param domain: 域名，可传入随机字符串
-        :param callback_url: 回调函数地址，回调函数必须符合check_url方法的要求
-        :param aes_key: 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
-        :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
-        """
-        self.name = name
-        self.cache = session_manager
-        self.corp_id = corp_id
-        self.corp_secret = corp_secret
-        self.agent_id = agent_id
-        self.callback_url = callback_url
-        # AES_KEY
-        self.aes_key = aes_key
-        self.token = token
-        self.domain = domain
-        self.noncestr = noncestr
-        # 调用超类的初始化方法，主要用于实现钉钉鉴权
-        # 鉴权模块需要先创建，否则后续其他模块的实例化会出现异常
-        super().__init__(name=name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret,
-                         agent_id=agent_id, noncestr=noncestr, domain=domain, callback_url=callback_url,
-                         aes_key=aes_key, token=token)
-        # 钉钉接口模块
-        self.smartwork = SmartWork(self.access_token, self.agent_id)
-        self.contact = Contact(self.access_token)
-        self.message = Message(self.access_token, self.agent_id)
-        self.file = File(self.access_token, self.domain, self.agent_id)
-        self.customer = Customer(self.access_token)
-        self.callback = CallBack(self.access_token, self.aes_key, self.token,
-                                 self.callback_url, self.corp_id, self.noncestr)
-        # 注册接口方法，为通过run方式调用提供支持
-        self.register_methods(smartwork=self.smartwork, contact=self.contact, message=self.message,
-                              file=self.file, customer=self.customer)
+    # ------------------- 钉盘配置 --------------------
 
     @property
     def space_id(self):
