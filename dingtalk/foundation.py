@@ -143,6 +143,14 @@ def dingtalk_method(method_name, methods):
 
 
 def dingtalk_resp(func):
+    """
+    处理钉钉直接返回的结果，将钉钉返回的异常信息，转换成python的异常
+    目前经过分析，暂时设置4种异常判断规则
+    如钉钉返回的信息中，有其他的异常格式，需要对此进行维护，添加判断规则
+    此装饰器要求函数返回requests的response
+    :param func:
+    :return:
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         resp = func(*args, **kwargs)

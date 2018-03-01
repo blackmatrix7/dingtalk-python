@@ -64,7 +64,7 @@ class DingTalkExceptions:
     dingtalk_resp_err = DingTalkException(err_code=3003, err_msg='钉钉接口返回错误')
     # 钉钉接口参数不合法
     webapi_args_err = DingTalkException(err_code=3004, err_msg='钉钉接口参数不合法')
-    # 钉钉接口参数不合法
+    # 签名验证失败
     sign_err = DingTalkException(err_code=3005, err_msg='签名验证失败')
     # 钉钉接口参数不合法
     timestamp_err = DingTalkException(err_code=3006, err_msg='时间戳错误')
