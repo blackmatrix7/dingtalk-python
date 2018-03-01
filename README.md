@@ -178,7 +178,7 @@ def get_all_ext_list(self):
     获取全部的外部联系人，方法实现省略
     :return:
     """
-	pass
+    pass
 ```
 
 例如上面的“dingtalk.corp.ext.all”方法，钉钉本身是没有这个方法名的，通过method装饰器，给函数加上一个方法名后，就可以通过`app.run('dingtalk.corp.ext.all')`的方式调用。
