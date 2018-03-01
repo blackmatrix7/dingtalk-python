@@ -272,7 +272,7 @@ class DingTalkTestCase(unittest.TestCase):
         # 测试link消息
         data = self.app.async_send_msg(msgtype='link', userid_list=user_ids,
                                        msgcontent={
-                                           "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+                                           "messageUrl": "http://s.dingtalk.com/market/dingtalk_method/error_code.php",
                                            "picUrl": "@lALOACZwe2Rk",
                                            "title": "测试",
                                            "text": "测试"

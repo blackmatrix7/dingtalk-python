@@ -131,6 +131,17 @@ def dingtalk_unpack_result(result):
         return result
 
 
+def dingtalk_method(method_name, methods):
+    def wrapper(func):
+        methods.update({method_name: func.__name__})
+
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return _wrapper
+    return wrapper
+
+
 def dingtalk_resp(func):
     @wraps(func)
     def wrapper(*args, **kwargs):

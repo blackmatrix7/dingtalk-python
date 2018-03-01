@@ -279,7 +279,7 @@ class DingTalkTestCase(unittest.TestCase):
             # 测试link消息
             data = self.app.message.async_send_msg(msgtype='link', userid_list=self.user_ids,
                                                    msgcontent={
-                                                       "messageUrl": "http://s.dingtalk.com/market/dingtalk/error_code.php",
+                                                       "messageUrl": "http://s.dingtalk.com/market/dingtalk_method/error_code.php",
                                                        "picUrl": "@lALOACZwe2Rk",
                                                        "title": "现在为您报时",
                                                        "text": "北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))

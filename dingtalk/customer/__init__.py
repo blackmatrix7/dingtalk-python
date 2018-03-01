@@ -8,22 +8,14 @@
 import json
 from .ext import *
 from .label import *
-from functools import wraps
+from functools import partial
+from ..foundation import dingtalk_method
 
 __author__ = 'blackmatrix'
 
 METHODS = {}
 
-
-def dingtalk(method_name):
-    def wrapper(func):
-        METHODS.update({method_name: func.__name__})
-
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return _wrapper
-    return wrapper
+method = partial(dingtalk_method, methods=METHODS)
 
 
 class Customer:
@@ -32,7 +24,7 @@ class Customer:
         self.access_token = access_token
         self.methods = METHODS
 
-    @dingtalk('dingtalk.corp.ext.listlabelgroups')
+    @method(method_name='dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):
         """
         获取系统标签
@@ -61,11 +53,11 @@ class Customer:
             dd_label_groups = self.get_label_groups(size, offset)
             # 对数据进行循环，整理
             for dd_label_group in dd_label_groups:
-                for label in dd_label_group['labels']:
+                for dd_label in dd_label_group['labels']:
                     label_group = {'color': dd_label_group['color'],
                                    'group': dd_label_group['name'],
-                                   'name': label['name'],
-                                   'id': label['id']}
+                                   'name': dd_label['name'],
+                                   'id': dd_label['id']}
                     if label_group not in label_groups:
                         label_groups.append(label_group)
                         valid_data = True
@@ -74,7 +66,7 @@ class Customer:
                 break
         return label_groups
 
-    @dingtalk('dingtalk.corp.ext.list')
+    @method('dingtalk.corp.ext.list')
     def get_ext_list(self, size=20, offset=0):
         """
         获取外部联系人
@@ -84,7 +76,7 @@ class Customer:
         result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
         return result
 
-    @dingtalk('dingtalk.corp.ext.all')
+    @method('dingtalk.corp.ext.all')
     def get_all_ext_list(self):
         """
         获取全部的外部联系人
@@ -110,6 +102,3 @@ class Customer:
         # TODO 增加外部联系人时，钉钉一直返回"系统错误"四个字，原因不明
         resp = add_corp_ext(self.access_token, contact_info)
         return resp
-
-if __name__ == '__main__':
-    pass

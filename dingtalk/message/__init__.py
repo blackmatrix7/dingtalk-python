@@ -6,32 +6,25 @@
 # @File: __init__.py
 # @Software: PyCharm
 from .conversation import *
-from functools import wraps
+from functools import partial
+from ..foundation import dingtalk_method
 
 __author__ = 'blackmatrix'
 
 METHODS = {}
 
-
-def dingtalk(method_name):
-    def wrapper(func):
-        METHODS.update({method_name: func.__name__})
-
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return _wrapper
-    return wrapper
+method = partial(dingtalk_method, methods=METHODS)
 
 
 class Message:
 
+    methods = {}
+
     def __init__(self, access_token, agent_id):
         self.access_token = access_token
         self.agent_id = agent_id
-        self.methods = METHODS
 
-    @dingtalk('dingtalk.corp.message.corpconversation.asyncsend')
+    @method('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):
         """
         异步发送消息
@@ -53,7 +46,7 @@ class Message:
                 'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id'],
                 'success': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['success']}
 
-    @dingtalk('dingtalk.corp.message.corpconversation.getsendresult')
+    @method(method_name='dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
         """
         获取消息发送结果
@@ -69,7 +62,7 @@ class Message:
                 'send_result': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['send_result'],
                 'success': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['success']}
 
-    @dingtalk('dingtalk.corp.message.corpconversation.getsendprogress')
+    @method(method_name='dingtalk.corp.message.corpconversation.getsendprogress')
     def get_msg_send_progress(self, task_id, agent_id=None):
         """
         获取企业发送消息进度
