@@ -271,6 +271,7 @@ class DingTalkTestCase(unittest.TestCase):
                                                    })
             assert data
             task_id = data['task_id']
+            sleep(5)
             # 获取发送进度
             result = self.app.message.get_msg_send_progress(task_id)
             assert result
