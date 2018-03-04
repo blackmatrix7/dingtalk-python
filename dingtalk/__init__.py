@@ -15,6 +15,7 @@ from .customer import Customer
 from .callback import CallBack
 from .smartwork import SmartWork
 from operator import methodcaller
+from .foundation import get_timestamp
 from .exceptions import DingTalkExceptions
 
 __author__ = 'blackmatrix'
