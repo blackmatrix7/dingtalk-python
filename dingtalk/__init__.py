@@ -6,13 +6,12 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : __init__.py
 # @Software: PyCharm
-
+import logging
 from .auth import Auth
 from .file import File
 from .contact import Contact
 from .message import Message
 from .customer import Customer
-from .callback import CallBack
 from .smartwork import SmartWork
 from operator import methodcaller
 from .foundation import get_timestamp
@@ -99,8 +98,14 @@ class DingTalkApp:
         self.message = Message(self.access_token, self.agent_id)
         self.file = File(self.access_token, self.domain, self.agent_id)
         self.customer = Customer(self.access_token)
-        self.callback = CallBack(self.access_token, self.aes_key, self.token,
-                                 self.callback_url, self.corp_id, self.noncestr)
+        # 忽略回调模块加载异常的情况，仅输出异常日志
+        # 主要考虑到windows下安装pycrypto比较繁琐
+        try:
+            from .callback import CallBack
+            self.callback = CallBack(self.access_token, self.aes_key, self.token,
+                                     self.callback_url, self.corp_id, self.noncestr)
+        except BaseException as ex:
+            logging.error(ex)
         self.register_methods(smartwork=self.smartwork, contact=self.contact, message=self.message,
                               file=self.file, customer=self.customer)
 
