@@ -21,7 +21,7 @@ method = partial(dingtalk_method, methods=METHODS)
 class Customer:
 
     def __init__(self, auth):
-        self.access_token = auth.access_token
+        self.auth = auth
         self.methods = METHODS
 
     @method(method_name='dingtalk.corp.ext.listlabelgroups')
@@ -32,7 +32,7 @@ class Customer:
         :param offset:
         :return:
         """
-        resp = get_label_groups(access_token=self.access_token, size=size, offset=offset)
+        resp = get_label_groups(access_token=self.auth.access_token, size=size, offset=offset)
         data = json.loads(resp['dingtalk_corp_ext_listlabelgroups_response']['result'])
         return data
 
@@ -72,7 +72,7 @@ class Customer:
         获取外部联系人
         :return:
         """
-        resp = get_corp_ext_list(self.access_token, size=size, offset=offset)
+        resp = get_corp_ext_list(self.auth.access_token, size=size, offset=offset)
         result = json.loads(resp['dingtalk_corp_ext_list_response']['result'])
         return result
 
@@ -100,5 +100,5 @@ class Customer:
         :return:
         """
         # TODO 增加外部联系人时，钉钉一直返回"系统错误"四个字，原因不明
-        resp = add_corp_ext(self.access_token, contact_info)
+        resp = add_corp_ext(self.auth.access_token, contact_info)
         return resp

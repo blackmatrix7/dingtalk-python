@@ -21,7 +21,7 @@ class Message:
     methods = {}
 
     def __init__(self, auth, agent_id):
-        self.access_token = auth.access_token
+        self.auth = auth
         self.agent_id = agent_id
 
     @method('dingtalk.corp.message.corpconversation.asyncsend')

@@ -22,13 +22,13 @@ method = partial(dingtalk_method, methods=METHODS)
 class Contact:
 
     def __init__(self, auth):
-        self.access_token = auth.access_token
+        self.auth = auth
         self.methods = METHODS
 
     # ------------------- 员工管理部分 -------------------
 
     def get_user(self, user_id):
-        user_info = get_user(self.access_token, user_id)
+        user_info = get_user(self.auth.access_token, user_id)
         return user_info
 
     def get_user_list(self, department_id):
@@ -37,7 +37,7 @@ class Contact:
         :param department_id:
         :return:
         """
-        data = get_user_list(self.access_token, department_id)
+        data = get_user_list(self.auth.access_token, department_id)
         user_list = data['userlist']
         return user_list
 
@@ -60,7 +60,7 @@ class Contact:
         :param user_info:
         :return:
         """
-        result = create_user(self.access_token, **user_info)
+        result = create_user(self.auth.access_token, **user_info)
         return result
 
     def update_user(self, **user_info):
@@ -69,7 +69,7 @@ class Contact:
         :param user_info:
         :return:
         """
-        result = update_user(self.access_token, **user_info)
+        result = update_user(self.auth.access_token, **user_info)
         return result
 
     def delete_user(self, userid):
@@ -78,7 +78,7 @@ class Contact:
         :param userid:
         :return:
         """
-        result = delete_user(self.access_token, userid)
+        result = delete_user(self.auth.access_token, userid)
         return result
 
     def get_org_user_count(self, only_active):
@@ -87,7 +87,7 @@ class Contact:
         :param only_active: 0:非激活人员数量，1:已经激活人员数量
         :return:
         """
-        data = get_org_user_count(self.access_token, only_active)
+        data = get_org_user_count(self.auth.access_token, only_active)
         return data['count']
 
     def get_user_departments(self, userid):
@@ -98,7 +98,7 @@ class Contact:
         :param userid:
         :return:
         """
-        data = get_user_departments(self.access_token, userid)
+        data = get_user_departments(self.auth.access_token, userid)
         return data
 
     def get_user_by_code(self, code: str):
@@ -107,7 +107,7 @@ class Contact:
         :param code:
         :return:
         """
-        data = get_user_by_code(self.access_token, code)
+        data = get_user_by_code(self.auth.access_token, code)
         return data
 
     # ------------------- 部门管理部分 -------------------
@@ -118,7 +118,7 @@ class Contact:
         :param id_:
         :return:
         """
-        data = get_department_list(self.access_token, id_)
+        data = get_department_list(self.auth.access_token, id_)
         depart_list = data['department']
         return depart_list
 
@@ -128,7 +128,7 @@ class Contact:
         :param id_:
         :return:
         """
-        data = get_department(self.access_token, id_)
+        data = get_department(self.auth.access_token, id_)
         return data
 
     def create_department(self, **dept_info):
@@ -137,7 +137,7 @@ class Contact:
         :param dept_info:
         :return:
         """
-        data = create_department(self.access_token, **dept_info)
+        data = create_department(self.auth.access_token, **dept_info)
         return data['id']
 
     def update_department(self, **dept_info):
@@ -146,7 +146,7 @@ class Contact:
         :param dept_info:
         :return:
         """
-        data = update_department(self.access_token, **dept_info)
+        data = update_department(self.auth.access_token, **dept_info)
         return data['id']
 
     def delete_department(self, id_):
@@ -155,7 +155,7 @@ class Contact:
         :param id_:
         :return:
         """
-        data = delete_department(self.access_token, id_)
+        data = delete_department(self.auth.access_token, id_)
         return data
 
     # ------------------- 角色管理部分 -------------------
@@ -169,7 +169,7 @@ class Contact:
         :param offset:
         :return:
         """
-        resp = get_corp_role_list(self.access_token, size=size, offset=offset)
+        resp = get_corp_role_list(self.auth.access_token, size=size, offset=offset)
         data = resp['dingtalk_corp_role_list_response']['result']['list']
         if data.get('role_groups') is None:
             return None
@@ -209,7 +209,7 @@ class Contact:
         :param offset:
         :return:
         """
-        data = get_role_simple_list(self.access_token, role_id=role_id, size=size, offset=offset)
+        data = get_role_simple_list(self.auth.access_token, role_id=role_id, size=size, offset=offset)
         # 返回的数据格式，嵌套这么多层，不累吗？
         user_list = data['dingtalk_corp_role_simplelist_response']['result']['list']
         if user_list and 'emp_simple_list' in user_list:
@@ -225,5 +225,5 @@ class Contact:
         :param group_id:
         :return:
         """
-        data = get_role_group(self.access_token, group_id=group_id)
+        data = get_role_group(self.auth.access_token, group_id=group_id)
         return data

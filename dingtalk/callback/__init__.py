@@ -21,7 +21,7 @@ method = partial(dingtalk_method, methods=METHODS)
 class CallBack:
 
     def __init__(self, auth, aes_key, token, callback_url, corp_id, noncestr):
-        self.access_token = auth.access_token
+        self.auth = auth
         self.methods = METHODS
         self.aes_key = aes_key
         self.token = token
@@ -93,7 +93,7 @@ class CallBack:
         """
         if self.aes_key is None or self.callback_url is None:
             raise RuntimeError('注册回调前需要在初始化DingTalk App时传入aes_key和callback_url')
-        data = register_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
+        data = register_callback(self.auth.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
         return data
 
     def update_callback(self, callback_tag):
@@ -105,7 +105,7 @@ class CallBack:
         """
         if self.aes_key is None or self.callback_url is None:
             raise RuntimeError('更新回调前需要在初始化DingTalk App时传入aes_key和callback_url')
-        data = update_callback(self.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
+        data = update_callback(self.auth.access_token, self.token, callback_tag, self.aes_key, self.callback_url)
         return data
 
     def get_call_back_failed_result(self):
@@ -113,7 +113,7 @@ class CallBack:
         获取处理失败的钉钉回调
         :return:
         """
-        data = get_callback_failed_result(self.access_token)
+        data = get_callback_failed_result(self.auth.access_token)
         return data['failed_list']
 
     def generate_callback_signature(self, data, timestamp, nonce):

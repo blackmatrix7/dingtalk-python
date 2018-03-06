@@ -23,7 +23,7 @@ method = partial(dingtalk_method, methods=METHODS)
 class SmartWork:
 
     def __init__(self, auth, agent_id=None):
-        self.access_token = auth.access_token
+        self.auth = auth
         self.agent_id = agent_id
         self.methods = METHODS
 
@@ -40,7 +40,7 @@ class SmartWork:
             work_date = work_date.strftime('%Y-%m-%d %H:%M:%S')
         except AttributeError:
             pass
-        result = get_schedule_list(self.access_token, work_date, offset, size)
+        result = get_schedule_list(self.auth.access_token, work_date, offset, size)
         data = {
             'request_id': result['dingtalk_smartwork_attends_listschedule_response']['request_id'],
             'schedules': result['dingtalk_smartwork_attends_listschedule_response']['result']['result']['schedules']['at_schedule_for_top_vo'],
@@ -56,7 +56,7 @@ class SmartWork:
         :param size:
         :return:
         """
-        result = get_simple_groups(self.access_token, offset, size)
+        result = get_simple_groups(self.auth.access_token, offset, size)
         data = {'request_id': result['dingtalk_smartwork_attends_getsimplegroups_response']['request_id'],
                 'has_more': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['has_more'],
                 'groups': result['dingtalk_smartwork_attends_getsimplegroups_response']['result']['result']['groups']['at_group_for_top_vo']}
@@ -70,7 +70,7 @@ class SmartWork:
         :param check_data_to: 查询考勤打卡记录的结束工作日。注意，起始与结束工作日最多相隔7天
         :return:
         """
-        result = get_attendance_record_list(self.access_token, user_ids, check_data_from, check_data_to)
+        result = get_attendance_record_list(self.auth.access_token, user_ids, check_data_from, check_data_to)
         # 钉钉接口返回的数据没有request_id 2018.02.28
         return result
 
@@ -85,7 +85,7 @@ class SmartWork:
         :param cursor:
         :return:
         """
-        data = get_bpms_instance_list(self.access_token, process_code, start_time, end_time, size, cursor)
+        data = get_bpms_instance_list(self.auth.access_token, process_code, start_time, end_time, size, cursor)
         instance_list = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result']['list'].get('process_instance_top_vo', [])
         next_cursor = data['dingtalk_smartwork_bpms_processinstance_list_response']['result']['result'].get('next_cursor', 0)
         return {'request_id': data['dingtalk_smartwork_bpms_processinstance_list_response']['request_id'],
@@ -136,7 +136,7 @@ class SmartWork:
         :return:
         """
         agent_id = agent_id or self.agent_id
-        data = create_bpms_instance(self.access_token, process_code, originator_user_id,
+        data = create_bpms_instance(self.auth.access_token, process_code, originator_user_id,
                                     dept_id, approvers, form_component_values,
                                     agent_id, cc_list, cc_position)
         return {'request_id': data['dingtalk_smartwork_bpms_processinstance_create_response']['request_id'],

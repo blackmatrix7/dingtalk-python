@@ -19,7 +19,7 @@ method = partial(dingtalk_method, methods=METHODS)
 class File:
 
     def __init__(self, auth, domain, agent_id):
-        self.access_token = auth.access_token
+        self.auth = auth
         self.domain = domain
         self.agent_id = agent_id
         self.methods = METHODS
@@ -30,5 +30,5 @@ class File:
         https://open-doc.dingtalk.com/docs/doc.htm?spm=a219a.7629140.0.0.Fh7w2d&treeId=373&articleId=104970&docType=1#s2
         :return:
         """
-        data = get_custom_space(self.access_token, self.domain, self.agent_id)
+        data = get_custom_space(self.auth.access_token, self.domain, self.agent_id)
         return {'space_id': data['spaceid']}
