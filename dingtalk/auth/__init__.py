@@ -134,7 +134,7 @@ class Auth:
             # 请求新的jsapi ticket
             resp = get_jsapi_ticket(self.access_token)
             jaspi_ticket = resp['ticket']
-            logging.info('已向钉钉请求新的jsapi ticket：{}'.format(ticket))
+            logging.info('已向钉钉请求新的jsapi ticket：{}'.format(jaspi_ticket))
             # 将新的jsapi ticket写入缓存
             self.session_manager.set(jsapi_ticket_key, ticket, time_out)
             logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
