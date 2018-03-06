@@ -18,8 +18,8 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class File:
 
-    def __init__(self, access_token, domain, agent_id):
-        self.access_token = access_token
+    def __init__(self, auth, domain, agent_id):
+        self.access_token = auth.access_token
         self.domain = domain
         self.agent_id = agent_id
         self.methods = METHODS

@@ -22,8 +22,8 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class SmartWork:
 
-    def __init__(self, access_token, agent_id=None):
-        self.access_token = access_token
+    def __init__(self, auth, agent_id=None):
+        self.access_token = auth.access_token
         self.agent_id = agent_id
         self.methods = METHODS
 

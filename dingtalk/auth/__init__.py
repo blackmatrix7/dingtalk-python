@@ -110,6 +110,10 @@ class Auth:
         jsapi_ticket = _get_jsapi_ticket()
         return jsapi_ticket
 
+    @property
+    def jsapi_ticket(self):
+        return self.get_jsapi_ticket()
+
     def refresh_jsapi_ticket(self, time_out=3600):
         """
         强制刷新 jsapi ticket

@@ -88,21 +88,20 @@ class DingTalkApp:
         # 其他参数
         self.methods = {}
         # 钉钉接口模块
-        # 鉴权模块需要先实例化，否则后续其他模块的实例化会出现异常
         self.auth = Auth(name=self.name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret)
         # 注册接口方法，为通过run方式调用提供支持
         self.register_methods(auth=self.auth)
         # 其他模块
-        self.smartwork = SmartWork(self.access_token, self.agent_id)
-        self.contact = Contact(self.access_token)
-        self.message = Message(self.access_token, self.agent_id)
-        self.file = File(self.access_token, self.domain, self.agent_id)
-        self.customer = Customer(self.access_token)
+        self.smartwork = SmartWork(self.auth, self.agent_id)
+        self.contact = Contact(self.auth)
+        self.message = Message(self.auth, self.agent_id)
+        self.file = File(self.auth, self.domain, self.agent_id)
+        self.customer = Customer(self.auth)
         # 忽略回调模块加载异常的情况，仅输出异常日志
         # 主要考虑到windows下安装pycrypto比较繁琐
         try:
             from .callback import CallBack
-            self.callback = CallBack(self.access_token, self.aes_key, self.token,
+            self.callback = CallBack(self.auth, self.aes_key, self.token,
                                      self.callback_url, self.corp_id, self.noncestr)
         except BaseException as ex:
             logging.error(ex)

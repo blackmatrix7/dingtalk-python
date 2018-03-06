@@ -20,8 +20,8 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class Customer:
 
-    def __init__(self, access_token):
-        self.access_token = access_token
+    def __init__(self, auth):
+        self.access_token = auth.access_token
         self.methods = METHODS
 
     @method(method_name='dingtalk.corp.ext.listlabelgroups')

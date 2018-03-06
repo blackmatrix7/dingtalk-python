@@ -21,8 +21,8 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class Contact:
 
-    def __init__(self, access_token):
-        self.access_token = access_token
+    def __init__(self, auth):
+        self.access_token = auth.access_token
         self.methods = METHODS
 
     # ------------------- 员工管理部分 -------------------

@@ -20,8 +20,8 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class CallBack:
 
-    def __init__(self, access_token, aes_key, token, callback_url, corp_id, noncestr):
-        self.access_token = access_token
+    def __init__(self, auth, aes_key, token, callback_url, corp_id, noncestr):
+        self.access_token = auth.access_token
         self.methods = METHODS
         self.aes_key = aes_key
         self.token = token
