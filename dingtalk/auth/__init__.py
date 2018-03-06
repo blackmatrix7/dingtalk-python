@@ -136,14 +136,14 @@ class Auth:
             jaspi_ticket = resp['ticket']
             logging.info('已向钉钉请求新的jsapi ticket：{}'.format(jaspi_ticket))
             # 将新的jsapi ticket写入缓存
-            self.session_manager.set(jsapi_ticket_key, ticket, time_out)
-            logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, ticket, time_out))
+            self.session_manager.set(jsapi_ticket_key, jaspi_ticket, time_out)
+            logging.info('将jsapi ticket写入缓存{}：{}，过期时间{}秒'.format(jsapi_ticket_key, jaspi_ticket, time_out))
         except Exception as ex:
             # 出现异常时，清理全部jsapi ticket的相关缓存数据
             self.session_manager.delete(jsapi_ticket_key)
             logging.error('强制刷新jsapi ticket出现异常，清理jsapi ticket缓存。异常信息：{}'.format(str(ex)))
         finally:
-            # 解除jsticket的锁
+            # 解除jsapi ticket的锁
             logging.info('解除jsapi ticket的锁{}，其他调用者可以请求新的jsapi ticket'.format(ticket_lock_key))
             self.session_manager.delete(ticket_lock_key)
             return jaspi_ticket
