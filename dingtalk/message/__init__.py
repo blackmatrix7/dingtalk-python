@@ -39,7 +39,7 @@ class Message:
         :param to_all_user: 是否全员发送（全员发送有次数限制）
         :return:
         """
-        resp = async_send_msg(access_token=self.access_token, agent_id=self.agent_id, msgtype=msgtype,
+        resp = async_send_msg(access_token=self.auth.access_token, agent_id=self.agent_id, msgtype=msgtype,
                               userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
                               msgcontent=msgcontent)
         return {'request_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['request_id'],
@@ -57,7 +57,7 @@ class Message:
         :return:
         """
         agent_id = agent_id or self.agent_id
-        resp = get_msg_send_result(self.access_token, agent_id, task_id)
+        resp = get_msg_send_result(self.auth.access_token, agent_id, task_id)
         return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['request_id'],
                 'send_result': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['send_result'],
                 'success': resp['dingtalk_corp_message_corpconversation_getsendresult_response']['result']['success']}
@@ -73,7 +73,7 @@ class Message:
         :return:
         """
         agent_id = agent_id or self.agent_id
-        resp = get_msg_send_progress(self.access_token, agent_id, task_id)
+        resp = get_msg_send_progress(self.auth.access_token, agent_id, task_id)
         return {'request_id': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['request_id'],
                 'progress': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['progress'],
                 'success': resp['dingtalk_corp_message_corpconversation_getsendprogress_response']['result']['success']}
