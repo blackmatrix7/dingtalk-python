@@ -35,6 +35,7 @@ class Auth:
         """
         access_token = None
         access_token_key = '{}_access_token'.format(self.name)
+        logging.info('准备获取access token， access token key：{}'.format(access_token_key))
         try:
             if self.session_manager.get(access_token_key) is not None:
                 access_token = self.session_manager.get(access_token_key)
