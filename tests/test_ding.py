@@ -23,7 +23,7 @@ __author__ = 'blackmatrix'
 class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = DingTalkApp(name='vcan', session_manager=session_manager,
+        self.app = DingTalkApp(name='demo', session_manager=session_manager,
                                domain=current_config.DING_DOMAIN,
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
@@ -33,11 +33,11 @@ class DingTalkTestCase(unittest.TestCase):
         self.dept_list = self.app.contact.get_department_list()
         self.dept_ids = [dept['id'] for dept in self.dept_list]
         # 获取用户
-        self.user_list = self.app.contact.get_user_list(self.dept_ids[1])
+        self.user_list = self.app.contact.get_user_list(1)
         # 用户id
         self.user_ids = [user['userid'] for user in self.user_list]
         # 部分测试用例开关
-        self.async_send_msg = False  # 发送消息开关
+        self.async_send_msg = True  # 发送消息开关
         self.create_bpms = False  # 流程创建开关
         self.user_operator = False  # 用户操作开关
         self.dept_operator = False  # 部门操作开关
@@ -276,7 +276,7 @@ class DingTalkTestCase(unittest.TestCase):
             result = self.app.message.get_msg_send_progress(task_id)
             assert result
             sleep(5)
-            result = self.app.message.get_msg_send_result(task_id=task_id)
+            result = self.app.message.get_msg_send_result(task_id)
             assert result
             # 测试link消息
             data = self.app.message.async_send_msg(msgtype='link', userid_list=self.user_ids,
