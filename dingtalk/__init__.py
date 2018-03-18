@@ -656,14 +656,14 @@ class DingTalkApp:
         data = get_role_group(self.access_token, group_id=group_id)
         return data
 
-    def get_customer_space(self):
+    def get_custom_space(self):
         data = get_custom_space(self.access_token, self.domain, self.agent_id)
-        return data
+        return {'space_id': data['spaceid'], 'success': True}
 
     @property
     def space_id(self):
-        data = self.get_customer_space()
-        return data['spaceid']
+        data = self.get_custom_space()
+        return data['space_id']
 
     def register_callback(self, callback_tag):
         """

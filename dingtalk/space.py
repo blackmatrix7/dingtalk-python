@@ -15,8 +15,8 @@ __author__ = 'blackmatrix'
 
 @dingtalk_resp
 def get_custom_space(access_token, domain, agent_id):
-    params = {'access_token': access_token, 'domain': domain, 'agent_id': agent_id}
-    resp = requests.get(DING_GET_CSPACE, params=params)
+    url = DING_GET_CSPACE.format(access_token=access_token, domain=domain, agent_id=agent_id)
+    resp = requests.get(url)
     return resp
 
 
