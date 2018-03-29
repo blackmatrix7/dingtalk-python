@@ -116,13 +116,13 @@ class MySQLSessionManager(SessionManager):
             self.connection()
 
 # 钉钉会话管理，Mysql支持
-session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
-                                      user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
-                                      db=DING_SESSION_DB)
+# session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
+#                                       user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
+#                                       db=DING_SESSION_DB)
 
 # 钉钉会话管理，Memcached支持
-# from memcache import Client
-# session_manager = Client(current_config.CACHE_MEMCACHED_SERVERS)
+from memcache import Client
+session_manager = Client(current_config.CACHE_MEMCACHED_SERVERS)
 
 # 钉钉会话管理，Redis支持
 # import redis
