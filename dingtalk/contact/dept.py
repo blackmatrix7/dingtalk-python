@@ -13,6 +13,12 @@ __author__ = 'blackmatrix'
 
 
 @dingtalk_resp
+def get_department_id_list(access_token, dept_id=1):
+    params = {'access_token': access_token, 'id': dept_id}
+    return requests.get(DING_GET_DEPT_ID_LIST, params=params)
+
+
+@dingtalk_resp
 def get_department_list(access_token, id_=None, lang='zh_CN'):
     params = {'access_token': access_token, 'lang': lang}
     if id_:
