@@ -14,11 +14,11 @@ from ..foundation import dingtalk_resp, call_dingtalk_webapi
 __author__ = 'blackmatrix'
 
 __all__ = ['get_user', 'update_user', 'create_user', 'delete_user', 'get_user_by_code',
-           'get_user_list', 'get_user_departments', 'get_org_user_count']
+           'get_dept_user_list', 'get_user_departments', 'get_org_user_count']
 
 
 @dingtalk_resp
-def get_user_list(access_token, department_id, lang='zh_CN', offset=0, size=20, order='entry_asc'):
+def get_dept_user_list(access_token, department_id, lang='zh_CN', offset=0, size=100, order='entry_asc'):
     params = {'access_token': access_token, 'department_id': department_id, 'lang': lang, 'offset': offset,
               'size': size, 'order': order}
     return requests.get(DING_GET_USER_LIST, params=params)
