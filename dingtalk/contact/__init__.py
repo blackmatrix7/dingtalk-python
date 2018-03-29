@@ -31,28 +31,61 @@ class Contact:
         user_info = get_user(self.auth.access_token, user_id)
         return user_info
 
-    def get_user_list(self, department_id):
+    def get_dept_user_list(self, department_id):
         """
         根据部门id获取用户列表
+        每次请求最多返回100条数据，需要根据偏移量自行翻页
         :param department_id:
         :return:
         """
-        data = get_user_list(self.auth.access_token, department_id)
+        data = get_dept_user_list(self.auth.access_token, department_id)
         user_list = data['userlist']
         return user_list
 
-    def get_all_users(self):
+    def get_all_dept_user_list(self, department_id):
         """
-        获取整个组织架构下的所有员工
-        根据部门Id遍历获取
+        根据部门Id获取部门下的所有员工
+        会自动根据偏移量获取部门下全部的员工
+        :param department_id:
+        :return:
+        """
+        user_list = []
+
+        def _get_dept_user_list(offset, size):
+            data = get_dept_user_list(access_token=self.auth.access_token, department_id=department_id, offset=offset, size=size)
+            user_list.extend(data['userlist'])
+            if data['hasMore'] is True:
+                offset = len(user_list)
+                _get_dept_user_list(offset=offset, size=size)
+
+        _get_dept_user_list(0, 5)
+        return user_list
+
+    def get_all_org_users(self):
+        """
+        获取组织架构下的所有部门，及部门下所有员工
         :return:
         """
         dept_list = self.get_department_list()
         for _dept in dept_list:
             del _dept['autoAddUser']
             del _dept['createDeptGroup']
-            _dept['employees'] = self.get_user_list(_dept['id'])
+            _dept['employees'] = self.get_all_dept_user_list(_dept['id'])
         return dept_list
+
+    def get_all_users(self):
+        """
+        根据部门Id遍历获取整个组织架构下的所有员工
+        :return:
+        """
+        dept_id_list = self.get_all_department_id_list()
+        employee_list = []
+        for dept_id in dept_id_list:
+            dept_employee_list = self.get_all_dept_user_list(dept_id)
+            for employee in dept_employee_list:
+                if employee not in employee_list:
+                    employee_list.append(employee)
+        return employee_list
 
     def create_user(self, **user_info):
         """
@@ -111,6 +144,32 @@ class Contact:
         return data
 
     # ------------------- 部门管理部分 -------------------
+
+    def get_department_id_list(self, dept_id=1):
+        """
+        获取部门Id列表
+        :return:
+        """
+        data = get_department_id_list(access_token=self.auth.access_token, dept_id=dept_id)
+        dept_id_list = data['sub_dept_id_list']
+        return dept_id_list
+
+    def get_all_department_id_list(self):
+        """
+        递归获取当前企业所有的部门Id列表
+        :return:
+        """
+        all_dept_id_list = []
+
+        def get_sub_dept_id_list(dept_id=1):
+            sub_dept_id_list = self.get_department_id_list(dept_id)
+            if sub_dept_id_list:
+                all_dept_id_list.extend(sub_dept_id_list)
+                for sub_dept_id in sub_dept_id_list:
+                    get_sub_dept_id_list(sub_dept_id)
+
+        get_sub_dept_id_list()
+        return tuple(set(all_dept_id_list))
 
     def get_department_list(self, id_=None):
         """
