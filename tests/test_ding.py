@@ -23,7 +23,7 @@ __author__ = 'blackmatrix'
 class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.app = DingTalkApp(name='demo', session_manager=session_manager,
+        self.app = DingTalkApp(name='vcan', session_manager=session_manager,
                                domain=current_config.DING_DOMAIN,
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
@@ -33,11 +33,11 @@ class DingTalkTestCase(unittest.TestCase):
         self.dept_list = self.app.contact.get_department_list()
         self.dept_ids = [dept['id'] for dept in self.dept_list]
         # 获取用户
-        self.user_list = self.app.contact.get_user_list(1)
+        self.user_list = self.app.contact.get_dept_user_list(1)
         # 用户id
         self.user_ids = [user['userid'] for user in self.user_list]
         # 部分测试用例开关
-        self.async_send_msg = True  # 发送消息开关
+        self.async_send_msg = False  # 发送消息开关
         self.create_bpms = False  # 流程创建开关
         self.user_operator = False  # 用户操作开关
         self.dept_operator = False  # 部门操作开关
@@ -65,7 +65,7 @@ class DingTalkTestCase(unittest.TestCase):
     # 获取用户
     def test_get_user_list(self):
         dept_id = self.dept_list[0]['id']
-        user_list = self.app.contact.get_user_list(dept_id)
+        user_list = self.app.contact.get_dept_user_list(dept_id)
         return user_list
 
     # 获取部门
@@ -79,33 +79,33 @@ class DingTalkTestCase(unittest.TestCase):
         assert ext_list is not None
 
     # 新增外部联系人
-    def test_add_contact(self):
-        # 获取标签
-        # label_groups = self.app.get_label_groups()
-        # label_ids = [str(v) for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
-        # label_ids = label_ids[4: 7]
-        # 获取部门
-        dept_ids = [dept['id'] for dept in self.dept_list]
-        # 获取用户
-        user_ids = [user['userid'] for user in self.user_list]
-        contact = {
-            # 'title': 'master',
-            # 'share_deptids': dept_ids[2:4],
-            'label_ids': ['265253444', '264113195'],
-            # 'remark': 'nonting',
-            # 'address': 'KungFuPanda',
-            'name': 'shifu',
-            'follower_userid': 2741125726502831,
-            'state_code': 86,
-            # 'company_name': 'KungFuPanda',
-            # 'share_userids': user_ids[2:6],
-            'mobile': 18605203032
-        }
-        try:
-            result = self.app.customer.add_corp_ext(contact)
-            assert result is not None
-        except DingTalkException as ex:
-            assert '外部联系人已存在' in str(ex)
+    # def test_add_contact(self):
+    #     # 获取标签
+    #     # label_groups = self.app.get_label_groups()
+    #     # label_ids = [str(v) for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
+    #     # label_ids = label_ids[4: 7]
+    #     # 获取部门
+    #     dept_ids = [dept['id'] for dept in self.dept_list]
+    #     # 获取用户
+    #     user_ids = [user['userid'] for user in self.user_list]
+    #     contact = {
+    #         # 'title': 'master',
+    #         # 'share_deptids': dept_ids[2:4],
+    #         'label_ids': ['265253444', '264113195'],
+    #         # 'remark': 'nonting',
+    #         # 'address': 'KungFuPanda',
+    #         'name': 'shifu',
+    #         'follower_userid': 2741125726502831,
+    #         'state_code': 86,
+    #         # 'company_name': 'KungFuPanda',
+    #         # 'share_userids': user_ids[2:6],
+    #         'mobile': 18605203032
+    #     }
+    #     try:
+    #         result = self.app.customer.add_corp_ext(contact)
+    #         assert result is not None
+    #     except DingTalkException as ex:
+    #         assert '外部联系人已存在' in str(ex)
 
     # 测试新增工作流实例
     def test_bmps_create(self):
@@ -134,7 +134,7 @@ class DingTalkTestCase(unittest.TestCase):
             except BaseException as ex:
                 assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
             dev_dept_id = self.dept_ids[1]
-            dev_user_list = self.app.contact.get_user_list(dev_dept_id)
+            dev_user_list = self.app.contact.get_dept_user_list(dev_dept_id)
             approvers = [user['userid'] for user in dev_user_list]
             args = {'process_code': 'PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                     'originator_user_id': originator_user_id,
@@ -312,7 +312,7 @@ class DingTalkTestCase(unittest.TestCase):
         dept_list = self.app.contact.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
-        user_list = self.app.contact.get_user_list(dept_ids[1])
+        user_list = self.app.contact.get_dept_user_list(dept_ids[1])
         user_id = [user['userid'] for user in user_list][0]
         data = self.app.contact.get_user(user_id=user_id)
         assert data
@@ -432,18 +432,25 @@ class DingTalkTestCase(unittest.TestCase):
                     result = self.app.contact.delete_department(dept_id)
                     assert result
 
+    def test_get_all_dept_id_list(self):
+        all_dept_id_list = self.app.contact.get_all_department_id_list()
+        assert all_dept_id_list
+
     # 获取用户部门
     def test_get_user_depts(self):
         # 获取部门
         dept_list = self.app.contact.get_department_list()
         dept_ids = [dept['id'] for dept in dept_list]
         # 获取用户
-        user_list = self.app.contact.get_user_list(dept_ids[1])
+        user_list = self.app.contact.get_dept_user_list(dept_ids[1])
         user_id = [user['userid'] for user in user_list][1]
         depts = self.app.contact.get_user_departments(user_id)
         assert depts
 
-    # 获取企业员工数
+    def test_get_all_org_users(self):
+        result = self.app.contact.get_all_org_users()
+        assert result
+
     def test_get_org_user_count(self):
         result = self.app.contact.get_org_user_count(0)
         assert result > 1
