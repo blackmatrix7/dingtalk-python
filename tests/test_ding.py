@@ -271,7 +271,7 @@ class DingTalkTestCase(unittest.TestCase):
                                                            datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                                                    })
             assert data
-            task_id = data['task_id']
+            task_id = data[0]['task_id']
             sleep(5)
             # 获取发送进度
             result = self.app.message.get_msg_send_progress(task_id)
