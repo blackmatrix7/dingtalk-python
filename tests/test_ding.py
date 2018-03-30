@@ -37,7 +37,7 @@ class DingTalkTestCase(unittest.TestCase):
         # 用户id
         self.user_ids = [user['userid'] for user in self.user_list]
         # 部分测试用例开关
-        self.async_send_msg = False  # 发送消息开关
+        self.async_send_msg = True  # 发送消息开关
         self.create_bpms = False  # 流程创建开关
         self.user_operator = False  # 用户操作开关
         self.dept_operator = False  # 部门操作开关
@@ -252,6 +252,7 @@ class DingTalkTestCase(unittest.TestCase):
         测试异步发送消息
         :return:
         """
+        self.user_ids = ['11', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66']
         if self.async_send_msg:
             # 测试错误的情况，错误的msgtype
             try:

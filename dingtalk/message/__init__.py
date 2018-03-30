@@ -39,12 +39,18 @@ class Message:
         :param to_all_user: 是否全员发送（全员发送有次数限制）
         :return:
         """
-        resp = async_send_msg(access_token=self.auth.access_token, agent_id=self.agent_id, msgtype=msgtype,
-                              userid_list=userid_list, dept_id_list=dept_id_list, to_all_user=to_all_user,
-                              msgcontent=msgcontent)
-        return {'request_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['request_id'],
-                'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id'],
-                'success': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['success']}
+        # 接口返回结果列表，每次发送只能发送20个userid，超出后需要分多次发送
+        result_list = []
+        userid_group_list = [userid_list[i: i+20] for i in range(0, len(userid_list), 20)]
+        for userid_group in userid_group_list:
+            resp = async_send_msg(access_token=self.auth.access_token, agent_id=self.agent_id, msgtype=msgtype,
+                                  userid_list=userid_group, dept_id_list=dept_id_list, to_all_user=to_all_user,
+                                  msgcontent=msgcontent)
+            result = {'request_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['request_id'],
+                      'task_id': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['task_id'],
+                      'success': resp['dingtalk_corp_message_corpconversation_asyncsend_response']['result']['success']}
+            result_list.append(result)
+        return result_list
 
     @method(method_name='dingtalk.corp.message.corpconversation.getsendresult')
     def get_msg_send_result(self, task_id, agent_id=None):
