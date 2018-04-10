@@ -8,14 +8,13 @@
 # @Software: PyCharm
 import json
 import unittest
-from datetime import datetime, timedelta
 from time import sleep
-
-from config import current_config
 from dingtalk import DingTalkApp
+from config import current_config
 from dingtalk.callback.crypto import *
-from dingtalk.exceptions import DingTalkException
 from extensions import session_manager
+from datetime import datetime, timedelta
+from dingtalk.exceptions import DingTalkException
 
 __author__ = 'blackmatrix'
 
@@ -309,13 +308,7 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 测试获取用户信息
     def test_get_user_info(self):
-        # 获取部门
-        dept_list = self.app.contact.get_department_list()
-        dept_ids = [dept['id'] for dept in dept_list]
-        # 获取用户
-        user_list = self.app.contact.get_dept_user_list(dept_ids[1])
-        user_id = [user['userid'] for user in user_list][0]
-        data = self.app.contact.get_user(user_id=user_id)
+        data = self.app.contact.get_user(user_id=self.user_ids[0])
         assert data
 
     # 测试用户操作
@@ -439,13 +432,7 @@ class DingTalkTestCase(unittest.TestCase):
 
     # 获取用户部门
     def test_get_user_depts(self):
-        # 获取部门
-        dept_list = self.app.contact.get_department_list()
-        dept_ids = [dept['id'] for dept in dept_list]
-        # 获取用户
-        user_list = self.app.contact.get_dept_user_list(dept_ids[1])
-        user_id = [user['userid'] for user in user_list][1]
-        depts = self.app.contact.get_user_departments(user_id)
+        depts = self.app.contact.get_user_departments(self.user_ids[0])
         assert depts
 
     def test_get_all_org_users(self):
