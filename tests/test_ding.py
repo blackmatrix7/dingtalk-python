@@ -12,7 +12,7 @@ from time import sleep
 from dingtalk import DingTalkApp
 from config import current_config
 from dingtalk.callback.crypto import *
-from extensions import session_manager
+from extensions import session_manag
 from datetime import datetime, timedelta
 from dingtalk.exceptions import DingTalkException
 
