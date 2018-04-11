@@ -12,7 +12,7 @@ from time import sleep
 from dingtalk import DingTalkApp
 from config import current_config
 from dingtalk.callback.crypto import *
-from extensions import session_manag
+from extensions import session_manager
 from datetime import datetime, timedelta
 from dingtalk.exceptions import DingTalkException
 
@@ -38,8 +38,8 @@ class DingTalkTestCase(unittest.TestCase):
         # 部分测试用例开关
         self.async_send_msg = True  # 发送消息开关
         self.create_bpms = False  # 流程创建开关
-        self.user_operator = False  # 用户操作开关
-        self.dept_operator = False  # 部门操作开关
+        self.user_operator = True  # 用户操作开关
+        self.dept_operator = True  # 部门操作开关
         self.get_call_back_result = False  # 获取回调结果
 
     # 获取 access token
