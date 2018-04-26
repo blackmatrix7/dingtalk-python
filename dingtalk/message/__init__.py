@@ -5,6 +5,7 @@
 # @Site: https://github.com/blackmatrix7
 # @File: __init__.py
 # @Software: PyCharm
+import logging
 from .conversation import *
 from functools import partial
 from ..foundation import dingtalk_method
@@ -20,9 +21,10 @@ class Message:
 
     methods = {}
 
-    def __init__(self, auth, agent_id):
+    def __init__(self, auth, agent_id, logger=logging):
         self.auth = auth
         self.agent_id = agent_id
+        self.logger = logger
 
     @method('dingtalk.corp.message.corpconversation.asyncsend')
     def async_send_msg(self, msgtype, msgcontent, userid_list=None, dept_id_list=None, to_all_user=False):

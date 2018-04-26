@@ -5,6 +5,7 @@
 # @Site: https://github.com/blackmatrix7
 # @File: __init__.py
 # @Software: PyCharm
+import logging
 from .user import *
 from .dept import *
 from .role import *
@@ -21,9 +22,10 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class Contact:
 
-    def __init__(self, auth):
+    def __init__(self, auth, logger=logging):
         self.auth = auth
         self.methods = METHODS
+        self.logger = logger
 
     # ------------------- 员工管理部分 -------------------
 

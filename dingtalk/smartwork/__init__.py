@@ -5,6 +5,7 @@
 # @Site: https://github.com/blackmatrix7
 # @File: __init__.py
 # @Software: PyCharm
+import logging
 from .workflow import *
 from functools import partial
 from datetime import datetime
@@ -22,10 +23,11 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class SmartWork:
 
-    def __init__(self, auth, agent_id=None):
+    def __init__(self, auth, agent_id=None, logger=logging):
         self.auth = auth
         self.agent_id = agent_id
         self.methods = METHODS
+        self.logger = logger
 
     def get_schedule_list(self, work_date, offset=0, size=200):
         """

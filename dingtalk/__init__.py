@@ -60,7 +60,7 @@ class DingTalkApp:
     def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
                  noncestr='VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy', domain='A2UOM1pZOxQ',
                  callback_url=None, aes_key='gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI',
-                 token='LnPxMAp7doy'):
+                 token='LnPxMAp7doy', logger=logging):
         """
         实例化钉钉对象
         :param name: 公司名称，同个公司如果需要实例化多个DingTalkApp实例，请保持传入的name值一致
@@ -74,6 +74,9 @@ class DingTalkApp:
         :param aes_key: 用于加解密的aes_key，必须是43为字符串，由大小写字母和数字组成，不能有标点符号
         :param token: 用于回调时生成签名的token，非access_token，传入随机字符串
         """
+        # logger
+        self.logger = logger
+        # 钉钉接口参数
         self.name = name
         self.cache = session_manager
         self.corp_id = corp_id
@@ -92,11 +95,11 @@ class DingTalkApp:
         # 注册接口方法，为通过run方式调用提供支持
         self.register_methods(auth=self.auth)
         # 其他模块
-        self.smartwork = SmartWork(self.auth, self.agent_id)
-        self.contact = Contact(self.auth)
-        self.message = Message(self.auth, self.agent_id)
-        self.file = File(self.auth, self.domain, self.agent_id)
-        self.customer = Customer(self.auth)
+        self.smartwork = SmartWork(self.auth, self.agent_id, self.logger)
+        self.contact = Contact(self.auth, self.logger)
+        self.message = Message(self.auth, self.agent_id, self.logger)
+        self.file = File(self.auth, self.domain, self.agent_id, self.logger)
+        self.customer = Customer(self.auth, self.logger)
         # 忽略回调模块加载异常的情况，仅输出异常日志
         # 主要考虑到windows下安装pycrypto比较繁琐
         try:
@@ -104,7 +107,7 @@ class DingTalkApp:
             self.callback = CallBack(self.auth, self.aes_key, self.token,
                                      self.callback_url, self.corp_id, self.noncestr)
         except BaseException as ex:
-            logging.error(ex)
+            self.logger.error(ex)
         self.register_methods(smartwork=self.smartwork, contact=self.contact, message=self.message,
                               file=self.file, customer=self.customer)
 

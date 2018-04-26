@@ -5,6 +5,7 @@
 # @Site: https://github.com/blackmatrix7
 # @File: __init__.py
 # @Software: PyCharm
+import logging
 from .space import *
 from functools import partial
 from ..foundation import dingtalk_method
@@ -18,11 +19,12 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class File:
 
-    def __init__(self, auth, domain, agent_id):
+    def __init__(self, auth, domain, agent_id, logger=logging):
         self.auth = auth
         self.domain = domain
         self.agent_id = agent_id
         self.methods = METHODS
+        self.logger = logger
 
     def get_custom_space(self):
         """

@@ -6,6 +6,7 @@
 # @File: __init__.py
 # @Software: PyCharm
 import json
+import logging
 from .ext import *
 from .label import *
 from functools import partial
@@ -20,9 +21,10 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class Customer:
 
-    def __init__(self, auth):
+    def __init__(self, auth, logger=logging):
         self.auth = auth
         self.methods = METHODS
+        self.logger = logger
 
     @method(method_name='dingtalk.corp.ext.listlabelgroups')
     def get_label_groups(self, size=20, offset=0):
