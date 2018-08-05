@@ -36,8 +36,8 @@ class DingTalkTestCase(unittest.TestCase):
         # 用户id
         self.user_ids = [user['userid'] for user in self.user_list]
         # 部分测试用例开关
-        self.async_send_msg = True  # 发送消息开关
-        self.create_bpms = False  # 流程创建开关
+        self.async_send_msg = False  # 发送消息开关
+        self.create_bpms = True  # 流程创建开关
         self.user_operator = True  # 用户操作开关
         self.dept_operator = True  # 部门操作开关
         self.get_call_back_result = False  # 获取回调结果
@@ -254,30 +254,28 @@ class DingTalkTestCase(unittest.TestCase):
         self.user_ids = ['11', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66', '22', '33', '44', '55', '66']
         if self.async_send_msg:
             # 测试错误的情况，错误的msgtype
-            try:
-                data = self.app.message.async_send_msg(msgtype='text2', userid_list=self.user_ids,
-                                                       msgcontent={
-                                                           'content': '现在为您报时，北京时间 {}'.format(
-                                                               datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-                                                       })
-                assert data
-            except BaseException as ex:
-                assert '不合法的消息类型' in str(ex)
+            with self.assertRaises(DingTalkException):
+                self.app.message.async_send_msg(msgtype='text2', userid_list=self.user_ids,
+                                                msgcontent={
+                                                   'content': '现在为您报时，北京时间 {}'.format(
+                                                       datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                                                })
             # 测试正确的情况，避免频繁发送消息，通常不运行此测试
             data = self.app.message.async_send_msg(msgtype='text', userid_list=self.user_ids,
                                                    msgcontent={
                                                        'content': '现在为您报时，北京时间 {}'.format(
                                                            datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                                                    })
-            assert data
+            self.assertIsNotNone(data)
+            self.assertTrue('task_id' in data[0])
             task_id = data[0]['task_id']
             sleep(5)
             # 获取发送进度
             result = self.app.message.get_msg_send_progress(task_id)
-            assert result
+            self.assertIsNotNone(result)
             sleep(5)
             result = self.app.message.get_msg_send_result(task_id)
-            assert result
+            self.assertIsNotNone(result)
             # 测试link消息
             data = self.app.message.async_send_msg(msgtype='link', userid_list=self.user_ids,
                                                    msgcontent={
@@ -286,7 +284,7 @@ class DingTalkTestCase(unittest.TestCase):
                                                        "title": "现在为您报时",
                                                        "text": "北京时间 {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                                                    })
-            assert data
+            self.assertIsNotNone(data)
             # 测试发送ActionCard
             data = self.app.message.async_send_msg(msgtype='action_card', userid_list=self.user_ids,
                                                    msgcontent={
@@ -304,12 +302,12 @@ class DingTalkTestCase(unittest.TestCase):
                                                            }
                                                        ]
                                                    })
-            assert data
+            self.assertIsNotNone(data)
 
     # 测试获取用户信息
     def test_get_user_info(self):
         data = self.app.contact.get_user(user_id=self.user_ids[0])
-        assert data
+        self.assertIsNotNone(data)
 
     # 测试用户操作
     def test_user_operator(self):
