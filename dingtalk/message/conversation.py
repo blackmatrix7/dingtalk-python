@@ -7,7 +7,7 @@
 # @File : messages.py
 # @Software: PyCharm
 import json
-from dingtalk.foundation import *
+from ..foundation import *
 from json import JSONDecodeError
 
 __author__ = 'blackmatrix'

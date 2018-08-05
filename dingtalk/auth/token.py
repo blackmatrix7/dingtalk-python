@@ -7,8 +7,8 @@
 # @File : token.py
 # @Software: PyCharm
 import requests
-from dingtalk.configs import *
-from dingtalk.foundation import dingtalk_resp
+from ..configs import *
+from ..foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'
 

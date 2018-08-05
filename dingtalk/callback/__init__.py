@@ -42,7 +42,7 @@ class CallBack:
         """
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from dingtalk.callback.crypto import encrypt
+        from ..callback.crypto import encrypt
         ciphertext = encrypt(aes_key=self.aes_key, plaintext=plaintext, key=self.corp_id, buf=buf)
         return ciphertext
 
@@ -54,7 +54,7 @@ class CallBack:
         """
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from dingtalk.callback.crypto import decrypt
+        from ..callback.crypto import decrypt
         msg, key, buf = decrypt(self.aes_key, ciphertext)
         return msg, key, buf
 
@@ -66,7 +66,7 @@ class CallBack:
         """
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from dingtalk.callback.crypto import encrypt_text
+        from ..callback.crypto import encrypt_text
         ciphertext = encrypt_text(aes_key=self.aes_key, plaintext=plaintext)
         return ciphertext
 
@@ -78,7 +78,7 @@ class CallBack:
         """
         if self.aes_key is None:
             raise RuntimeError('加密解密前需要在初始化DingTalk App时传入aes_key')
-        from dingtalk.callback.crypto import decrypt_text
+        from ..callback.crypto import decrypt_text
         temp = decrypt_text(self.aes_key, ciphertext)
         return temp
 

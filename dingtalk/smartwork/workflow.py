@@ -7,7 +7,7 @@
 # @File : workflow.py
 # @Software: PyCharm
 import json
-from dingtalk.foundation import *
+from ..foundation import *
 from datetime import datetime
 from json import JSONDecodeError
 
@@ -75,6 +75,7 @@ def get_bpms_instance_list(access_token, process_code, start_time, end_time=None
             payload.update({key: args[key]})
     resp = call_dingtalk_webapi(access_token, 'dingtalk.smartwork.bpms.processinstance.list', 'GET', **payload)
     return resp
+
 
 if __name__ == '__main__':
     pass

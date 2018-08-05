@@ -5,7 +5,7 @@
 # @Site: https://github.com/blackmatrix7
 # @File: label
 # @Software: PyCharm
-from dingtalk.foundation import call_dingtalk_webapi, dingtalk_resp
+from ..foundation import call_dingtalk_webapi, dingtalk_resp
 
 __author__ = 'blackmatrix'
 

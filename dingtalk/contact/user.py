@@ -8,8 +8,7 @@
 # @Software: PyCharm
 import requests
 from ..configs import *
-from ..exceptions import DingTalkExceptions
-from ..foundation import dingtalk_resp, call_dingtalk_webapi
+from ..foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'
 
