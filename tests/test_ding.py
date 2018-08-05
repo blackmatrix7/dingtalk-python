@@ -45,21 +45,21 @@ class DingTalkTestCase(unittest.TestCase):
     # 获取 access token
     def test_get_access_token(self):
         access_token = self.app.get_access_token()
-        assert access_token is not None
+        self.assertIsNotNone(access_token)
 
     # 获取 jsapi ticket
     def test_get_jsapi_ticket(self):
         jsapi_ticket = self.app.get_jsapi_ticket()
-        assert jsapi_ticket is not None
+        self.assertIsNotNone(jsapi_ticket)
 
     # 获取系统标签
     def test_get_label_groups(self):
         label_groups = self.app.customer.get_label_groups()
-        assert label_groups
+        self.assertIsNotNone(label_groups)
         label_groups = self.app.run('dingtalk.corp.ext.listlabelgroups', size=20, offset=0)
-        assert label_groups
+        self.assertIsNotNone(label_groups)
         all_label_groups = self.app.customer.get_all_label_groups()
-        assert all_label_groups
+        self.assertIsNotNone(all_label_groups)
 
     # 获取用户
     def test_get_user_list(self):
@@ -75,7 +75,7 @@ class DingTalkTestCase(unittest.TestCase):
     # 获取外部联系人
     def test_get_ext_list(self):
         ext_list = self.app.customer.get_ext_list()
-        assert ext_list is not None
+        self.assertIsNotNone(ext_list)
 
     # 新增外部联系人
     # def test_add_contact(self):
@@ -126,12 +126,9 @@ class DingTalkTestCase(unittest.TestCase):
                     'form_component_values': [{'value': '哈哈哈哈', 'name': '姓名'},
                                               {'value': '哈哈哈哈', 'name': '部门'},
                                               {'value': '哈哈哈哈', 'name': '加班事由'}]}
-            try:
-                # 测试错误情况
-                resp = self.app.smartwork.create_bpms_instance(**args)
-                assert resp
-            except BaseException as ex:
-                assert '审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中' in str(ex)
+            with self.assertRaises(DingTalkException) as ex:
+                self.app.smartwork.create_bpms_instance(**args)
+                self.assertIn('审批实例参数错误，具体可能为:发起人、审批人、抄送人的userid错误，发起部门id错误，发起人不在发起部门中', str(ex))
             dev_dept_id = self.dept_ids[1]
             dev_user_list = self.app.contact.get_dept_user_list(dev_dept_id)
             approvers = [user['userid'] for user in dev_user_list]
@@ -143,7 +140,7 @@ class DingTalkTestCase(unittest.TestCase):
                                               {'value': '哈哈哈哈', 'name': '部门'},
                                               {'value': '哈哈哈哈', 'name': '加班事由'}]}
             resp = self.app.smartwork.create_bpms_instance(**args)
-            assert resp
+            self.assertIsNotNone(resp)
 
     # 测试获取工作流实例列表
     def test_bpms_list(self):
@@ -223,27 +220,27 @@ class DingTalkTestCase(unittest.TestCase):
         ]
         :return:
         """
-        assert self.app.access_token
+        self.assertIsNotNone(self.app.access_token)
         start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
         data = self.app.smartwork.get_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                                                          start_time=start_time)
-        assert data
+        self.assertIsNotNone(data)
         # 测试错误情况，传入一个不存在的process_code
         data = self.app.smartwork.get_bpms_instance_list(process_code='PROC-XXXXXXXX-XXXXXXXX-XXXXXXX-X',
                                                          start_time=start_time)
-        assert len(data['instance_list']) == 0
+        self.assertEqual(len(data['instance_list']), 0)
 
     # 获取全部工作流实例
     def test_all_bpms_list(self):
         start_time = datetime(year=2017, month=6, day=1, hour=1, minute=1, second=1, microsecond=1)
         data = self.app.smartwork.get_all_bpms_instance_list(process_code='PROC-FF6Y4BE1N2-B3OQZGC9RLR4SY1MTNLQ1-91IKFUAJ-4',
                                                              start_time=start_time)
-        assert data is not None
+        self.assertIsNotNone(data)
 
     # 测试钉钉实例绑定的方法
     def test_dingtalk_methods(self):
         methods = self.app.methods
-        assert methods
+        self.assertIsNotNone(methods)
 
     # 异步发送消息
     def test_async_send_msg(self):
@@ -333,11 +330,9 @@ class DingTalkTestCase(unittest.TestCase):
                 'position': '马云，你不认识？？！！',
                 'mobile': '16658888882'
             }
-            try:
-                result = self.app.contact.create_user(**err_user_info)
-                assert result
-            except BaseException as ex:
-                assert '无效的部门JSONArray对象,合法格式需要用中括号括起来,且如果属于多部门,部门id需要用逗号分隔' in str(ex)
+            with self.assertRaises(DingTalkException) as ex:
+                self.app.contact.create_user(**err_user_info)
+                self.assertIn('无效的部门JSONArray对象,合法格式需要用中括号括起来,且如果属于多部门,部门id需要用逗号分隔', str(ex))
             user_info = {
                 'name': '马小云',
                 'orderInDepts': {dept_id: 8},
@@ -346,7 +341,7 @@ class DingTalkTestCase(unittest.TestCase):
                 'mobile': '16658888882'
             }
             result = self.app.contact.create_user(**user_info)
-            assert result
+            self.assertIsNotNone(result)
             user_id = result['userid']
             new_user_info = {
                 'userid': user_id,
@@ -357,9 +352,9 @@ class DingTalkTestCase(unittest.TestCase):
                 'mobile': '16658888882'
             }
             result = self.app.contact.update_user(**new_user_info)
-            assert result
+            self.assertIsNotNone(result)
             result = self.app.contact.delete_user(userid=user_id)
-            assert result
+            self.assertIsNotNone(result)
 
     # 部门操作相关测试
     def test_dept_operator(self):
@@ -367,89 +362,84 @@ class DingTalkTestCase(unittest.TestCase):
             # 获取部门详情
             dept_id = self.dept_list[1]['id']
             resp = self.app.contact.get_department(dept_id)
-            assert resp
+            self.assertIsNotNone(resp)
             # 测试错误的部门id
-            try:
-                resp = self.app.contact.get_department(123456789)
-                assert resp
-            except BaseException as ex:
-                assert '部门不存在' in str(ex)
+            with self.assertRaises(DingTalkException) as ex:
+                self.app.contact.get_department(123456789)
+                self.assertIn('部门不存在', str(ex))
             # 测试删除部门
             dept_list = self.app.contact.get_department_list()
-            assert dept_list
+            self.assertIsNotNone(dept_list)
             for dept in dept_list:
                 if '霍格沃茨魔法学校' in dept['name']:
                     dept_id = dept['id']
                     result = self.app.contact.delete_department(dept_id)
-                    assert result
+                    self.assertIsNotNone(result)
             dept_info = {
                 'name': '霍格沃茨魔法学校',
                 'parentid': 1
             }
             dept_id = self.app.contact.create_department(**dept_info)
-            assert dept_id
+            self.assertIsNotNone(dept_id)
             # 测试创建部门错误，key错误
             err_dept_info = {
                 'dept_name': '霍格沃茨魔法学校',
                 'parentid': 1
             }
-            try:
+            with self.assertRaises(DingTalkException) as ex:
                 dept_id = self.app.contact.create_department(**err_dept_info)
-            except BaseException as ex:
-                assert '不合法的部门名称' in str(ex)
+                self.assertIn('不合法的部门名称', str(ex))
             new_dept_info = {
                 'id': dept_id,
                 'name': '霍格沃茨魔法学校：格兰芬多',
                 'parentid': 1
             }
             dept = self.app.contact.update_department(**new_dept_info)
-            assert dept
+            self.assertIsNotNone(dept)
             # 测试更新部门错误
             err_new_dept_info = {
                 'id': 1234567890,
                 'name': '霍格沃茨魔法学校：格兰芬多',
                 'parentid': 1
             }
-            try:
-                dept = self.app.contact.update_department(**err_new_dept_info)
-                assert dept
-            except BaseException as ex:
-                assert '部门不存在' in str(ex)
+            with self.assertRaises(DingTalkException) as ex:
+                self.app.contact.update_department(**err_new_dept_info)
+                self.assertIn('部门不存在', str(ex))
             # 测试删除部门
             dept_list = self.app.contact.get_department_list()
-            assert dept_list
+            self.assertIsNotNone(dept_list)
             for dept in dept_list:
                 if '霍格沃茨魔法学校' in dept['name']:
                     dept_id = dept['id']
                     result = self.app.contact.delete_department(dept_id)
-                    assert result
+                    self.assertIsNotNone(result)
 
     def test_get_all_dept_id_list(self):
         all_dept_id_list = self.app.contact.get_all_department_id_list()
-        assert all_dept_id_list
+        self.assertIsNotNone(all_dept_id_list)
 
     # 获取用户部门
     def test_get_user_depts(self):
         depts = self.app.contact.get_user_departments(self.user_ids[0])
-        assert depts
+        self.assertIsNotNone(depts)
 
     def test_get_all_org_users(self):
         result = self.app.contact.get_all_org_users()
-        assert result
+        self.assertIsNotNone(result)
 
     def test_get_org_user_count(self):
         result = self.app.contact.get_org_user_count(0)
-        assert result > 1
+        self.assertTrue(result > 1)
         result = self.app.contact.get_org_user_count(1)
-        assert result > 1
+        self.assertTrue(result > 1)
 
     def test_corp_role_list(self):
         result = self.app.contact.get_corp_role_list()
-        assert result
+        self.assertIsNotNone(result)
 
     def test_get_all_corp_role_list(self):
         result = self.app.contact.get_all_corp_role_list()
-        assert result
+        self.assertIsNotNone(result)
 
     def test_get_role_simple_list(self):
         # 获取角色组
@@ -461,7 +451,7 @@ class DingTalkTestCase(unittest.TestCase):
         for role_id in role_id_list[:5]:
             user = self.app.contact.get_role_simple_list(role_id=role_id) or []
             user_id_list.extend(user)
-        assert user_id_list
+        self.assertIsNotNone(user_id_list)
 
     def test_sign(self):
         jsapi_ticket = 'raj3X1Z2OIYqxuQ29WVK1uvhIvrsXC4qPwYE1KQ174zx7MfhX2qHKdtFE2XdUxbdp1WfoctcNCmBfbfYEJj5um'
@@ -469,10 +459,9 @@ class DingTalkTestCase(unittest.TestCase):
         timestamp = '1440678945'
         url = 'http://调用jsapi页面'
         sign = self.app.jsapi_signature(jsapi_ticket=jsapi_ticket, noncestr=noncestr, timestamp=timestamp, url=url)
-        assert sign == '750d0719eeb810f6fa12b04d87d0d7789c4bc64f'
+        self.assertEqual(sign, '750d0719eeb810f6fa12b04d87d0d7789c4bc64f')
 
-    @staticmethod
-    def test_check_callback_signature():
+    def test_check_callback_signature(self):
         signature = '5a65ceeef9aab2d149439f82dc191dd6c5cbe2c0'
         timestamp = '1445827045067'
         nonce = 'nEXhMP4r'
@@ -483,7 +472,7 @@ class DingTalkTestCase(unittest.TestCase):
         token = '123456'
         result = check_callback_signature(token=token, ciphertext=ciphertext,
                                           signature=signature, timestamp=timestamp, nonce=nonce)
-        assert result is True
+        self.assertTrue(result)
 
     def test_get_call_back_result(self):
         """
@@ -498,7 +487,7 @@ class DingTalkTestCase(unittest.TestCase):
         plaintext = json.dumps('success')
         ciphertext = self.app.callback.encrypt(plaintext)
         new_plaintext, new_key, new_buf = self.app.callback.decrypt(ciphertext)
-        assert plaintext == new_plaintext
+        self.assertEqual(plaintext, new_plaintext)
 
     def test_get_all_users(self):
         """
@@ -506,7 +495,7 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         data = self.app.contact.get_all_users()
-        assert data
+        self.assertIsNotNone(data)
 
     def test_get_custom_space(self):
         """
@@ -514,30 +503,28 @@ class DingTalkTestCase(unittest.TestCase):
         :return:
         """
         data = self.app.file.get_custom_space()
-        assert data
+        self.assertIsNotNone(data)
         space_id = self.app.space_id
-        assert space_id
+        self.assertIsNotNone(space_id)
 
     def test_get_schedule_list(self):
         now = datetime.now()
         data = self.app.smartwork.get_schedule_list(now)
-        assert data
+        self.assertIsNotNone(data)
 
     def test_get_simple_groups(self):
         data = self.app.smartwork.get_simple_groups()
-        assert data
+        self.assertIsNotNone(data)
 
     def test_get_attendance_record_list(self):
         check_data_to = datetime.now()
         delta = timedelta(days=4)
         check_data_from = check_data_to - delta
         data = self.app.smartwork.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
-        assert data
+        self.assertIsNotNone(data)
         # 测试时间超过7天，抛出异常
         delta = timedelta(days=8)
         check_data_from = check_data_to - delta
-        try:
-            data = self.app.smartwork.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
-            assert data
-        except DingTalkException as ex:
-            assert '时间跨度不能超过7天' in str(ex)
+        with self.assertRaises(DingTalkException) as ex:
+            self.app.smartwork.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
+            self.assertIn('时间跨度不能超过7天', str(ex))
