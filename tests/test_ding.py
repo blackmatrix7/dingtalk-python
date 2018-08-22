@@ -100,7 +100,30 @@ class DingTalkTestCase(unittest.TestCase):
             'share_userids': user_ids[2:6],
             'mobile': 18605203032
         }
-        self.app.customer.add_corp_ext(contact)
+        try:
+            data = self.app.customer.add_corp_ext(contact)
+            self.assertIsNotNone(data)
+            user_id = data['dingtalk_corp_ext_add_response']['userid']
+            update_contract = {
+                'user_id': user_id,
+                'title': 'master',
+                'share_deptids': dept_ids[2:4],
+                'label_ids': label_ids,
+                'remark': 'nonting',
+                'address': 'KungFuPanda',
+                'name': 'shifu',
+                'follower_user_id': user_ids[5],
+                'state_code': 86,
+                'company_name': 'KungFuPanda',
+                'share_userids': user_ids[2:6],
+                'mobile': 18605203032
+            }
+            data = self.app.customer.update_corp_ext(update_contract)
+            self.assertIsNotNone(data)
+            data = self.app.customer.delete_corp_ext(user_id)
+            self.assertIsNotNone(data)
+        except DingTalkException as ex:
+            assert ex
 
     # 测试新增工作流实例
     def test_bmps_create(self):

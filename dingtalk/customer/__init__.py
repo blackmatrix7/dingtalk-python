@@ -105,3 +105,11 @@ class Customer:
         """
         resp = add_corp_ext(self.auth.access_token, contact_info)
         return resp
+
+    def update_corp_ext(self, contact_info):
+        resp = update_corp_ext(self.auth.access_token, contact_info)
+        return resp
+
+    def delete_corp_ext(self, user_id):
+        resp = delete_corp_ext(self.auth.access_token, user_id)
+        return resp

@@ -196,3 +196,12 @@ def call_dingtalk_webapi(access_token, method_name, http_method='POST', **kwargs
     else:
         resp = requests.get(url, params=kwargs)
     return resp
+
+
+def call_topapi(access_token, uri,  http_method='POST', **kwargs):
+    url = '{}{}?access_token={}'.format(DING_TOPAPI_URL, uri, access_token)
+    if http_method.upper() == 'POST':
+        resp = requests.post(url, data=kwargs)
+    else:
+        resp = requests.get(url, params=kwargs)
+    return resp

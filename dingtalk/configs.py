@@ -16,6 +16,8 @@ DING_GET_ACCESS_TOKEN = 'https://oapi.dingtalk.com/gettoken'
 DING_GET_JSAPI_TICKET = 'https://oapi.dingtalk.com/get_jsapi_ticket'
 # 统一的方法URL
 DING_METHODS_URL = 'https://eco.taobao.com/router/rest'
+# TOPAPI
+DING_TOPAPI_URL = 'https://oapi.dingtalk.com/topapi/'
 # 根据部门id获取用户列表
 DING_GET_USER_LIST = 'https://oapi.dingtalk.com/user/simplelist'
 # 获取用户

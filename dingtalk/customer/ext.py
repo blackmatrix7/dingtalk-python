@@ -7,11 +7,11 @@
 # @File : customers.py
 # @Software: PyCharm
 import json
-from ..foundation import call_dingtalk_webapi, dingtalk_resp
+from ..foundation import call_dingtalk_webapi, dingtalk_resp, call_topapi
 
 __author__ = 'blackmatrix'
 
-__all__ = ['get_corp_ext_list', 'add_corp_ext']
+__all__ = ['get_corp_ext_list', 'add_corp_ext', 'update_corp_ext', 'delete_corp_ext']
 
 
 @dingtalk_resp
@@ -32,3 +32,25 @@ def add_corp_ext(access_token, contact: dict):
     contact = json.dumps(contact)
     data = call_dingtalk_webapi(access_token, 'dingtalk.corp.ext.add', 'POST', contact=contact)
     return data
+
+
+@dingtalk_resp
+def update_corp_ext(access_token, contact: dict):
+    """
+    更新外部联系人
+    :return:
+    """
+    contact = json.dumps(contact)
+    data = call_topapi(access_token, 'extcontact/update', 'POST', contact=contact)
+    return data
+
+
+@dingtalk_resp
+def delete_corp_ext(access_token, user_id: int):
+    """
+    删除外部联系人
+    :return:
+    """
+    data = call_topapi(access_token, 'extcontact/delete', 'POST', user_id=user_id)
+    return data
+
