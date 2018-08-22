@@ -56,7 +56,8 @@ def pkcs7_unpad(text):
     :param text:
     :return: str
     """
-    return text[0: text.index((text[-1]))]
+    # 每个填充值等于填充序列的长度
+    return text[: -text[-1]]
 
 
 def pkcs7_pad(multiple, text):
@@ -102,6 +103,7 @@ def encrypt(aes_key, plaintext, key, buf=None):
     length = struct.pack('!i', len(plaintext)).decode()
     ciphertext = encrypt_text(aes_key, buf + length + plaintext + key)
     return ciphertext
+
 
 if __name__ == '__main__':
     pass
