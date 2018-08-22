@@ -37,9 +37,9 @@ class DingTalkTestCase(unittest.TestCase):
         self.user_ids = [user['userid'] for user in self.user_list]
         # 部分测试用例开关
         self.async_send_msg = False  # 发送消息开关
-        self.create_bpms = True  # 流程创建开关
-        self.user_operator = True  # 用户操作开关
-        self.dept_operator = True  # 部门操作开关
+        self.create_bpms = False  # 流程创建开关
+        self.user_operator = False  # 用户操作开关
+        self.dept_operator = False  # 部门操作开关
         self.get_call_back_result = False  # 获取回调结果
 
     # 获取 access token
@@ -78,33 +78,29 @@ class DingTalkTestCase(unittest.TestCase):
         self.assertIsNotNone(ext_list)
 
     # 新增外部联系人
-    # def test_add_contact(self):
-    #     # 获取标签
-    #     # label_groups = self.app.get_label_groups()
-    #     # label_ids = [str(v) for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
-    #     # label_ids = label_ids[4: 7]
-    #     # 获取部门
-    #     dept_ids = [dept['id'] for dept in self.dept_list]
-    #     # 获取用户
-    #     user_ids = [user['userid'] for user in self.user_list]
-    #     contact = {
-    #         # 'title': 'master',
-    #         # 'share_deptids': dept_ids[2:4],
-    #         'label_ids': ['265253444', '264113195'],
-    #         # 'remark': 'nonting',
-    #         # 'address': 'KungFuPanda',
-    #         'name': 'shifu',
-    #         'follower_userid': 2741125726502831,
-    #         'state_code': 86,
-    #         # 'company_name': 'KungFuPanda',
-    #         # 'share_userids': user_ids[2:6],
-    #         'mobile': 18605203032
-    #     }
-    #     try:
-    #         result = self.app.customer.add_corp_ext(contact)
-    #         assert result is not None
-    #     except DingTalkException as ex:
-    #         assert '外部联系人已存在' in str(ex)
+    def test_add_contact(self):
+        # 获取标签
+        label_groups = self.app.customer.get_label_groups()
+        label_ids = [str(v) for label_group in label_groups for labels in label_group['labels'] for k, v in labels.items() if k == 'id']
+        label_ids = label_ids[4: 7]
+        # 获取部门
+        dept_ids = [dept['id'] for dept in self.dept_list]
+        # 获取用户
+        user_ids = [user['userid'] for user in self.user_list]
+        contact = {
+            'title': 'master',
+            'share_deptids': dept_ids[2:4],
+            'label_ids': label_ids,
+            'remark': 'nonting',
+            'address': 'KungFuPanda',
+            'name': 'shifu',
+            'follower_userid': user_ids[5],
+            'state_code': 86,
+            'company_name': 'KungFuPanda',
+            'share_userids': user_ids[2:6],
+            'mobile': 18605203032
+        }
+        self.app.customer.add_corp_ext(contact)
 
     # 测试新增工作流实例
     def test_bmps_create(self):

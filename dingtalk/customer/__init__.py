@@ -98,9 +98,10 @@ class Customer:
 
     def add_corp_ext(self, contact_info):
         """
-        获取外部联系人
+        添加外部联系人
+        如果遇到添加外部联系人失败的情况，请检查在钉钉设置中，外部联系人是否存在某些必填自定义字段
+        存在必填自定义字段的情况下，通过接口添加外部联系人会失败，而且钉钉只会返回"系统错误"四个字
         :return:
         """
-        # TODO 增加外部联系人时，钉钉一直返回"系统错误"四个字，原因不明
         resp = add_corp_ext(self.auth.access_token, contact_info)
         return resp
