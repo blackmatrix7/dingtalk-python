@@ -23,6 +23,7 @@ python3-memcached==1.51
 # 或
 pymysql==0.8.0
 ```
+更多请查看 requirements.txt 文件。
 
 在python的环境中执行：
 
