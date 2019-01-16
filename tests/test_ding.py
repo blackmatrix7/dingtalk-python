@@ -9,6 +9,9 @@
 import json
 import unittest
 from time import sleep
+if __name__ == '__main__':
+    import sys
+    sys.path.append('..')
 from dingtalk import DingTalkApp
 from config import current_config
 from dingtalk.callback.crypto import *
@@ -544,3 +547,7 @@ class DingTalkTestCase(unittest.TestCase):
         with self.assertRaises(DingTalkException) as ex:
             self.app.smartwork.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
             self.assertIn('时间跨度不能超过7天', str(ex))
+
+
+if __name__ == '__main__':
+    unittest.main()
