@@ -32,6 +32,8 @@ class CommonConfig(BaseConfig):
     DING_SESSION_DB = 'DingTalkCache'
 
     # DingTalk的信息配置
+    DING_APPKEY = ''  # 创建应用后查看
+    DING_APPSECRE = ''  # 创建应用后查看
     DING_DOMAIN = 'testdomain'
     DING_CORP_ID = None
     DING_CORP_SECRET = None
