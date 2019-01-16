@@ -30,6 +30,8 @@ class DingTalkTestCase(unittest.TestCase):
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET,
+                               appkey=current_config.DING_APPKEY,
+                               appsecret=current_config.DING_APPSECRE,
                                aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
 
         self.dept_list = self.app.contact.get_department_list()

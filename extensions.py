@@ -21,6 +21,8 @@ __author__ = 'blackmatrix'
 
 CORP_ID = current_config.DING_CORP_ID
 CORP_SECRET = current_config.DING_CORP_SECRET
+APPKEY = current_config.DING_APPKEY
+APPSECRET = current_config.DING_APPSECRE
 AGENT_ID = current_config.DING_AGENT_ID
 DOMAIN = current_config.DING_DOMAIN
 AES_KEY = current_config.DING_AES_KEY
@@ -134,7 +136,9 @@ session_manager = Client(current_config.CACHE_MEMCACHED_SERVERS)
 # session_manager = current_config.DING_SESSION_MANAGER
 
 # 实例化一个钉钉的对象
-dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET, 'agent_id': AGENT_ID,
+dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET,
+             'appkey': APPKEY, 'appsecret': APPSECRET,
+             'agent_id': AGENT_ID,
              'domain': DOMAIN, 'aes_key': AES_KEY, 'callback_url': CALLBACK_URL}
 # redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的session_manager属性即可
 app = DingTalkApp(name='test', session_manager=session_manager, **dd_config)
