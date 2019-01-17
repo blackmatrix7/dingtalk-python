@@ -5,8 +5,7 @@ pycrypto==2.6.1
 requests==2.18.4
 six==1.11.0
 urllib3==1.22
+# 以下 redis, memcached, mysql 三种可选一个进行安装
 redis==2.10.6
-# 或
 python3-memcached==1.51
-# 或
 pymysql==0.8.0
