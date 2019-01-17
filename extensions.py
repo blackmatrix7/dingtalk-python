@@ -110,6 +110,7 @@ class MySQLSessionManager(SessionManager):
 
 # Redis支持
 import redis
-session_manager = redis.Redis(host=DingTalkConfig.CACHE_REDIS_SERVERS,
-                              port=DingTalkConfig.CACHE_REDIS_PORT,
-                              db=DingTalkConfig.CACHE_REDIS_DB)
+pool = redis.ConnectionPool(host=DingTalkConfig.CACHE_REDIS_SERVERS,
+                            port=DingTalkConfig.CACHE_REDIS_PORT,
+                            db=DingTalkConfig.CACHE_REDIS_DB)
+session_manager = redis.Redis(connection_pool=pool)
