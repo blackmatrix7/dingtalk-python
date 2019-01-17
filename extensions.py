@@ -8,31 +8,10 @@
 # @Software: PyCharm
 import logging
 from dingtalk import DingTalkApp
-from config import current_config
+from config import DingTalkConfig
 from dingtalk import SessionManager
 
 __author__ = 'blackmatrix'
-
-"""
-这里为了测试方便，引入了之前编写的config模块，本身SDK的使用不需要此模块。
-类似current_config.DING_CORP_ID的操作，本质上是从配置文件中读取配置项的值。
-实际的项目运用中，可以通过其他方式获取配置参数。
-"""
-
-CORP_ID = current_config.DING_CORP_ID
-CORP_SECRET = current_config.DING_CORP_SECRET
-APPKEY = current_config.DING_APPKEY
-APPSECRET = current_config.DING_APPSECRE
-AGENT_ID = current_config.DING_AGENT_ID
-DOMAIN = current_config.DING_DOMAIN
-AES_KEY = current_config.DING_AES_KEY
-CALLBACK_URL = current_config.DING_CALLBACK
-DING_SESSION_HOST = current_config.DING_SESSION_HOST
-DING_SESSION_PORT = current_config.DING_SESSION_PORT
-DING_SESSION_USER = current_config.DING_SESSION_USER
-DING_SESSION_PASS = current_config.DING_SESSION_PASS
-DING_SESSION_DB = current_config.DING_SESSION_DB
-
 
 class MySQLSessionManager(SessionManager):
 
