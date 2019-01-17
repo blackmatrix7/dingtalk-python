@@ -96,28 +96,20 @@ class MySQLSessionManager(SessionManager):
             logging.error(ex)
             self.connection()
 
-# 钉钉会话管理，Mysql支持
-# session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
-#                                       user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
-#                                       db=DING_SESSION_DB)
+#  # 钉钉会话管理
+#  # Mysql支持
+#  session_manager = MySQLSessionManager(host=DingTalkConfig.DING_SESSION_HOST,
+#                                       port=DingTalkConfig.DING_SESSION_PORT,
+#                                       user=DingTalkConfig.DING_SESSION_USER,
+#                                       pass_=DingTalkConfig.DING_SESSION_PASS,
+#                                       db=DingTalkConfig.DING_SESSION_DB)
 
-# 钉钉会话管理，Memcached支持
+#  # Memcached支持
 #  from memcache import Client
-#  session_manager = Client(current_config.CACHE_MEMCACHED_SERVERS)
+#  session_manager = Client(DingTalkConfig.CACHE_MEMCACHED_SERVERS)
 
-# 钉钉会话管理，Redis支持
+# Redis支持
 import redis
-session_manager = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
-                              port=current_config.CACHE_REDIS_PORT,
-                              db=current_config.CACHE_REDIS_DB)
-
-# 这里选择从配置文件读取设定的缓存对象
-# session_manager = current_config.DING_SESSION_MANAGER
-
-# 实例化一个钉钉的对象
-dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET,
-             'appkey': APPKEY, 'appsecret': APPSECRET,
-             'agent_id': AGENT_ID,
-             'domain': DOMAIN, 'aes_key': AES_KEY, 'callback_url': CALLBACK_URL}
-# redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的session_manager属性即可
-app = DingTalkApp(name='test', session_manager=session_manager, **dd_config)
+session_manager = redis.Redis(host=DingTalkConfig.CACHE_REDIS_SERVERS,
+                              port=DingTalkConfig.CACHE_REDIS_PORT,
+                              db=DingTalkConfig.CACHE_REDIS_DB)
