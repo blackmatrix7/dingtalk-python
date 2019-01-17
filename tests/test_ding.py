@@ -9,6 +9,8 @@
 import json
 import unittest
 from time import sleep
+import logging
+logging.basicConfig(level=10)
 if __name__ == '__main__':
     import sys
     sys.path.append('..')
