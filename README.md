@@ -2,6 +2,8 @@
 
 钉钉第三方SDK，Python版本，用于企业自研微应用。
 
+- 使用时，请先将 config.sample.py 拷贝为 config.py
+
 [TOC]
 
 ## 环境
@@ -14,20 +16,10 @@ Redis（或Memcached，或自定义会话管理对象）
 
 ### 安装依赖包
 
-```json
-pycrypto==2.6.1
-requests==2.18.4
-redis==2.10.6
-# 或
-python3-memcached==1.51
-# 或
-pymysql==0.8.0
-```
-更多请查看 requirements.txt 文件。
-
 在python的环境中执行：
 
 ```shell
+cd dingtalk-python
 pip install -r requirements.txt
 ```
 
