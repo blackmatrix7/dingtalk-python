@@ -71,7 +71,7 @@ class Auth:
         access_token_key = '{}_access_token'.format(self.name)
         self.session_manager.delete(access_token_key)
         logging.info('已清理access token相关缓存'.format(access_token_key))
-        resp = get_access_token(self.corp_id, self.corp_secret)
+        resp = get_access_token(self.appkey, self.appsecret)
         access_token = resp['access_token']
         logging.info('已重新向钉钉请求access token：{1}'.format(access_token_key, access_token))
         self.session_manager.set(access_token_key, access_token, time_out)
