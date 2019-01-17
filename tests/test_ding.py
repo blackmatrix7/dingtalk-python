@@ -9,6 +9,11 @@
 import json
 import unittest
 from time import sleep
+import logging
+logging.basicConfig(level=10)
+if __name__ == '__main__':
+    import sys
+    sys.path.append('..')
 from dingtalk import DingTalkApp
 from config import current_config
 from dingtalk.callback.crypto import *
@@ -27,6 +32,8 @@ class DingTalkTestCase(unittest.TestCase):
                                agent_id=current_config.DING_AGENT_ID,
                                corp_id=current_config.DING_CORP_ID,
                                corp_secret=current_config.DING_CORP_SECRET,
+                               appkey=current_config.DING_APPKEY,
+                               appsecret=current_config.DING_APPSECRE,
                                aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
 
         self.dept_list = self.app.contact.get_department_list()
@@ -51,6 +58,15 @@ class DingTalkTestCase(unittest.TestCase):
     def test_get_jsapi_ticket(self):
         jsapi_ticket = self.app.get_jsapi_ticket()
         self.assertIsNotNone(jsapi_ticket)
+
+    # E 应用获取临时登陆凭证 auth_code 后，获取 userid
+    def test_get_user_by_code(self):
+        # 来自 E 应用的 getAuthCode 接口
+        auth_code = '3c61dbbc9802343d8ab87299lks9io0a'
+        user_info = self.app.contact.get_user_by_code(code=auth_code)
+        user_id = user_info['userid']
+        logging.info('查到的用户信息：{0}'.format(user_info))
+        self.assertIsNotNone(user_id)
 
     # 获取系统标签
     def test_get_label_groups(self):
@@ -544,3 +560,7 @@ class DingTalkTestCase(unittest.TestCase):
         with self.assertRaises(DingTalkException) as ex:
             self.app.smartwork.get_attendance_record_list(self.user_ids, check_data_from, check_data_to)
             self.assertIn('时间跨度不能超过7天', str(ex))
+
+
+if __name__ == '__main__':
+    unittest.main()

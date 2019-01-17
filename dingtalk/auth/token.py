@@ -16,12 +16,12 @@ __all__ = ['get_access_token']
 
 
 @dingtalk_resp
-def get_access_token(corp_id, corp_secret):
+def get_access_token(appkey, appsecret):
     """
     获取Access Token
     :return:
     """
-    payload = {'corpid': corp_id, 'corpsecret': corp_secret}
+    payload = {'appkey': appkey, 'appsecret': appsecret}
     return requests.get(DING_GET_ACCESS_TOKEN, params=payload)
 
 if __name__ == '__main__':

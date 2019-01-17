@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.swp
 
 # C extensions
 *.so
@@ -93,6 +94,7 @@ ENV/
 
 # local config
 localconfig.py
+config.py
 dingtalk/README.md
 
 # react

@@ -118,11 +118,13 @@ from dingtalk import DingTalkApp
 # 也可以自行实现一个会话管理的对象
 # 用于加解密的aes_key，必须是43位字符串，由大小写字母和数字组成，不能有标点符号
 # 如果同个企业需要创建多个app实例时，请保持除agent_id外的参数完全一致
-# 以下实例化参数都是模拟数据
+# 以下实例化参数都是模拟数据, 给大家一个数据参考
 app = DingTalkApp(name='test', session_manager=session_manager,
                   agent_id='152919534',
                   corp_id='ding19cdf2s221ef83f635c2e4523eb3418f',
                   corp_secret='3ab8Uk7Wef4ytgf7YZF2EziCAlx6AufdF3dFvfjtu3532FG3AUgWNEJys',
+                  appkey='ngoay6n7jksn8yuia6'
+                  appsecret='Do0GQOjbPdAYSd5LNm2UgyvQeQva2J4Xm0xvb6Tw3h2uRM4HJV1EYhPAJDH9A-La'
                   aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
 ```
 

@@ -57,7 +57,8 @@ class SessionManager:
 
 class DingTalkApp:
 
-    def __init__(self, name, session_manager, corp_id, corp_secret, agent_id=None,
+    def __init__(self, name, session_manager, corp_id, corp_secret,
+                 appkey, appsecret, agent_id=None,
                  noncestr='VCFGKFqgRA3xtYEhvVubdRY1DAvzKQD0AliCViy', domain='A2UOM1pZOxQ',
                  callback_url=None, aes_key='gbDjdBRfcxrwQA7nSFELj9c0HoWUpcfg8YURx7G84YI',
                  token='LnPxMAp7doy', logger=logging):
@@ -67,6 +68,8 @@ class DingTalkApp:
         :param session_manager: 钉钉的会话管理对象
         :param corp_id: 钉钉的Corp Id，管理员可从后台获得
         :param corp_secret: 钉钉的Corp Secret，管理员可从后台获得
+        :param appkey: 钉钉应用的 key，创建应用后获得
+        :param appsecret: 钉钉应用的 secret，创建应用后获得
         :param agent_id: 钉钉的Agent Id，每个微应用有独立的agent_id，管理员可从后台获得
         :param noncestr: 随机字符串
         :param domain: 域名，可传入随机字符串
@@ -81,6 +84,8 @@ class DingTalkApp:
         self.cache = session_manager
         self.corp_id = corp_id
         self.corp_secret = corp_secret
+        self.appkey = appkey
+        self.appsecret = appsecret
         self.agent_id = agent_id
         self.callback_url = callback_url
         # AES_KEY
@@ -91,7 +96,9 @@ class DingTalkApp:
         # 其他参数
         self.methods = {}
         # 钉钉接口模块
-        self.auth = Auth(name=self.name, session_manager=session_manager, corp_id=corp_id, corp_secret=corp_secret)
+        self.auth = Auth(name=self.name, session_manager=session_manager,
+                         corp_id=corp_id, corp_secret=corp_secret,
+                         appkey=appkey, appsecret=appsecret)
         # 注册接口方法，为通过run方式调用提供支持
         self.register_methods(auth=self.auth)
         # 其他模块
