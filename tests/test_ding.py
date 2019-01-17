@@ -59,6 +59,15 @@ class DingTalkTestCase(unittest.TestCase):
         jsapi_ticket = self.app.get_jsapi_ticket()
         self.assertIsNotNone(jsapi_ticket)
 
+    # E 应用获取临时登陆凭证 auth_code 后，获取 userid
+    def test_get_user_by_code(self):
+        # 来自 E 应用的 getAuthCode 接口
+        auth_code = '3c61dbbc9802343d8ab87299lks9io0a'
+        user_info = self.app.contact.get_user_by_code(code=auth_code)
+        user_id = user_info['userid']
+        logging.info('查到的用户信息：{0}'.format(user_info))
+        self.assertIsNotNone(user_id)
+
     # 获取系统标签
     def test_get_label_groups(self):
         label_groups = self.app.customer.get_label_groups()
