@@ -9,9 +9,44 @@
 import logging
 from dingtalk import DingTalkApp
 from config import DingTalkConfig
-from dingtalk import SessionManagerBase
 
 __author__ = 'blackmatrix'
+
+
+class SessionManagerBase:
+    """
+    钉钉会话管理
+    除了支持redis和memcached以外
+    也可以通过实现此类的抽象方法支持mysql等数据库
+    """
+
+    def set(self, key, value, expires):
+        """
+        存储会话数据
+        :param key:
+        :param value:
+        :param expires: 超时时间，单位秒
+        :return:
+        """
+        raise NotImplementedError
+
+    def get(self, key):
+        """
+        获取会话数据，获取时需要判断会话是否过期
+        如已经会话数据已经过期，需要返回None
+        :param key:
+        :return:
+        """
+        raise NotImplementedError
+
+    def delete(self, key):
+        """
+        删除会话数据
+        :param key:
+        :return:
+        """
+        raise NotImplementedError
+
 
 class MySQLSessionManager(SessionManagerBase):
 
