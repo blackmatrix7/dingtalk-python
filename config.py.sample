@@ -6,12 +6,11 @@
 # @Blog : http://www.cnblogs.com/blackmatrix/
 # @File : config.py
 # @Software: PyCharm
-from toolkit.config import BaseConfig, get_current_config
 
 __author__ = 'blackmatrix'
 
 
-class CommonConfig(BaseConfig):
+class DingTalkConfig():
 
     # 日期格式配置
     DATE_FMT = '%Y-%m-%d'
@@ -32,29 +31,11 @@ class CommonConfig(BaseConfig):
     DING_SESSION_DB = 'DingTalkCache'
 
     # DingTalk的信息配置
-    DING_APPKEY = ''  # 创建应用后查看
-    DING_APPSECRE = ''  # 创建应用后查看
+    DING_APPKEY = 'dingoay6n7ifz1wzrs77'  # 创建应用后查看
+    DING_APPSECRE = 'Do0GQOjbPdAYSd5LNm2UgyvQeQva2J4Xm0xvb6Tw3h2uRM4HJV1EYhq17_eiuW9I'  # 创建应用后查看
     DING_DOMAIN = 'testdomain'
     DING_CORP_ID = None
     DING_CORP_SECRET = None
     DING_AGENT_ID = None
     DING_AES_KEY = None
     DING_CALLBACK = None  # 钉钉回调地址，必须返回含有success字符串的json格式
-
-
-class DevConfig(CommonConfig):
-
-    # 钉钉会话存储
-    CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
-
-
-default = CommonConfig()
-devcfg = DevConfig()
-
-configs = {'default': default,
-           'devcfg': devcfg}
-
-# 读取配置文件的名称，在具体的应用中，可以从环境变量、命令行参数等位置获取配置文件名称
-config_name = 'default'
-
-current_config = get_current_config(config_name)
