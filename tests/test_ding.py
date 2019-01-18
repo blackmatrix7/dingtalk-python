@@ -17,7 +17,7 @@ if __name__ == '__main__':
 from dingtalk import DingTalkApp
 from config import current_config
 from dingtalk.callback.crypto import *
-from extensions import session_manager
+from session_manager import session_manager
 from datetime import datetime, timedelta
 from dingtalk.exceptions import DingTalkException
 
