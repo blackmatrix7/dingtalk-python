@@ -7,7 +7,8 @@
 # @File : extensions.py
 # @Software: PyCharm
 import logging
-from dingtalk import DingTalkApp
+import redis
+import pymysql
 from config import DingTalkConfig
 
 __author__ = 'blackmatrix'
@@ -72,7 +73,6 @@ class MySQLSessionManager(SessionManagerBase):
     """
 
     def __init__(self, host, user, pass_, db, port=3306):
-        import pymysql
         self.connection = pymysql.connect(host=host, port=port, user=user, password=pass_, db=db)
         self.connection.autocommit(True)
 
@@ -143,8 +143,8 @@ class MySQLSessionManager(SessionManagerBase):
 #  from memcache import Client
 #  session_manager = Client(DingTalkConfig.CACHE_MEMCACHED_SERVERS)
 
+
 # Redis支持
-import redis
 pool = redis.ConnectionPool(host=DingTalkConfig.CACHE_REDIS_SERVERS,
                             port=DingTalkConfig.CACHE_REDIS_PORT,
                             db=DingTalkConfig.CACHE_REDIS_DB)
