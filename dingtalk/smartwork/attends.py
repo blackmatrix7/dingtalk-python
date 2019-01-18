@@ -7,7 +7,7 @@
 # @Software: PyCharm
 import requests
 from datetime import datetime
-from ..configs import DING_ATTENDANCE_RECORD_LIST
+from ..apis import DING_ATTENDANCE_RECORD_LIST
 from ..foundation import call_dingtalk_webapi, dingtalk_resp
 
 __author__ = 'blackmatrix'

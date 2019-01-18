@@ -7,7 +7,7 @@
 # @File : space.py
 # @Software: PyCharm
 import requests
-from ..configs import *
+from ..apis import *
 from ..foundation import dingtalk_resp
 
 __author__ = 'blackmatrix'

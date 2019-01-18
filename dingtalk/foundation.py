@@ -8,7 +8,7 @@
 # @Software: PyCharm
 import time
 import requests
-from .configs import *
+from .apis import *
 from functools import wraps
 from datetime import datetime
 from .exceptions import DingTalkExceptions
