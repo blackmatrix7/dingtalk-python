@@ -9,7 +9,7 @@
 import logging
 import redis
 import pymysql
-from config import DingTalkConfig
+from config import DingTalkConfig, RedisConfig, MySQLConfig, MemcachedConfig
 
 __author__ = 'blackmatrix'
 
@@ -133,19 +133,19 @@ class MySQLSessionManager(BaseSessionManager):
 
 #  # 会话管理
 #  # Mysql支持
-#  session_manager = MySQLSessionManager(host=DingTalkConfig.DING_SESSION_HOST,
-#                                       port=DingTalkConfig.DING_SESSION_PORT,
-#                                       user=DingTalkConfig.DING_SESSION_USER,
-#                                       pass_=DingTalkConfig.DING_SESSION_PASS,
-#                                       db=DingTalkConfig.DING_SESSION_DB)
+#  session_manager = MySQLSessionManager(host=MySQLConfig.DING_SESSION_HOST,
+#                                       port=MySQLConfig.DING_SESSION_PORT,
+#                                       user=MySQLConfig.DING_SESSION_USER,
+#                                       pass_=MySQLConfig.DING_SESSION_PASS,
+#                                       db=MySQLConfig.DING_SESSION_DB)
 
 #  # Memcached支持
 #  from memcache import Client
-#  session_manager = Client(DingTalkConfig.CACHE_MEMCACHED_SERVERS)
+#  session_manager = Client(MemcachedConfig.CACHE_MEMCACHED_SERVERS)
 
 
 # Redis支持
-pool = redis.ConnectionPool(host=DingTalkConfig.CACHE_REDIS_SERVERS,
-                            port=DingTalkConfig.CACHE_REDIS_PORT,
-                            db=DingTalkConfig.CACHE_REDIS_DB)
+pool = redis.ConnectionPool(host=RedisConfig.CACHE_REDIS_SERVERS,
+                            port=RedisConfig.CACHE_REDIS_PORT,
+                            db=RedisConfig.CACHE_REDIS_DB)
 session_manager = redis.Redis(connection_pool=pool)
