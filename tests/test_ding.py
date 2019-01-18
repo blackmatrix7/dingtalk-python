@@ -28,12 +28,10 @@ class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = DingTalkApp(name='vcan', session_manager=session_manager,
-                               domain=DingTalkConfig.DING_DOMAIN,
                                agent_id=DingTalkConfig.DING_AGENT_ID,
                                corp_id=DingTalkConfig.DING_CORP_ID,
                                appkey=DingTalkConfig.DING_APPKEY,
-                               appsecret=DingTalkConfig.DING_APPSECRE,
-                               aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
+                               appsecret=DingTalkConfig.DING_APPSECRE)
 
         self.dept_list = self.app.contact.get_department_list()
         self.dept_ids = [dept['id'] for dept in self.dept_list]
