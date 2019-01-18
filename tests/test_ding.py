@@ -15,7 +15,7 @@ if __name__ == '__main__':
     import sys
     sys.path.append('..')
 from dingtalk import DingTalkApp
-from config import current_config
+from config import DingTalkConfig
 from dingtalk.callback.crypto import *
 from session_manager import session_manager
 from datetime import datetime, timedelta
@@ -28,12 +28,12 @@ class DingTalkTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = DingTalkApp(name='vcan', session_manager=session_manager,
-                               domain=current_config.DING_DOMAIN,
-                               agent_id=current_config.DING_AGENT_ID,
-                               corp_id=current_config.DING_CORP_ID,
-                               corp_secret=current_config.DING_CORP_SECRET,
-                               appkey=current_config.DING_APPKEY,
-                               appsecret=current_config.DING_APPSECRE,
+                               domain=DingTalkConfig.DING_DOMAIN,
+                               agent_id=DingTalkConfig.DING_AGENT_ID,
+                               corp_id=DingTalkConfig.DING_CORP_ID,
+                               corp_secret=DingTalkConfig.DING_CORP_SECRET,
+                               appkey=DingTalkConfig.DING_APPKEY,
+                               appsecret=DingTalkConfig.DING_APPSECRE,
                                aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
 
         self.dept_list = self.app.contact.get_department_list()
