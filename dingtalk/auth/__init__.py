@@ -21,11 +21,10 @@ method = partial(dingtalk_method, methods=METHODS)
 
 class Auth:
 
-    def __init__(self, name, session_manager, corp_id, corp_secret,
+    def __init__(self, name, session_manager, corp_id,
                  appkey, appsecret):
         self.name = name
         self.corp_id = corp_id
-        self.corp_secret = corp_secret
         self.appkey = appkey
         self.appsecret = appsecret
         self.session_manager = session_manager

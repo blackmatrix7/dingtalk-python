@@ -31,7 +31,6 @@ class DingTalkTestCase(unittest.TestCase):
                                domain=DingTalkConfig.DING_DOMAIN,
                                agent_id=DingTalkConfig.DING_AGENT_ID,
                                corp_id=DingTalkConfig.DING_CORP_ID,
-                               corp_secret=DingTalkConfig.DING_CORP_SECRET,
                                appkey=DingTalkConfig.DING_APPKEY,
                                appsecret=DingTalkConfig.DING_APPSECRE,
                                aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
