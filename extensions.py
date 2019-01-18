@@ -8,31 +8,10 @@
 # @Software: PyCharm
 import logging
 from dingtalk import DingTalkApp
-from config import current_config
+from config import DingTalkConfig
 from dingtalk import SessionManager
 
 __author__ = 'blackmatrix'
-
-"""
-这里为了测试方便，引入了之前编写的config模块，本身SDK的使用不需要此模块。
-类似current_config.DING_CORP_ID的操作，本质上是从配置文件中读取配置项的值。
-实际的项目运用中，可以通过其他方式获取配置参数。
-"""
-
-CORP_ID = current_config.DING_CORP_ID
-CORP_SECRET = current_config.DING_CORP_SECRET
-APPKEY = current_config.DING_APPKEY
-APPSECRET = current_config.DING_APPSECRE
-AGENT_ID = current_config.DING_AGENT_ID
-DOMAIN = current_config.DING_DOMAIN
-AES_KEY = current_config.DING_AES_KEY
-CALLBACK_URL = current_config.DING_CALLBACK
-DING_SESSION_HOST = current_config.DING_SESSION_HOST
-DING_SESSION_PORT = current_config.DING_SESSION_PORT
-DING_SESSION_USER = current_config.DING_SESSION_USER
-DING_SESSION_PASS = current_config.DING_SESSION_PASS
-DING_SESSION_DB = current_config.DING_SESSION_DB
-
 
 class MySQLSessionManager(SessionManager):
 
@@ -117,28 +96,21 @@ class MySQLSessionManager(SessionManager):
             logging.error(ex)
             self.connection()
 
-# 钉钉会话管理，Mysql支持
-# session_manager = MySQLSessionManager(host=DING_SESSION_HOST, port=DING_SESSION_PORT,
-#                                       user=DING_SESSION_USER, pass_=DING_SESSION_PASS,
-#                                       db=DING_SESSION_DB)
+#  # 钉钉会话管理
+#  # Mysql支持
+#  session_manager = MySQLSessionManager(host=DingTalkConfig.DING_SESSION_HOST,
+#                                       port=DingTalkConfig.DING_SESSION_PORT,
+#                                       user=DingTalkConfig.DING_SESSION_USER,
+#                                       pass_=DingTalkConfig.DING_SESSION_PASS,
+#                                       db=DingTalkConfig.DING_SESSION_DB)
 
-# 钉钉会话管理，Memcached支持
+#  # Memcached支持
 #  from memcache import Client
-#  session_manager = Client(current_config.CACHE_MEMCACHED_SERVERS)
+#  session_manager = Client(DingTalkConfig.CACHE_MEMCACHED_SERVERS)
 
-# 钉钉会话管理，Redis支持
+# Redis支持
 import redis
-session_manager = redis.Redis(host=current_config.CACHE_REDIS_SERVERS,
-                              port=current_config.CACHE_REDIS_PORT,
-                              db=current_config.CACHE_REDIS_DB)
-
-# 这里选择从配置文件读取设定的缓存对象
-# session_manager = current_config.DING_SESSION_MANAGER
-
-# 实例化一个钉钉的对象
-dd_config = {'corp_id': CORP_ID, 'corp_secret': CORP_SECRET,
-             'appkey': APPKEY, 'appsecret': APPSECRET,
-             'agent_id': AGENT_ID,
-             'domain': DOMAIN, 'aes_key': AES_KEY, 'callback_url': CALLBACK_URL}
-# redis、memcached或自定义缓存对象，三者选一个传入给DingTalkApp的session_manager属性即可
-app = DingTalkApp(name='test', session_manager=session_manager, **dd_config)
+pool = redis.ConnectionPool(host=DingTalkConfig.CACHE_REDIS_SERVERS,
+                            port=DingTalkConfig.CACHE_REDIS_PORT,
+                            db=DingTalkConfig.CACHE_REDIS_DB)
+session_manager = redis.Redis(connection_pool=pool)
