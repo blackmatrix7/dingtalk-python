@@ -12,10 +12,6 @@ __author__ = 'blackmatrix'
 
 class DingTalkConfig():
 
-    # 日期格式配置
-    DATE_FMT = '%Y-%m-%d'
-    DATETIME_FMT = '%Y-%m-%d %H:%M:%S'
-
     # 钉钉会话存储，memcached、redis、mysql任选其一即可
     # memcached
     CACHE_MEMCACHED_SERVERS = ['127.0.0.1:11211']
@@ -33,9 +29,5 @@ class DingTalkConfig():
     # DingTalk的信息配置
     DING_APPKEY = 'dingoay6n7ifz1wzrs77'  # 创建应用后查看
     DING_APPSECRE = 'Do0GQOjbPdAYSd5LNm2UgyvQeQva2J4Xm0xvb6Tw3h2uRM4HJV1EYhq17_eiuW9I'  # 创建应用后查看
-    DING_DOMAIN = 'testdomain'
     DING_CORP_ID = None
-    DING_CORP_SECRET = None
     DING_AGENT_ID = None
-    DING_AES_KEY = None
-    DING_CALLBACK = None  # 钉钉回调地址，必须返回含有success字符串的json格式
