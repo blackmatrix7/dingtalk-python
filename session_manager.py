@@ -16,7 +16,7 @@ __author__ = 'blackmatrix'
 
 class SessionManagerBase:
     """
-    钉钉会话管理
+    会话管理
     除了支持redis和memcached以外
     也可以通过实现此类的抽象方法支持mysql等数据库
     """
@@ -52,7 +52,7 @@ class SessionManagerBase:
 class MySQLSessionManager(SessionManagerBase):
 
     """
-    一个简单实现的使用MySQL实现管理access token和jsapi ticket过期时间的例子
+    一个使用MySQL实现管理会话的例子
 
     SET NAMES utf8mb4;
     SET FOREIGN_KEY_CHECKS = 0;
@@ -131,7 +131,7 @@ class MySQLSessionManager(SessionManagerBase):
             logging.error(ex)
             self.connection()
 
-#  # 钉钉会话管理
+#  # 会话管理
 #  # Mysql支持
 #  session_manager = MySQLSessionManager(host=DingTalkConfig.DING_SESSION_HOST,
 #                                       port=DingTalkConfig.DING_SESSION_PORT,
