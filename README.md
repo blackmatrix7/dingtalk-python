@@ -114,7 +114,6 @@ from dingtalk import DingTalkApp
 app = DingTalkApp(name='test', session_manager=session_manager,
                   agent_id='152919534',
                   corp_id='ding19cdf2s221ef83f635c2e4523eb3418f',
-                  corp_secret='3ab8Uk7Wef4ytgf7YZF2EziCAlx6AufdF3dFvfjtu3532FG3AUgWNEJys',
                   appkey='ngoay6n7jksn8yuia6'
                   appsecret='Do0GQOjbPdAYSd5LNm2UgyvQeQva2J4Xm0xvb6Tw3h2uRM4HJV1EYhPAJDH9A-La'
                   aes_key='4g5j64qlyl3zvetqxz5jiocdr586fn2zvjpa8zls3ij')
