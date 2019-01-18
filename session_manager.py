@@ -14,7 +14,7 @@ from config import DingTalkConfig
 __author__ = 'blackmatrix'
 
 
-class SessionManagerBase:
+class BaseSessionManager:
     """
     会话管理
     除了支持redis和memcached以外
@@ -49,7 +49,7 @@ class SessionManagerBase:
         raise NotImplementedError
 
 
-class MySQLSessionManager(SessionManagerBase):
+class MySQLSessionManager(BaseSessionManager):
 
     """
     一个使用MySQL实现管理会话的例子
