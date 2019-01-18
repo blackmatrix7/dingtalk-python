@@ -20,7 +20,7 @@ from .exceptions import DingTalkExceptions
 __author__ = 'blackmatrix'
 
 
-class SessionManager:
+class SessionManagerBase:
     """
     钉钉会话管理
     除了支持redis和memcached以外

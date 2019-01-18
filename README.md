@@ -66,7 +66,7 @@ session_manager = Client(['127.0.0.1:11211'])
 自定义缓存对象需要实现以下类的抽象方法，最后将这个对象实例化后赋值给DingTalkApp的session_manager属性。
 
 ```python
-class SessionManager:
+class SessionManagerBase:
     """
     钉钉会话管理
     除了支持redis和memcached以外

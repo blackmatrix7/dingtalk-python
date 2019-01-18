@@ -9,11 +9,11 @@
 import logging
 from dingtalk import DingTalkApp
 from config import DingTalkConfig
-from dingtalk import SessionManager
+from dingtalk import SessionManagerBase
 
 __author__ = 'blackmatrix'
 
-class MySQLSessionManager(SessionManager):
+class MySQLSessionManager(SessionManagerBase):
 
     """
     一个简单实现的使用MySQL实现管理access token和jsapi ticket过期时间的例子
